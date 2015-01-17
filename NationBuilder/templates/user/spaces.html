@@ -1,0 +1,553 @@
+<link rel="stylesheet" type="text/css" href="ext-theme-classic-all.css">
+<link rel="stylesheet" type="text/css" href="thetransition.css">
+<script type="text/javascript" src="http://thetransition.comeze.com/js/ext-all.js"></script> 
+<script type="text/javascript" src="ext-theme-classic.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=geometry"></script>
+<script type="text/javascript">
+	{% include "thetransitionext" %}
+    Ext.onReady(function() {
+		Ext.QuickTips.init();
+		
+		var privacy = {
+			privacy: [
+				{id: '1', name: 'Entire Place'},
+				{id: '2', name: 'Private Room'},
+				{id: '3', name: 'Shared Room'}
+			]
+		};
+		
+		Ext.define('Privacy', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					id: 'id'
+				},
+				{
+					name: 'name'
+				}
+			],
+			proxy: {
+				type: 'memory',
+				reader: {
+					type: 'json',
+					rootProperty: 'privacy'
+				}
+			}
+		});
+		
+		Ext.define('UserSpaces', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id'
+				},
+				{
+					name: 'userid',
+					defaultValue: '{{request.current_user.id}}'
+				}, 
+				{
+					name: 'fullname'
+				},
+				{
+					name: 'spaceid',
+					validators: [{
+						type: 'presence',
+						message: 'Space is required'
+					}]
+				},
+				{
+					name: 'privacy'
+				},
+				{
+					name: 'name'
+				},
+				{
+					name: 'description'
+				},
+				{
+					name: 'location'
+				},
+				{
+					name: 'latitude'
+				},
+				{
+					name: 'longitude'
+				},
+				{
+					name: 'icon'
+				},
+				{
+					name: 'distance',
+					calculate: function (data) {
+						return Transition.user.calculateDistance(data.latitude, data.longitude);
+					}
+				},
+				{
+					name: 'markertitle',
+					calculate: function(data){
+						return 'Space Owner: ' + data.fullname;
+					}
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'userspaces'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'userspaces'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		Ext.define('Spaces', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id',
+				}, 
+				{
+					name: 'name'
+				},
+				{
+					name: 'icon'
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'spaces'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'spaces'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		var userSpacesStore = Ext.create('Ext.data.Store', {
+			storeId:'userSpacesStore',
+			model: 'UserSpaces',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [{
+				property: "userid",
+				value: '{{request.current_user.id}}',
+				operator: "eq"
+			}],
+			pageSize: 0
+		});
+		
+		var otherUserSpacesStore = Ext.create('Ext.data.Store', {
+			storeId:'otherUserSpacesStore',
+			model: 'UserSpaces',
+			remoteSort: false,
+			remoteFilter: false,
+			filters: [{
+				property: "userid",
+				value: '{{request.current_user.id}}',
+				operator: "ne"
+			}],
+			pageSize: 0
+		});
+		
+		var spacesStore = Ext.create('Ext.data.Store', {
+			storeId: 'spacesStore',
+			model: 'Spaces',
+			sorters: [{
+				 property: 'name',
+				 direction: 'ASC'
+			}],
+			pageSize: 0
+		});
+		
+		var privacyStore = Ext.create('Ext.data.Store', {
+			storeId: 'privacyStore',
+			model: 'Privacy',
+			sorters: [{
+				property: 'name',
+				direction: 'ASC'
+			}],
+			remoteSort: false,
+			remoteFilter: false,
+			data: privacy
+		});
+		
+		spacesStore.load(function (records, operation, success){
+			if(success)
+			{
+				userSpacesStore.load();
+				otherUserSpacesStore.load(function (records, operation, success){
+					if(success)
+					{
+						BuildGoogleMap();
+					}
+				});
+			}
+		});
+		
+		var rowExpander = Ext.create('Ext.grid.plugin.RowExpander', {
+			rowBodyTpl: '<div id="space-row-{id}"></div>',
+			expandAll: function (expand) {
+				expand = typeof expand !== 'undefined' ? expand : true;
+
+				var grid = this.grid,
+					store = grid.getStore(),
+					rowExpander = grid.plugins[0],
+					nodes = rowExpander.view.getNodes();
+
+				for (var i = 0; i < nodes.length; i++) {
+					var node = Ext.fly(nodes[i]);
+
+					if (node.hasCls(rowExpander.rowCollapsedCls) === expand) {
+						rowExpander.toggleRow(i, store.getAt(i));
+					}
+				}
+			}
+		});
+		
+		var grid = Ext.create('Ext.grid.Panel', {
+			title: 'My Spaces',
+			store: userSpacesStore,
+			columns: [
+				{
+					text: 'Name',
+					dataIndex: 'name',
+					hideable: false,
+					sortable:false
+				},
+				{
+					text: 'Space',  
+					dataIndex:'spaceid', 
+					hideable: false,
+					sortable: false,
+					renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
+						var store = Ext.StoreManager.get('spacesStore');
+						var data = store.getById(value);
+						if(!data)
+							return '';
+						else return data.get('name');
+					}
+				},
+				{
+					text: 'Privacy',
+					dataIndex: 'privacy',
+					hideable: false,
+					sortable: false,
+					renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
+						var store = Ext.StoreManager.get('privacyStore');
+						var data = store.getById(value);
+						if(!data)
+							return '';
+						else return data.get('name');
+					}
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'ext',
+			tbar: [
+			{
+				text: 'Add Space',
+				iconCls: 'add-icon',
+				handler : function() {
+					var grid = this.findParentByType('grid');
+
+					// Create a model instance
+					var r = {};
+					var store = grid.getStore();
+					store.insert(0, r);
+					
+					grid.plugins[0].toggleRow(0, store.getAt(0));
+				}
+			}, 
+			{
+				itemId: 'remove',
+				text: 'Remove Space',
+				iconCls: 'remove-icon',
+				handler: function() {
+					var sm = this.findParentByType('grid').getSelectionModel();
+					var store = this.findParentByType('grid').getStore();
+					store.remove(sm.getSelection());
+					if (store.getCount() > 0) {
+						sm.select(0);
+					}
+				},
+				disabled: true
+			},
+			{
+				itemId: 'save',
+				text: 'Save Spaces',
+				iconCls: 'save-icon',
+				handler: function() {
+					//Check for each skill added only once and blank skills
+					var grid = this.findParentByType('grid');
+					grid.allFormsValid = true;
+					grid.plugins[0].expandAll(false);
+					if(grid.allFormsValid)
+						grid.getStore().sync();
+				}
+			}
+			],
+			viewConfig: {
+				listeners: {
+					expandbody: function(rowNode, record, expandRow, eOpts){
+						var row = 'space-row-' + record.get('id');
+						if(Ext.get(row).dom.innerHTML == '')
+						{
+							var formPanel = GetSpacesForm();
+							formPanel.render(row);
+							formPanel.loadRecord(record);
+						}
+					},
+					collapsebody: function(rowNode, record, expandRow, eOpts){
+						var row = 'space-row-' + record.get('id');
+						var form = Ext.getCmp(Ext.get(row).dom.children[0].id);
+						if(form.isValid())
+						{
+							form.updateRecord(record);
+						}
+						else
+						{
+							this.grid.plugins[0].toggleRow(this.grid.getStore().indexOfId(record.id),record);
+							this.grid.allFormsValid = false;
+							Ext.MessageBox.show({
+								title: "Error",
+								msg: "Form is invalid.  Please fix the errors.",
+								buttons: Ext.MessageBox.OK,
+								icon: Ext.MessageBox.ERROR
+							});
+						}
+					}
+				}
+			},
+			plugins: [rowExpander],
+			listeners: {
+				'selectionchange': function(view, records) {
+					grid.down('#remove').setDisabled(!records.length);
+				},
+			}
+		});
+		
+		function GetSpacesForm()
+		{
+			return Ext.create(Ext.form.Panel,{
+				items: [
+				{
+					xtype: 'fieldset',
+					collapsible: false,
+					border: false,
+					margin: '5',
+					defaults: {
+						labelAlign: 'right'
+					},
+					items:[
+					{
+						xtype: 'textfield',
+						fieldLabel: 'Name',
+						name: 'name',
+						allowBlank: false,
+						width: '95%',
+						maxLength: '500'
+					},
+					{
+						xtype: 'textareafield',
+						fieldLabel: 'Description',
+						name: 'description',
+						allowBlank: true,
+						width: '95%',
+						maxLength: '2000'
+					},
+					{
+						xtype: 'textareafield',
+						fieldLabel: 'Location',
+						name: 'location',
+						allowBlank: false,
+						width: '95%',
+						maxLength: '2000',
+						listeners: {
+							blur: function(field, event, eOpts){
+								var address = field.getValue();
+								var form = field.findParentByType('form').getForm();
+								form.findField('latitude').setValue(-1);
+								form.findField('longitude').setValue(-1);
+								var geocoder = new google.maps.Geocoder();
+								geocoder.geocode( { 'address': address}, Ext.Function.bind(function(results, status) {
+								  if (status == google.maps.GeocoderStatus.OK) {
+									if(results.length > 1)
+									{
+										Ext.MessageBox.show({
+											title: "Error",
+											msg: "Location is not specific enough.  Please enter a more specific location by providing the address, city, state, country and zipcode.",
+											buttons: Ext.MessageBox.OK,
+											icon: Ext.MessageBox.ERROR
+										});
+										return;
+									}
+									var f = this.findParentByType('form');
+									var location = results[0].geometry.location;
+									f.getForm().findField('latitude').setValue(location.lat());
+									f.getForm().findField('longitude').setValue(location.lng());
+								  } else {
+									Ext.MessageBox.show({
+										title: "Error",
+										msg: "Location could not be found for the following reason: "+status,
+										buttons: Ext.MessageBox.OK,
+										icon: Ext.MessageBox.ERROR
+									});
+								  }
+								}, field)
+								);
+							}
+						},
+						validator: function(value){
+							var address = value;
+							
+							var form = this.findParentByType('form').getForm();
+							var lat = form.findField('latitude').getValue();
+							var lng = form.findField('longitude').getValue();
+							if(lat == -1 || lng == -1)
+								return 'Location could not be found';
+							
+							return true;
+						}
+					},
+					{
+						xtype: 'container',
+						layout: 'column',
+						collapsible: false,
+						border: false,
+						margin: 0,
+						padding: 0,
+						defaults: {
+							labelAlign: 'right'
+						},
+						items:[
+							{
+								xtype: 'combobox',
+								fieldLabel: 'Space Type',
+								name: 'spaceid',
+								allowBlank: false,
+								store: spacesStore,
+								valueField: 'id',
+								displayField: 'name',
+								columnWidth: 0.475,
+								padding: '0, 10, 0, 0'
+							},
+							{
+								xtype: 'combobox',
+								fieldLabel: 'Privacy',
+								name: 'privacy',
+								allowBlank: false,
+								store: privacyStore,
+								valueField: 'id',
+								displayField: 'name',
+								columnWidth: 0.475,
+								padding: '0, 0, 0, 10'
+							}
+						]
+					},
+					{
+						xtype: 'hiddenfield',
+						name: 'latitude'
+					},
+					{
+						xtype: 'hiddenfield',
+						name: 'longitude'
+					}
+					]
+				}
+				]
+			});
+		}
+		
+		
+		/*
+		Google Maps Items
+		*/
+		function BuildGoogleMap(){
+			var mapPanel = Ext.create('Ext.ux.MapPanel',{
+				renderTo: 'map_panel',
+				height: 525,
+				title: "Other Member's Spaces",
+				keyStore: Ext.StoreManager.get('spacesStore'),
+				mapStore: Ext.StoreManager.get('otherUserSpacesStore'),
+				filterMenuConfig: {
+					filters:[
+						{
+							text: 'Space Type',
+							emptyText: '',
+							dataIndex: 'spaceid',
+							store: Ext.StoreManager.get('spacesStore'),
+							operator: 'in',
+							type: 'list'
+						},
+						{
+							text: 'Privacy',
+							emptyText: '',
+							dataIndex: 'privacy',
+							store: Ext.StoreManager.get('privacyStore'),
+							operator: 'in',
+							type: 'list'
+						},
+						{
+							text: 'Distance',
+							emptyText: 'Enter distance in miles.',
+							dataIndex: 'distance',
+							operator: '<=',
+							type: 'number'
+						}
+					]
+				},
+				getMapStoreForm: GetSpacesForm
+			});
+		}
+	});
+</script>
+
+
+{% include "breadcrumbs" %}
+
+{% if page.headline.size > 0 %}
+<h2 class="headline">{{ page.headline }}</h2>
+{% endif %}
+
+<div id="content">
+
+  <div id="intro" class="intro">
+    <div class="text-content">
+      {{ page.basic.content }}
+    </div>
+  </div>
+  <div id="ext"></div>
+  
+  <br>
+  <br>
+  <br>
+  <div id="map_panel"></div>
+
+  {% if page.tags_count > 0 %}
+  <div class="page-tags">
+    {% include "page_tags" with page %}
+  </div>
+  {% endif %}
+
+  {% if page.is_homepage? == true and site.page_tags contains "homepage" %}
+    {% tag "homepage" with "homepage_widget" %}
+  {% endif %}
+
+  <div class="like-page">
+    <strong>Do you like this page?</strong>
+    {% include "like_page" %}
+  </div>
+
+  {% if page.show_stream? %}
+  {% include "page_stream" %}
+  {% endif %}
+
+</div>
+
+{% include "donateLink" with "pay_what_you_want" %} 

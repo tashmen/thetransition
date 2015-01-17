@@ -1,0 +1,251 @@
+<link rel="stylesheet" type="text/css" href="ext-theme-classic-all.css">
+<script type="text/javascript" src="http://thetransition.comeze.com/js/ext-all.js"></script> 
+<script type="text/javascript" src="ext-theme-classic.js"></script>
+<link rel="stylesheet" type="text/css" href="thetransition.css">
+<script type="text/javascript">
+	{% include "thetransitionext" %}
+    Ext.onReady(function() {
+		Ext.QuickTips.init();
+		
+		Ext.define('UserReviews', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'revieweeid',
+				}, 
+				{
+					name: 'reviewerid',
+				},
+				{
+					name: 'name'
+				},
+				{
+					name: 'review'
+				},
+				{
+					name: 'reviewerfullname'
+				},
+				{
+					name: 'lastupdated'
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'userreviews'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'userreviews'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		function GetFormItems()
+		{
+			return [
+				{
+					xtype: 'fieldset',
+					collapsible: false,
+					border: false,
+					margin: '5',
+					defaults: {
+						labelAlign: 'right'
+					},
+					items:[
+						{
+							xtype: 'textfield',
+							fieldLabel: 'Headline',
+							name: 'name',
+							allowBlank: false,
+							width: '100%',
+							maxLength: '500'
+						},
+						{
+							xtype: 'textareafield',
+							fieldLabel: 'Review',
+							name: 'review',
+							allowBlank: false,
+							width: '100%',
+							maxLength: '4000'
+						}
+					]
+				}
+			];
+		}
+		
+		{% if profile.id != request.current_user.id %}
+		var reviewPanel = Ext.create("Ext.form.Panel", {
+			renderTo: 'review',
+			width: '100%',
+			title: 'My review for {{ profile.published_name }}',
+			items: GetFormItems(),
+			tbar: [
+				{
+					itemId: 'save',
+					text: 'Save Review',
+					iconCls: 'save-icon',
+					handler: function() {
+						//Check for each skill added only once and blank skills
+						var panel = this.findParentByType('panel');
+						if(panel.isValid())
+						{
+							panel.updateRecord();
+							panel.getRecord().save();
+						}
+					}
+				}
+			]
+		});
+		
+		var myReviewStore = Ext.create('Ext.data.Store', {
+			storeId:'myReviewStore',
+			model: 'UserReviews',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [
+				{
+					property: "revieweeid",
+					value: '{{ profile.id }}',
+					operator: "eq"
+				},
+				{
+					property: "reviewerid",
+					value: Transition.user.id,
+					operator: "eq"
+				}
+			],
+			pageSize: 1
+		});
+		
+		myReviewStore.load(function (records, operation, success){
+			if(success)
+			{
+				var record;
+				
+				if(records.length == 1)
+					record = records[0];
+				else
+				{
+					record = new UserReviews({
+						reviewerid: Transition.user.id,
+						revieweeid: '{{ profile.id }}'
+					});
+				}
+				
+				reviewPanel.loadRecord(record);
+			}
+		});
+		
+		{% endif %}
+		
+		var userReviewsStore = Ext.create('Ext.data.Store', {
+			storeId:'userReviewsStore',
+			model: 'UserReviews',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [
+				{
+					property: "revieweeid",
+					value: '{{ profile.id }}',
+					operator: "eq"
+				},
+				{
+					property: "reviewerid",
+					value: Transition.user.id,
+					operator: "ne"
+				}
+			],
+			sorters: [
+				{
+					property: 'lastupdated',
+					direction: 'DESC'
+				}
+			],
+			pageSize: 5
+		});
+		
+		userReviewsStore.load();
+		
+		var rowExpander = Ext.create('Ext.grid.plugin.RowExpander', {
+			rowBodyTpl: '<div id="rowExpander-row-{id}"><h3>{name}</h3><p>{review}</p></div>',
+			expandAll: function (expand) {
+				expand = typeof expand !== 'undefined' ? expand : true;
+
+				var grid = this.grid,
+					store = grid.getStore(),
+					rowExpander = grid.plugins[0],
+					nodes = rowExpander.view.getNodes();
+
+				for (var i = 0; i < nodes.length; i++) {
+					var node = Ext.fly(nodes[i]);
+
+					if (node.hasCls(rowExpander.rowCollapsedCls) === expand) {
+						rowExpander.toggleRow(i, store.getAt(i));
+					}
+				}
+			}
+		});
+		
+		var grid = Ext.create('Ext.grid.Panel', {
+			title: 'Reviews for {{ profile.published_name }}',
+			store: userReviewsStore,
+			dockedItems: [{
+				xtype: 'pagingtoolbar',
+				store: userReviewsStore,
+				dock: 'bottom',
+				displayInfo: true
+			}],
+			columns: [
+				{
+					text: 'Reviewer',
+					dataIndex: 'reviewerfullname',
+					hideable: false,
+					sortable: true,
+					
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					xtype: 'datecolumn',
+					format: 'm/d/Y', 
+					text: 'Last Updated',  
+					dataIndex: 'lastupdated', 
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'date'
+					}
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'otherreviews',
+			viewConfig: {
+				listeners: {
+					expandbody: function(rowNode, record, expandRow, eOpts){
+					/*
+						var row = 'rowExpander-row-' + record.get('id');
+						if(Ext.get(row).dom.innerHTML == '')
+						{
+							var formPanel = Ext.create("Ext.form.Panel", {
+								items: GetFormItems()
+							});
+							formPanel.render(row);
+							formPanel.loadRecord(record);
+						}*/
+					}
+				}
+			},
+			plugins: [rowExpander, 'gridfilters']
+		});
+		
+		
+	});
+</script>
+<div id = "review"></div>
+<br>
+<br>
+<div id = "otherreviews"></div>

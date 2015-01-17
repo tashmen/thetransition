@@ -1,0 +1,393 @@
+<link rel="stylesheet" type="text/css" href="ext-theme-classic-all.css">
+<link rel="stylesheet" type="text/css" href="thetransition.css">
+<script type="text/javascript" src="http://thetransition.comeze.com/js/ext-all.js"></script> 
+<script type="text/javascript" src="ext-theme-classic.js"></script>
+<script type="text/javascript">
+	{% include "thetransitionext" %}
+    Ext.onReady(function() {
+		Ext.QuickTips.init();
+		
+		Ext.define('UserSkills', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'userid',
+					defaultValue: '{{request.current_user.id}}'
+				}, 
+				{
+					name: 'fullname'
+				},
+				{
+					name: 'skillid',
+					validators: [{
+						type: 'presence',
+						message: 'Skill is required'
+					}]
+				}, 
+				{ 
+					name: 'userrating',
+					defaultValue: 0
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'userskills'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'userskills'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		Ext.define('Skills', {
+			extend: 'Ext.data.Model',
+			fields: ['id', 'name'],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'skills'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'skills'
+				},
+				type: 'customphp',
+				isSynchronous: true
+			}
+		});
+		
+		var skillList = Ext.create('Ext.data.Store', {
+			storeId: 'skillList',
+			model: 'Skills',
+			sorters: [{
+				 property: 'name',
+				 direction: 'ASC'
+			}],
+			pageSize: 0
+		});
+		
+		var skillStore = Ext.create('Ext.data.Store', {
+			storeId:'skillStore',
+			model: 'UserSkills',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [{
+				property: "userid",
+				value: '{{request.current_user.id}}',
+				operator: "eq"
+			}],
+			pageSize: 0
+		});
+		
+		var otherSkillStore = Ext.create('Ext.data.Store', {
+			storeId: 'otherSkillStore',
+			model: 'UserSkills',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [{
+				property: "userid",
+				value: '{{request.current_user.id}}',
+				operator: "ne"
+			}],
+			pageSize: 25
+		});
+		
+		skillList.load(function (records, operation, success){
+			if(success)
+			{
+				skillStore.load();
+				otherSkillStore.load();
+			}
+		});
+		  
+		var rowEditing = Ext.create('Ext.grid.plugin.CellEditing', {
+			clicksToMoveEditor: 1,
+			autoCancel: false
+		});
+		
+		var ratingColumn = new Ext.ux.RatingColumn({
+			header: 'Rating',
+			dataIndex: 'userrating',
+			sortable: false
+		});
+
+		var grid = Ext.create('Ext.grid.Panel', {
+			title: 'My Skills',
+			store: skillStore,
+			columns: [
+				{
+					text: 'Skill',  
+					dataIndex:'skillid', 
+					hideable: false,
+					sortable: false,
+					renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
+						var store = this.columns[colIndex].getEditor().getStore();
+						var data = store.getById(value);
+						if(!data)
+							return '';
+						else return data.get(this.columns[colIndex].getEditor().displayField);
+					},
+					editor: {
+						xtype: 'combobox',
+						editable: false,
+						valueField: 'id',
+						displayField: 'name',
+						store: skillList,
+						allowBlank: false,
+						lazyRender: true,
+						forceSelection: true
+					}
+				},
+				ratingColumn
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'ext',
+			tbar: [
+			{
+				text: 'Add Skill',
+				iconCls: 'add-icon',
+				handler : function() {
+					var grid = this.findParentByType('grid');
+					var rowEditing = grid.getPlugins()[0];
+					rowEditing.cancelEdit();
+
+					// Create a model instance
+					var r = {};
+					var store = grid.getStore();
+					store.insert(0, r);
+					rowEditing.startEdit(store.find('id', r.id), 0);
+				}
+			}, 
+			{
+				itemId: 'removeSkill',
+				text: 'Remove Skill',
+				iconCls: 'remove-icon',
+				handler: function() {
+					var sm = this.findParentByType('grid').getSelectionModel();
+					this.findParentByType('grid').getPlugins()[0].cancelEdit();
+					var store = this.findParentByType('grid').getStore();
+					store.remove(sm.getSelection());
+					if (store.getCount() > 0) {
+						sm.select(0);
+					}
+				},
+				disabled: true
+			},
+			{
+				itemId: 'saveSkill',
+				text: 'Save Skills',
+				iconCls: 'save-icon',
+				handler: function() {
+					//Check for each skill added only once and blank skills
+					var grid = this.findParentByType('grid');
+					var isValid = true;
+					isValid = grid.validate();
+					if(typeof(isValid) == 'undefined')
+						this.findParentByType('grid').getStore().sync();
+					else
+					{
+						Ext.MessageBox.show({
+							title: isValid.title,
+							msg: isValid.message,
+							buttons: Ext.MessageBox.OK,
+							icon: Ext.MessageBox.ERROR
+						});
+					}
+				}
+			}
+			],
+			plugins: [rowEditing, ratingColumn, 'gridfilters'],
+			listeners: {
+				'selectionchange': function(view, records) {
+					grid.down('#removeSkill').setDisabled(!records.length);
+				},
+				// add the validation after render so that validation is not triggered when the record is loaded.
+				afterrender: function (grid) {
+					var view = grid.getView();
+
+					// validation on record level through "itemupdate" event
+					view.on('itemupdate', function (record, y, node, options) {
+						this.validateRow(this.getColumnIndexes(), record, y, true);
+					}, grid);
+				},
+				validateedit: function (editor, context) {
+					var skillid = context.value;
+					var id = context.record.getId();
+					var storeItems = context.grid.getStore().getData().items;
+					var isValid = true;
+					storeItems.forEach(function(item){
+						if(item.get('skillid') == skillid && item.getId() != id)
+						{
+							Ext.MessageBox.show({
+								title: "Error",
+								msg: "Each skill may only be added once.",
+								buttons: Ext.MessageBox.OK,
+								icon: Ext.MessageBox.ERROR
+							});
+							return isValid = false;
+						}
+					});
+					return isValid;
+				}
+			},
+			/**
+			 * Validate a record row
+			 */
+			validateRow: function (columnIndexes, record, y) {
+				var me, view, errors;
+
+				me = this;
+				view = me.getView();
+
+				errors = record.validate();
+				if (errors.isValid()) {
+					return true;
+				}
+
+				Ext.each(columnIndexes, function (columnIndex, x) {
+					var cellErrors, cell, messages;
+
+					cellErrors = errors.getByField(columnIndex);
+					if (!Ext.isEmpty(cellErrors)) {
+						cell = view.getCellByPosition({row: y, column: x});
+						messages = [];
+						Ext.each(cellErrors, function (cellError) {
+							messages.push(cellError.message);
+						});
+
+						cell.addCls("x-form-invalid-field-grid-cell");
+						// set error tooltip attribute
+						cell.set({'data-errorqtip': Ext.String.format('<ul><li class="last">{0}</li></ul>', messages.join('<br/>'))});
+					}
+				});
+
+				return false;
+			},
+			// simply validating each record row by row
+			validate: function () {
+				var me, isValid, error, columnIndexes;
+
+				me = this;
+				isValid = true;
+				error = undefined;
+				columnIndexes = me.getColumnIndexes();
+
+				Ext.each(me.getView().getNodes(), function (row, y) {
+					var record = me.getView().getRecord(row);
+
+					isValid = (me.validateRow(columnIndexes, record, y) && isValid);
+				});
+
+				error = isValid ? undefined : {title: "Invalid Records", message: "Please fix record errors."};
+
+				return error;
+			},
+			/**
+			 * @private
+			 * Returns a map from column index to column's field name
+			 */
+			getColumnIndexes: function () {
+				var me, columnIndexes;
+				me = this;
+				columnIndexes = [];
+				Ext.Array.each(me.columns, function (column) {
+					// only validate column with editor
+					if (Ext.isDefined(column.getEditor())) {
+						columnIndexes.push(column.dataIndex);
+					} else {
+						columnIndexes.push(undefined);
+					}
+				});
+				return columnIndexes;
+			}
+		});
+
+		var otherRatingColumn = new Ext.ux.RatingColumn({
+			header: 'Rating',
+			dataIndex: 'userrating',
+			readOnly: true,
+			filter: {
+				type: 'number'
+			}
+		});
+	
+		var otherGrid = new Ext.create('Ext.grid.Panel', {
+			title: 'Other Member\'s Skills',
+			store: otherSkillStore,
+			dockedItems: [{
+				xtype: 'pagingtoolbar',
+				store: otherSkillStore,
+				dock: 'bottom',
+				displayInfo: true
+			}],
+			columns: [
+				{
+					text: 'Member',
+					dataIndex: 'fullname',
+					hideable: false,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Skill',  
+					dataIndex:'name',
+					hideable: false,
+					filter: {
+						type: 'string',
+					}
+				},
+				otherRatingColumn
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'extOther',
+			plugins: [otherRatingColumn, 'gridfilters']
+		});
+	});
+	
+</script>
+
+{% include "breadcrumbs" %}
+
+{% if page.headline.size > 0 %}
+<h2 class="headline">{{ page.headline }}</h2>
+{% endif %}
+
+<div id="content">
+  <div id="intro" class="intro">
+    <div class="text-content">
+      {{ page.basic.content }}
+    </div>
+  </div>
+  <div id="ext"></div>
+  <br>
+  <br>
+  <div id="extOther"></div>
+
+  {% if page.tags_count > 0 %}
+  <div class="page-tags">
+    {% include "page_tags" with page %}
+  </div>
+  {% endif %}
+
+  {% if page.is_homepage? == true and site.page_tags contains "homepage" %}
+    {% tag "homepage" with "homepage_widget" %}
+  {% endif %}
+
+  <div class="like-page">
+    <strong>Do you like this page?</strong>
+    {% include "like_page" %}
+  </div>
+
+  {% if page.show_stream? %}
+  {% include "page_stream" %}
+  {% endif %}
+
+</div>
+
+{% include "donateLink" with "pay_what_you_want" %} 
