@@ -1,0 +1,552 @@
+<link rel="stylesheet" type="text/css" href="ext-theme-classic-all.css">
+<script type="text/javascript" src="http://thetransition.comeze.com/js/ext-all.js"></script> 
+<script type="text/javascript" src="ext-theme-classic.js"></script>
+<link rel="stylesheet" type="text/css" href="thetransition.css">
+<script type="text/javascript">
+	{% include "thetransitionext" %}
+    Ext.onReady(function() {
+		Ext.QuickTips.init();
+		
+		Ext.define('UserObjects', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id',
+				}, 
+				{
+					name: 'userid',
+					defaultValue: Transition.user.id
+				},
+				{
+					name: 'fullname'
+				},
+				{
+					name: 'name'
+				},
+				{
+					name: 'description'
+				},
+				{
+					name: 'image'
+				},
+				{
+					name: 'imageFile'
+				},
+				{
+					name: 'imageDisplay',
+					calculate: function (data) {
+						//There is no image for newly created records so don't display one
+						if(data.id)
+							return Transition.global.imageUploadLocation + 'userobjects/' + data.id + Transition.global.uploadImageFileExtension;
+						return "";
+					}
+				},
+				{
+					name: 'permanenceid'
+				},
+				{
+					name: 'permanencename'
+				},
+				{
+					name: 'categoryid'
+				},
+				{
+					name: 'categoryname'
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'userobjects'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'userobjects'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		Ext.define('ObjectCategory', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id',
+				}, 
+				{
+					name: 'name',
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'objectcategory'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'objectcategory'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		Ext.define('ObjectPermanence', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id',
+				}, 
+				{
+					name: 'name',
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'objectpermanence'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'objectpermanence'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		function GetFormItems()
+		{
+			return [
+				{
+					xtype: 'container',
+					collapsible: false,
+					border: false,
+					layout: 'column',
+					items: [
+						{
+							xtype: 'image',
+							itemId: 'imageDisplay',
+							columnWidth: 0.2
+						},
+						{
+							xtype: 'hiddenfield',
+							name: 'imageDisplay',
+							setValue: function(value)
+							{
+								if(value != undefined)
+								{
+									var form = this.findParentByType('form');
+									var imageDisplay = form.down('#imageDisplay');
+									imageDisplay.setSrc(value);
+								}
+							}
+						},
+						{
+							xtype: 'fieldset',
+							collapsible: false,
+							border: false,
+							margin: '5',
+							columnWidth: 0.8,
+							defaults: {
+								labelAlign: 'right',
+								width: '100%'
+							},
+							items:[
+								{
+									xtype: 'textfield',
+									fieldLabel: 'Name',
+									name: 'name',
+									allowBlank: false,
+									maxLength: '500'
+								},
+								{
+									xtype: 'textareafield',
+									fieldLabel: 'Description',
+									name: 'description',
+									allowBlank: false,
+									maxLength: '4000'
+								},
+								{
+									xtype: 'filefield',
+									name: 'image',
+									fieldLabel: 'Photo',
+									allowBlank: true,
+									buttonText: 'Select Photo...',
+									listeners: {
+										change: function( self, value, eOpts )
+										{
+											var files = self.fileInputEl.dom.files;
+											var f = files[0];//only consider the first file
+											// Only process image files.
+											if (!f.type.match('image.*')) {
+												Ext.MessageBox.show({
+													title: 'Invalid File',
+													msg: 'The uploaded file is not an image',
+													buttons: Ext.MessageBox.OK,
+													icon: Ext.MessageBox.ERROR
+												});
+											}
+											
+											 var reader = new FileReader();
+
+											// Closure to capture the file information.
+											reader.onload = (function(theFile, self) {
+												return function(e) {
+													// Render thumbnail.
+													var form = self.findParentByType('form');
+													var imageDisplay = form.down('#imageDisplay');
+													imageDisplay.setSrc(e.target.result);
+													form.getForm().findField('imageFile').setValue(e.target.result);
+												};
+											})(f, self);
+
+											// Read in the image file as a data URL.
+											reader.readAsDataURL(f);
+											
+										}
+									}
+								},
+								{
+									xtype: 'hiddenfield',
+									name: 'imageFile'
+								},
+								{
+									xtype: 'combobox',
+									fieldLabel: 'Category',
+									name: 'categoryid',
+									allowBlank: false,
+									store: objectCategoryStore,
+									valueField: 'id',
+									displayField: 'name'
+								},
+								{
+									xtype: 'combobox',
+									fieldLabel: 'Permenance',
+									name: 'permanenceid',
+									allowBlank: false,
+									store: objectPermanenceStore,
+									valueField: 'id',
+									displayField: 'name'
+								}
+							]
+						}
+					]
+				}
+			];
+		}
+		
+		var objectCategoryStore = Ext.create('Ext.data.Store', {
+			storeId: 'objectCategoryStore',
+			model: 'ObjectCategory',
+			remoteSort: false,
+			remoteFilter: false,
+			pageSize: 0
+		});
+		
+		var objectPermanenceStore = Ext.create('Ext.data.Store', {
+			storeId: 'objectPermanenceStore',
+			model: 'ObjectPermanence',
+			remoteSort: false,
+			remoteFilter: false,
+			pageSize: 0
+		});
+		
+		var myObjectsStore = Ext.create('Ext.data.Store', {
+			storeId:'myObjectsStore',
+			model: 'UserObjects',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [
+				{
+					property: "userid",
+					value: Transition.user.id,
+					operator: "eq"
+				}
+			],
+			pageSize: 20
+		});
+		
+		var otherObjectsStore = Ext.create('Ext.data.Store', {
+			storeId:'otherObjectsStore',
+			model: 'UserObjects',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [
+				{
+					property: "userid",
+					value: Transition.user.id,
+					operator: "ne"
+				}
+			],
+			pageSize: 20
+		});
+		
+		objectCategoryStore.load(function (records, operation, success){
+			if(success)
+			{
+				objectPermanenceStore.load(function (records, operation, success){
+					if(success)
+					{
+						myObjectsStore.load();
+						otherObjectsStore.load();
+					}
+				});
+			}
+		});
+		
+		var rowExpander = Ext.create('Ext.ux.RowExpander', {
+			rowBodyTpl: '<div id="rowExpander-row-{id}"></div>',
+		});
+		
+		var grid = Ext.create('Ext.grid.Panel', {
+			title: 'My Objects',
+			store: myObjectsStore,
+			dockedItems: [{
+				xtype: 'pagingtoolbar',
+				store: myObjectsStore,
+				dock: 'bottom',
+				displayInfo: true
+			}],
+			columns: [
+				{
+					text: 'Name',
+					dataIndex: 'name',
+					hideable: false,
+					sortable: false,
+				},
+				{
+					text: 'Category',  
+					dataIndex:'categoryid', 
+					hideable: false,
+					sortable: false,
+					renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
+						var store = Ext.StoreManager.get('objectCategoryStore');
+						var data = store.getById(value);
+						if(!data)
+							return '';
+						else return data.get('name');
+					}
+				},
+				{
+					text: 'Permanence',  
+					dataIndex:'permanenceid', 
+					hideable: false,
+					sortable: false,
+					renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
+						var store = Ext.StoreManager.get('objectPermanenceStore');
+						var data = store.getById(value);
+						if(!data)
+							return '';
+						else return data.get('name');
+					}
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'objects',
+			tbar: [
+			{
+				text: 'Add Object',
+				iconCls: 'add-icon',
+				handler : function() {
+					var grid = this.findParentByType('grid');
+
+					// Create a model instance
+					var r = {};
+					var store = grid.getStore();
+					store.insert(0, r);
+					
+					grid.plugins[0].toggleRow(0, store.getAt(0));
+				}
+			}, 
+			{
+				itemId: 'remove',
+				text: 'Remove Object',
+				iconCls: 'remove-icon',
+				handler: function() {
+					var sm = this.findParentByType('grid').getSelectionModel();
+					var store = this.findParentByType('grid').getStore();
+					store.remove(sm.getSelection());
+					if (store.getCount() > 0) {
+						sm.select(0);
+					}
+				},
+				disabled: true
+			},
+			{
+				itemId: 'save',
+				text: 'Save Objects',
+				iconCls: 'save-icon',
+				handler: function() {
+					var grid = this.findParentByType('grid');
+					grid.allFormsValid = true;
+					grid.plugins[0].expandAll(false);
+					if(grid.allFormsValid)
+						grid.getStore().sync();
+				}
+			}
+			],
+			viewConfig: {
+				listeners: {
+					expandbody: function(rowNode, record, expandRow, eOpts){
+						var row = 'rowExpander-row-' + record.get('id');
+						if(Ext.get(row).dom.innerHTML == '')
+						{
+							var formPanel = Ext.create("Ext.form.Panel", {
+								items: GetFormItems()
+							});
+							formPanel.render(row);
+							formPanel.loadRecord(record);
+						}
+					},
+					collapsebody: function(rowNode, record, expandRow, eOpts){
+						var row = 'rowExpander-row-' + record.get('id');
+						var form = Ext.getCmp(Ext.get(row).dom.children[0].id);
+						if(form.isValid())
+						{
+							form.updateRecord(record);
+						}
+						else
+						{
+							this.grid.plugins[0].toggleRow(this.grid.getStore().indexOfId(record.id),record);
+							this.grid.allFormsValid = false;
+							Ext.MessageBox.show({
+								title: "Error",
+								msg: "Form is invalid.  Please fix the errors.",
+								buttons: Ext.MessageBox.OK,
+								icon: Ext.MessageBox.ERROR
+							});
+						}
+					}
+				}
+			},
+			plugins: [rowExpander],
+			listeners: {
+				'selectionchange': function(view, records) {
+					grid.down('#remove').setDisabled(!records.length);
+				},
+			}
+		});
+		
+		
+		var rowExpander2 = Ext.create('Ext.ux.RowExpander', {
+			rowBodyTpl: '<div id="rowExpander2-row-{id}"></div>'
+		});
+		
+		var otherGrid = Ext.create('Ext.grid.Panel', {
+			title: 'Other Member\'s Objects',
+			store: otherObjectsStore,
+			dockedItems: [{
+				xtype: 'pagingtoolbar',
+				store: otherObjectsStore,
+				dock: 'bottom',
+				displayInfo: true
+			}],
+			columns: [
+				{
+					text: 'User',
+					dataIndex: 'fullname',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Name',
+					dataIndex: 'name',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Category',  
+					dataIndex:'categoryname', 
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Permanence',  
+					dataIndex:'permanencename', 
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'otherobjects',
+			viewConfig: {
+				listeners: {
+					expandbody: function(rowNode, record, expandRow, eOpts){
+						var row = 'rowExpander2-row-' + record.get('id');
+						if(Ext.get(row).dom.innerHTML == '')
+						{
+							var formPanel = Ext.create("Ext.form.Panel", {
+								items: GetFormItems()
+							});
+							formPanel.render(row);
+							formPanel.loadRecord(record);
+							
+							formPanel.getForm().getFields().each (function (field) {
+							  field.setReadOnly(true);
+							});
+						}
+					}
+				}
+			},
+			plugins: [rowExpander2, 'gridfilters']
+		});
+		
+		
+		
+	});
+</script>
+{% include "breadcrumbs" %}
+
+{% if page.headline.size > 0 %}
+<h2 class="headline">{{ page.headline }}</h2>
+{% endif %}
+
+<div id="content">
+
+  <div id="intro" class="intro">
+    <div class="text-content">
+      {{ page.basic.content }}
+    </div>
+  </div>
+
+
+	<div id = "objects"></div>
+	<br>
+	<br>
+	<div id = "otherobjects"></div>
+	
+	{% if page.tags_count > 0 %}
+  <div class="page-tags">
+    {% include "page_tags" with page %}
+  </div>
+  {% endif %}
+
+  {% if page.is_homepage? == true and site.page_tags contains "homepage" %}
+    {% tag "homepage" with "homepage_widget" %}
+  {% endif %}
+
+  <div class="like-page">
+    <strong>Do you like this page?</strong>
+    {% include "like_page" %}
+  </div>
+
+  {% if page.show_stream? %}
+  {% include "page_stream" %}
+  {% endif %}
+
+</div>
+
+{% include "donateLink" with "pay_what_you_want" %} 

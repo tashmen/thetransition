@@ -1,0 +1,408 @@
+<link href="http://arshaw.com/js/fullcalendar-1.6.1/fullcalendar/fullcalendar.css" rel="stylesheet">
+<link href="http://arshaw.com/js/fullcalendar-1.6.1/fullcalendar/fullcalendar.print.css" rel="stylesheet" media="print">
+<script src="http://arshaw.com/js/fullcalendar-1.6.1/jquery/jquery-ui-1.10.2.custom.min.js"></script>
+<script src="http://arshaw.com/js/fullcalendar-1.6.1/fullcalendar/fullcalendar.min.js"></script>
+
+<div class="padcontainer">
+
+  {% include "breadcrumbs" %}
+
+  <div class="content-container">
+
+    {% if page.headline.size > 0 %}
+    <h2 class="headline">{{ page.headline }}</h2>
+    {% endif %}
+
+    <div id="content">
+
+      {% if page.calendar.content.size > 0 %}
+      <div id="intro" class="intro">
+        {{ page.calendar.content }}
+      </div>
+      {% endif %}
+	  
+	  <div id='calendar'></div>
+	  <h4>Event Type Legend:</h4>
+	  <div id='key'>
+	  </div>
+	  <br>
+	  <br>
+	  <style>
+		#tagFilter
+		{
+			padding: 0px;
+			margin: 0px;
+			width: 200px;
+		}
+		  
+		#filterContainer div
+		{
+			margin-top: 5px;
+		}
+		  
+		#filterContainer span
+		{
+			width: 100px;
+			display: inline-block;
+		}
+		
+		#key div
+		{
+			display: inline-block; 
+			padding-left: 5px;
+			padding-right: 5px;
+			margin: 5px;
+		}
+		
+		#key span
+		{
+			color:#ffffff;
+		}
+	  </style>
+
+		<script>
+		  
+			//All tags must be in this list to be included in the filter.  This is the maximum set of event types based on tags.  This will be useful if the tags are used for something other than just Event Type.  As items are adjusted, the colors associated with each one needs to be updated.
+			var EventTags = ['Movie Screening', 'BUD Meeting', 'Intentional Community Visiting Day', 'Our Holidays', 'Flash Mob Work Day', 'Friends Not Foes Feast', 'Farmer\'s Market', 'Community Outreach', 'Conference', 'Festival', 'Fundraiser', 'Birth', 'Death'];
+			var EventColors = ['#d13737', '#97bf0d', '#4d73b2', '#8f0a76', '#edad00'];
+			
+			var allEvents = [];
+			{% for event in page.calendar.events %}
+			allEvents.push(
+				{
+					title: '{{ event.headline }}',
+					start: '{{event.event.local_start_at | date: '%FT%TZ%z'}}',//'{{event.event.local_start_at | date:'%FT%TZ%z' }}',
+					end: '{{event.event.local_end_at | date:'%FT%TZ%z'}}',
+					allDay: false,
+					url: '{{event.url}}',
+					tags: '{% for tag in event.tags %}{% if forloop.index0 != 0%},{% endif %}{{tag.name}}{% endfor %}',
+					country: 'event.event.venue_address.country_code'
+				}
+			);
+			{% endfor %}
+			
+			//Testing code for setting up country filter
+			//{% collection_select "venue_address.country_code", page.calendar.events[0].event.countries, "code", "name", class:"select" %}
+			// {{page.calendar.events}}
+			// {{page.calendar.events[0].event.countries}} {{page.calendar.events[0].headline}}
+			/*
+				<select>
+					{% for country in page.calendar.events[0].event.countries %}
+						<option value="{{country[:code]}}">{{country.name}}</option>
+					{% endfor %}
+				</select>
+			*/
+			
+			
+			
+			var tagList = [];
+			//Builds a list of tags for the Event Type filter.
+			function buildTagList()
+			{
+				for(var y = 0;y<allEvents.length;y++)
+				{
+					var event = allEvents[y];
+					var split = event.tags.split(',');
+					for(var x=0;x<split.length;x++)
+					{
+						if(split[x] != '')
+						{
+							if(tagList.indexOf(split[x]) == -1 && EventTags.indexOf(split[x]) >= 0)
+								tagList.push(split[x]);
+						}
+					}
+				}
+			}
+			
+			//Based on the TagList, build the Event Type filter.
+			function BuildTagOptions()
+			{
+				$.each(tagList, function(key, value) {   
+					$('#tagFilter')
+						.append($("<option></option>")
+						.attr("value",value)
+						.text(value)
+						.css('background-color', GetColor(value))
+						.css('color', '#ffffff')); 
+				});
+				$('#tagFilter').change(function(){
+					OnFilterChange();
+				});
+			}
+			
+			//Either hide or create the Filters based on if there are any options.
+			function SetupFilters()
+			{
+				if(tagList.Length == 0)
+				{
+					$('#tagFilterContainer').hide();
+				}
+				else BuildTagOptions();
+				
+				if(tagList.Length == 0)
+				{
+					$('#filterContainer').hide();
+				}
+			}
+			
+			//Perform filtering action when user changes the data.
+			function OnFilterChange()
+			{
+				var tag = $('#tagFilter').val();
+				
+				var event = {};
+				for(var e in allEvents)
+				{
+					event[e] = allEvents[e];
+				}
+				
+				if(tag != '')
+				{
+					for(var e in allEvents)
+					{
+						if(allEvents[e].tags.split(',').indexOf(tag) == -1)
+						{
+							delete event[e];
+						}
+					}
+				}
+				
+				var eventArray = [];
+				for(var e in event)
+				{
+					eventArray.push(event[e]);
+				}
+				
+				ReplaceEvents(eventArray);
+			}
+			
+			//Adjust the calendar to have the properly filtered events
+			//@param eventArray - the new event array to use as the event source
+			function ReplaceEvents(eventArray)
+			{
+				$('#calendar').fullCalendar('removeEvents');
+				$('#calendar').fullCalendar('addEventSource', eventArray );
+			}
+			
+			//Returns a color for the tag
+			//@param tag - the tag to return a color for
+			function GetColor(tag)
+			{
+				var index = EventTags.indexOf(tag);
+				if(index !=-1 && index < EventColors.length)
+				{
+					return EventColors[index];
+				}
+				return '#ff0000';
+			}
+			
+			//Builds a key/legend guide for knowing what the colors represent.
+			function BuildKey()
+			{
+				for(var i=0;i<tagList.length;i++)
+				{
+					var color = GetColor(tagList[i]);
+					$('#key').append($("<div style='background-color:"+color+"'><span>"+tagList[i]+"</span></div>"));
+				}
+			}
+			
+			//Build the initial calendar
+			$(document).ready(function() {
+			
+				buildTagList();
+				BuildKey();//must be after buildTagList
+				
+				//Adjust the times so that they are in the user's timezone
+				for(var i = 0;i<allEvents.length;i++)
+				{
+					var event = allEvents[i];
+					
+					var startSplit = event.start.split('Z');
+					var endSplit = event.end.split('Z')
+					
+					var startZoneVal = parseInt(startSplit[1]) * -1;
+					var endZoneVal = parseInt(endSplit[1]) * -1;
+					
+					event.start = new Date(startSplit[0]);
+					event.end = new Date(startSplit[0]);
+					
+					//Google chrome and possibly other browsers will automatically assume the times are in UTC instead of local so we don't need to take out the UTC offset again in this case.
+					var startHour = startSplit[0].split('T')[1].split(':')[0];
+					var endHour = endSplit[0].split('T')[1].split(':')[0];
+					if(event.start.getHours() == startHour)
+						event.start.setMinutes(event.start.getMinutes() - event.start.getTimezoneOffset());
+					if(event.end.getHours() == endHour)
+						event.end.setMinutes(event.end.getMinutes() - event.end.getTimezoneOffset());
+					
+					event.start.setHours(event.start.getHours() + Math.floor(startZoneVal / 100));
+					event.start.setMinutes(event.start.getMinutes() + startZoneVal % 100);
+					
+					event.end.setHours(event.end.getHours() + Math.floor(endZoneVal / 100));
+					event.end.setMinutes(event.end.getMinutes() + endZoneVal % 100);
+					
+					
+					
+				}
+				
+				//Fill in the color information
+				for(var x = 0;x<allEvents.length;x++)
+				{
+					var event = allEvents[x];
+					var tags = event.tags.split(',');
+					var color = '#ff0000';
+					var type = 'None';
+					for(var y = 0;y<tags.length;y++)
+					{
+						var index = EventTags.indexOf(tags[y]);
+						if(index != -1 && index < EventColors.length)
+						{
+							color = EventColors[index];
+							type = tags[y];
+							break;
+						}
+					}
+					event.type = type;
+					event.color = color;
+				}
+				
+				//Setup and create the calendar
+				$('#calendar').fullCalendar({
+					events: allEvents
+				});
+				//Add our Event Type filter
+				$('.fc-header-center').html('<div id="tagFilterContainer"><span>Event Type:  </span><select id="tagFilter"><option value="">All</option></select></div>');
+				SetupFilters();
+			});
+		</script>
+
+      {% if page.calendar.is_proximity? %}
+
+		  <div class="padbottommore">
+
+			{% form_for address_change %}
+
+			<div class="form-wrap">
+			  <div class="form">
+
+			   {% if page.calendar.events_upcoming_nearby_count > 0 %}
+				{% if page.calendar.events_upcoming_nearby_count > 1 %}
+				<div class="padtop map-wrap">
+				  <strong>Found {{ page.calendar.events_upcoming_nearby_count }} {{ page.calendar.event_name | pluralize | downcase }}.</strong>
+				</div>
+				{% endif %}
+				<div class="padbottom">
+				  <div class="map">{{ page.calendar.events_upcoming_nearby_map }}</div>
+				</div>
+				{% else %}
+				<div class="padbottommore">
+				  <strong>No {{ page.calendar.event_name | pluralize | downcase }} found nearby,</strong> try widening your search
+				  {% if page.calendar.allow_user_submitted? %}
+				  or maybe
+				  <a href="{{ page.calendar.new_event_url }}">host your own</a>?
+				  {% endif %}
+				</div>
+				{% if page.calendar.events_upcoming.size > 0 %}
+				<div class="map-wrap padbottom">
+				  <div class="showing-all padtopless">Showing all {{ page.calendar.events_upcoming_count }} {{ page.calendar.event_name | pluralize | downcase }} instead.</div>
+				  {{ page.calendar.events_upcoming_map }}
+				</div>
+				{% endif %}
+				{% endif %}
+
+				<h4>Find {{ page.calendar.event_name | pluralize | downcase }} near you</h4>
+
+				<div class="padtop padbottom">{% text_field "submitted_address", class:"text", placeholder:"Address or postal code" %}
+				  <div class="padtopless distance"><span class="within">within</span>
+					<span class="radio-inline">{{ page.calendar.distance_radio_buttons }}</span></div>
+				</div>
+
+				<div>
+				  {% submit_tag "Search", class:"submit-button" %}
+				  {% if page.calendar.allow_user_submitted? %}
+				  <span class="button button-alt"><a href="{{ page.calendar.new_event_url }}">Host your own event</a></span>
+				  {% endif %}
+				  <div class="form-submit"></div>
+				</div>
+
+			  </div>
+			</div>
+
+			{% endform_for %}
+
+		  </div>
+
+		  {% if page.calendar.events_upcoming_nearby.size > 0 %}
+
+			  <ul class="event-wrap">
+				{% for event in page.calendar.events_upcoming_nearby %}
+				<li>{% include "event" %}</li>
+				{% endfor %}
+			  </ul>
+
+			  {{ page.calendar.events_upcoming_nearby | paginate prev_label: "&laquo;" next_label: "&raquo;" }}
+
+			  {% else %}
+			  <ul class="event-wrap">
+				{% for event in page.calendar.events_upcoming %}
+				<li>{% include "event" %}</li>
+				{% endfor %}
+			  </ul>
+
+			  {{ page.calendar.events_upcoming | paginate prev_label: "&laquo;" next_label: "&raquo;" }}
+
+		  {% endif %}
+
+      {% else %}
+			<h2>Upcoming Events</h2>
+			<br>
+		  {% if page.calendar.show_map? %}
+
+			  {% if page.calendar.events_upcoming_count > 0 %}
+
+			  <div class="padbottommore">
+				<div class="form-wrap">
+				  <div class="form">
+					<div class="padtop map-wrap">
+					  {{ page.calendar.events_upcoming_map }}
+					</div>
+				  </div>
+				</div>
+			  </div>
+
+			  {% endif %}
+
+		  {% endif %}
+
+		  {% if page.calendar.events_upcoming_count == 0 %}
+
+			No {{ page.calendar.event_name | pluralize | downcase }} yet.
+			{% if page.calendar.allow_user_submitted? %}
+				You should
+				 <a href="{{ page.calendar.new_event_url }}">host your own</a>!
+			{% endif %}
+
+		  {% else %}
+				
+				<ul class="event-wrap">
+					{% for event in page.calendar.events_upcoming %}
+					<li>{% include "event" %}</li>
+					{% endfor %}
+				</ul>
+
+		  {% if page.calendar.allow_user_submitted? %}
+			  <div class="padtopmore">
+				<a class="submit-link" href="{{ page.calendar.new_event_url }}">Host your own {{ page.calendar.event_name | downcase }}</a>
+			  </div>
+		  {% endif %}
+
+		  <div class="padtop">
+			{{ page.calendar.events_upcoming | paginate prev_label: "&laquo;" next_label: "&raquo;" }}
+		  </div>
+
+		  {% endif %}
+
+      {% endif %}
+
+    </div>
+  </div>
+</div>
