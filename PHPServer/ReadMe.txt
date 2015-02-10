@@ -8,3 +8,25 @@ MySQL 5.1
 Free server in use at this location: thetranisition.comeze.com
 
 Hosted by: http://members.000webhost.com/login.php
+
+
+Installing PHP locally:
+
+Download 2.2.19 for apache:
+http://olex.openlogic.com/packages/apache/2.2.19#package_detail_tabs
+
+Update the root directory of apache to point to the PHPServer/public_html directory.
+
+Add the php handler as directed here:
+http://php.net/manual/en/install.windows.apache2.php
+
+Download 5.2.10 for php: 
+http://php.net/releases/
+
+If you get an error which states that PHP can't load certain dll's be sure that the extension directory is using the 8 character dos format in php.ini.
+
+
+To Debug you can use NetBeans + xDebug:
+http://www.xdebug.org/download.php
+
+Be sure to use quotes around the filename when adding the xdebug extension to php.ini
