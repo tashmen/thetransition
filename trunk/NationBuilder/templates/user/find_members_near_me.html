@@ -1,10 +1,7 @@
-<link rel="stylesheet" type="text/css" href="ext-theme-classic-all.css">
-<link rel="stylesheet" type="text/css" href="thetransition.css">
-<script type="text/javascript" src="http://thetransition.comeze.com/js/ext-all.js"></script> 
-<script type="text/javascript" src="ext-theme-classic.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=geometry"></script>
+{% include "thetransitionglobaluser" %}
+{% include "thetransitionextheader" %}
+{% include "thetransitiongooglemapheader" %}
 <script type="text/javascript">
-	{% include "thetransitionext" %}
     Ext.onReady(function() {
 		var cooperativeType = {
 			'Social Co-op': 'social',

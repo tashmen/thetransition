@@ -1,0 +1,36 @@
+<script type="text/javascript">
+
+var Transition = {
+	global: {
+		imagesLocation: 'http://thetransition.comeze.com/css/thetransitionimages/',
+		imageUploadLocation: 'http://thetransition.comeze.com/upload/images/',
+		uploadImageFileExtension: '.png'
+	},
+	user: {
+		id: '{{request.current_user.id}}',
+		id2: '{{request.current_user.created_at}}',
+		lat: '{{request.current_user.address.lat}}',
+		defaultLat: '40.67153',
+		lng: '{{request.current_user.address.lng}}',
+		defaultLng: '-97.74306079999997',
+		hasLocation: function(){
+			if(this.lat == '' || this.lng == '')
+				return false;
+			return true;
+		},
+		/*Note this function requires the google maps include */
+		calculateDistance: function(latitude, longitude){
+			if(this.hasLocation())
+			{
+				var myLoc = new google.maps.LatLng(this.lat, this.lng);
+				var otherLoc = new google.maps.LatLng(latitude, longitude);
+				var distance = google.maps.geometry.spherical.computeDistanceBetween(myLoc, otherLoc);
+				distance = distance *  0.000621371192;//Compute distance in Miles
+				return distance;
+			}
+			return -1;
+		}
+	}
+};
+
+</script>

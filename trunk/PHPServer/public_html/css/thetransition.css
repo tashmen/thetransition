@@ -1,0 +1,30 @@
+.add-icon{
+	background-image:url('images/addicon.png')
+}
+.remove-icon{
+	background-image:url('images/removeicon.png')
+}
+.save-icon{
+	background-image:url('images/saveicon.png')
+}
+.x-action-col-cell img.ux-rating-icon {
+	height: 16px;
+	width: 16px;
+	background-image: url('images/grid/rating.gif');
+}
+.x-action-col-cell img.ux-rating-icon-on {
+	background-position: 0 -16px;
+}
+.x-action-col-cell img.ux-rating-icon-hover {
+	background-position: 0 -32px;
+}
+.filter-icon{
+	height: 16px;
+	width: 16px;
+	background-image: url('images/filter-icon.png');
+}
+.clearfilter-icon{
+	height: 16px;
+	width: 16px;
+	background-image: url('images/filter-delete-icon.png');
+}
