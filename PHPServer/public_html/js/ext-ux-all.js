@@ -98,11 +98,11 @@ Ext.define('Ext.ux.FormGrid',{
 		this.on('selectionchange', function(view, records) {
 					this.down('#remove').setDisabled(!records.length);
 				}, this);
-	}
+	},
 	getForm: function(){
 		alert("Developer must provide this function");
 	}
-}
+});
 
 Ext.define('Ext.ux.RowExpander', {
 	extend: 'Ext.grid.plugin.RowExpander',
@@ -577,7 +577,7 @@ Ext.define('proxy.customphp', {
 	},
 	extraParams: {
 		id1: Transition.user.id,
-		id2: 'Transition.user.id2'
+		id2: Transition.user.id2
 	},
 	batchOrder: 'update,destroy,create',
 	listeners: { 

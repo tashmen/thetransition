@@ -25,9 +25,7 @@ class UserReviewsTest extends BaseTest {
         $this->Assert($columns[0]->dataIndex, 'reviewerid');
         $model = $response->userreviews->model;
         $this->Assert($model[0]->name, 'reviewerid');
-        $store = $response->userreviews->store;
-        
-        var_dump($store);
+        //$store = $response->userreviews->store;
     }
     
     private function TestUserReviews() {

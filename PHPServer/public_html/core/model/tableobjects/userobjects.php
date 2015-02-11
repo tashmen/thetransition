@@ -59,5 +59,12 @@ class userobjects extends TableObject {
         return true;
     }
 
+    /*
+     * Retrieves the security string for accessing the table object
+     * @return an array of allowed functions
+     */
+    public function GetSecurity(){
+        return array('read', 'create', 'update', 'delete');
+    }
 }
 ?>

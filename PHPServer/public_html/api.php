@@ -6,8 +6,7 @@ date_default_timezone_set('Etc/UTC');
 
 function __autoload($class_name) {
     $autoloadLocations = array('common', 'model', 'view', 'tableobjects', 'controller', 'tests');
-    $filename = strtolower($class_name) . '.php';
-
+    $filename = $class_name . '.php';
     foreach ($autoloadLocations as $location) {
         $file = Constants::$$location . $filename;
         if (file_exists($file)) {

@@ -27,6 +27,11 @@ class Security {
         }
         return true;
     }
+    
+    public static function IsAdmin()
+    {
+        return true;
+    }
 }
 ?>
 

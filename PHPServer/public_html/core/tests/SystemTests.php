@@ -10,6 +10,7 @@ class SystemTests {
     
     public function __construct() {
         $this->testMap[] = 'UserReviewsTest';
+        $this->testMap[] = 'SkillsTest';
     }
     
     public function run($connection)

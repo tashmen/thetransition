@@ -17,12 +17,16 @@ class TableRequest implements iTableRequest {
     public function __construct() {
         $this->data = RequestData::GetRequestData('data', RequestData::$filterJson);
 
-        $filters = RequestData::GetRequestData('filter', RequestData::$filterJson);
-        if(is_array($filters))
+        $this->filters = RequestData::GetRequestData('filter', RequestData::$filterJson);
+        if(is_array($this->filters))
         {
-            foreach ($filters as $filter) {
+            foreach ($this->filters as $filter) {
                 $this->filters[] = new Filter($filter);
             }
+        }
+        else 
+        {
+            $this->filters = array();
         }
 
         $start = RequestData::GetRequestData('start');

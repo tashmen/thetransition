@@ -48,17 +48,13 @@ class skills extends TableObject {
     protected function GetDefaultSortColumn() {
         return 'name';
     }
-
-    protected function create() {
-        throw new Exception("Function not allowed");
-    }
-
-    protected function update() {
-        throw new Exception("Function not allowed");
-    }
-
-    protected function delete() {
-        throw new Exception("Function not allowed");
+    
+    /*
+     * Retrieves the security string for accessing the table object
+     * @return an array of allowed functions
+     */
+    public function GetSecurity(){
+        return array('read');
     }
 
     //Gather skill names based on skill ids.
