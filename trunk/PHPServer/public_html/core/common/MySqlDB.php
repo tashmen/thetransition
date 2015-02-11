@@ -90,7 +90,8 @@ class MySqlDB implements iDatabase{
      * @return - an array of columnSchema objects
      */
     public function GetColumnSchema($table) {
-        $columnSchema = $this->execute("Select * from information_schema.columns where table_name = (?)", array($table));
+        $columnSchema = $this->execute("Select COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, "
+                . "COLUMN_KEY from information_schema.columns where table_name = (?) and table_schema = (?)", array($table, Settings::$mysql_database));
         
         $columns = array();
         foreach($columnSchema as $column)
@@ -100,7 +101,7 @@ class MySqlDB implements iDatabase{
             $type = $column['DATA_TYPE'];
             $maxLength = $column['CHARACTER_MAXIMUM_LENGTH'];
             $isPrimaryKey = $column['COLUMN_KEY'] == "PRI" ? true : false;
-            $columns[] = new columnSchema($name, $null,  $type, $maxLength, $isPrimaryKey, $table);
+            $columns[] = new ColumnSchema($name, $null,  $type, $maxLength, $isPrimaryKey, $table);
         }
         return $columns;
     }

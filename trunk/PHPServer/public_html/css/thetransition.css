@@ -1,16 +1,16 @@
 .add-icon{
-	background-image:url('images/addicon.png')
+	background-image:url('thetransitionimages/addicon.png')
 }
 .remove-icon{
-	background-image:url('images/removeicon.png')
+	background-image:url('thetransitionimages/removeicon.png')
 }
 .save-icon{
-	background-image:url('images/saveicon.png')
+	background-image:url('thetransitionimages/saveicon.png')
 }
 .x-action-col-cell img.ux-rating-icon {
 	height: 16px;
 	width: 16px;
-	background-image: url('images/grid/rating.gif');
+	background-image: url('thetransitionimages/grid/rating.gif');
 }
 .x-action-col-cell img.ux-rating-icon-on {
 	background-position: 0 -16px;
@@ -21,10 +21,10 @@
 .filter-icon{
 	height: 16px;
 	width: 16px;
-	background-image: url('images/filter-icon.png');
+	background-image: url('thetransitionimages/filter-icon.png');
 }
 .clearfilter-icon{
 	height: 16px;
 	width: 16px;
-	background-image: url('images/filter-delete-icon.png');
+	background-image: url('thetransitionimages/filter-delete-icon.png');
 }

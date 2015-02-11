@@ -63,6 +63,12 @@ class TableObjectController extends AbstractController{
                         $inputData = new TableRequest();
                         $table = new $className($this->connection, $inputData);
                         Logger::LogError("Initiating request for class: " . $className . " and function: " . $function, Logger::debug);
+                        
+                        if(!(in_array($action, $table->GetSecurity()) || Security::IsAdmin()))
+                        {
+                            throw new Exception('Action is not allowed: ' . $action);
+                        }
+                        
                         $table->$function($inputData);
 
                         $this->ProcessImageFile($className, $function, $table->GetResults());

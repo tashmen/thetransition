@@ -48,6 +48,14 @@ class userskills extends TableObject {
     protected function GetDefaultSortColumn() {
         return 'name';
     }
+    
+    /*
+     * Retrieves the security string for accessing the table object
+     * @return an array of allowed functions
+     */
+    public function GetSecurity(){
+        return array('read', 'create', 'update', 'delete');
+    }
 
     protected function create() {
         parent::create();

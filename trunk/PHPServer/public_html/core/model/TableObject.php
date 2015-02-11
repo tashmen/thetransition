@@ -49,6 +49,12 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
 
     abstract protected function GetDefaultSortColumn();
     
+    /*
+     * Retrieves the security string for accessing the table object
+     * @return an array of allowed functions
+     */
+    abstract public function GetSecurity();
+    
     public function __construct(iDatabase $con, iTableRequest $request) {
         $this->connection = $con;
         $this->request = $request;
@@ -270,7 +276,10 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
                 $parameters[] = $value;
             }
         }
-        $where = " where " . $criteria;
+        if($criteria != "")
+        {
+            $where = " where " . $criteria;
+        }
         
         return $where;
     }
@@ -288,6 +297,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         $countSelect = "SELECT COUNT(*) FROM " . $this->GetPrimaryTableView();
 
         $statement = $select . $where . $orderby . $strLimit;
+        Logger::LogError($statement, Logger::debug);
         $countStatement = $countSelect . $where;
 
         //Execute the statements and return the results
