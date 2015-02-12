@@ -41,6 +41,7 @@ class TableObjectController extends AbstractController{
     public function Process($resource, $action)
     {
         try {
+            
             if($resource == "tableobject" && $action == "gettables")
             {
                 $results = array();
@@ -55,7 +56,6 @@ class TableObjectController extends AbstractController{
             else 
             {
                 Security::VerifySecurity($this->connection);
-
                 if(array_key_exists($resource, $this->resourceToObjectMap)){
                     $className = $this->resourceToObjectMap[$resource];
                     if(array_key_exists($action, $this->actionsToFunctionMap)){

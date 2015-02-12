@@ -7,14 +7,18 @@ Class RequestData
 {
     public static $filterJson = 'json';
     public static function GetRequestData($varName, $filterType = NULL)
-    {        
-        if($filterType == RequestData::$filterJson)
+    {   
+        $value = "";
+        if(isset($_REQUEST[$varName]))
         {
-            $json = stripslashes($_REQUEST[$varName]);
-            $value = json_decode($json);
-        }
-        else{
-            $value = $_REQUEST[$varName];
+            if($filterType == RequestData::$filterJson)
+            {
+                $json = stripslashes($_REQUEST[$varName]);
+                $value = json_decode($json);
+            }
+            else{
+                $value = $_REQUEST[$varName];
+            }
         }
         return $value;
     }

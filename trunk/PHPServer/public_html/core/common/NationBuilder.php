@@ -10,15 +10,30 @@ class NationBuilder {
     private $token;
     private $baseApiUrl;
     private $client;
+    private $enabled;
 
     public function __construct() {
         $this->clientId = Settings::$nb_clientId;
         $this->clientSecret = Settings::$nb_clientSecret;
         $this->token = Settings::$nb_token;
         $this->baseApiUrl = Settings::$nb_baseApiUrl;
-        $this->client = new Client($this->clientId, $this->clientSecret);
-        $this->client->setAccessToken($this->token);
+        if($this->clientId != "" && $this->clientSecret != "" && $this->token != "" && $this->baseApiUrl != "")
+        {
+            $this->client = new Client($this->clientId, $this->clientSecret);
+            $this->client->setAccessToken($this->token);
+            $this->enabled = true;
+        }
+        else
+        {
+            $this->enabled = false;
+            Logger::LogError('NationBuilder is disabled.', Logger::debug);
+        }
         //$this->client->setAccessTokenType(Client::ACCESS_TOKEN_BEARER);
+    }
+    
+    public function IsEnabled()
+    {
+        return $this->enabled;
     }
 
     /*
@@ -30,7 +45,10 @@ class NationBuilder {
      */
 
     public function Execute($statement, $parameters = array(), $method = Client::HTTP_METHOD_GET, $header = array()) {
-        return $this->client->fetch($this->baseApiUrl . $statement, $parameters, $method, $header);
+        if($this->IsEnabled())
+        {
+            return $this->client->fetch($this->baseApiUrl . $statement, $parameters, $method, $header);
+        }
     }
 
     /*
@@ -39,11 +57,14 @@ class NationBuilder {
      */
 
     public function SynchronizeUsers($database) {
-        $user = new users($database);
-        $response = $this->Execute('/api/v1/people');
-        $results = $response['result']['results'];
-        foreach ($results as $result) {
-            $user->createupdate($result);
+        if($this->IsEnabled())
+        {
+            $user = new users($database);
+            $response = $this->Execute('/api/v1/people');
+            $results = $response['result']['results'];
+            foreach ($results as $result) {
+                $user->createupdate($result);
+            }
         }
     }
 
@@ -53,6 +74,10 @@ class NationBuilder {
      */
 
     public function AddWebHooks($database) {
+        if(!$this->IsEnabled())
+        {
+            return;
+        }
         $statement = '/api/v1/webhooks';
         //$this->postDelete($statement . '/54334275dbf3ec30ac008223');
 
@@ -91,6 +116,10 @@ class NationBuilder {
      */
 
     public function PushTags($id, $tags) {
+        if(!$this->IsEnabled())
+        {
+            return;
+        }
         $statement = '/api/v1/people/' . $id;
         $user = array(
             "person" => array(
@@ -107,6 +136,10 @@ class NationBuilder {
      */
 
     public function DeleteTag($id, $tag) {
+        if(!$this->IsEnabled())
+        {
+            return;
+        }
         //DELETE /api/v1/people/:id/taggings/:tag
         $statement = '/api/v1/people/' . $id . '/taggings/' . $tag;
         $this->postDelete($statement);
@@ -117,6 +150,10 @@ class NationBuilder {
      */
 
     public function ViewWebHooks() {
+        if(!$this->IsEnabled())
+        {
+            return;
+        }
         $statement = '/api/v1/webhooks';
         print_r($this->Execute($statement));
     }
@@ -129,6 +166,10 @@ class NationBuilder {
      */
 
     private function postRequest($statement, $data, $type = 'POST') {
+        if(!$this->IsEnabled())
+        {
+            return;
+        }
         $ch = curl_init($this->baseApiUrl . $statement . "?access_token=" . $this->token);
 
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $type);
@@ -155,6 +196,10 @@ class NationBuilder {
      */
 
     private function postDelete($statement) {
+        if(!$this->IsEnabled())
+        {
+            return;
+        }
         $ch = curl_init($this->baseApiUrl . $statement . "?access_token=" . $this->token);
 
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
@@ -210,5 +255,3 @@ class NationBuilder {
     }
 
 }
-?>
-

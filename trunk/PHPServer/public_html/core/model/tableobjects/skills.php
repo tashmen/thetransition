@@ -59,6 +59,7 @@ class skills extends TableObject {
 
     //Gather skill names based on skill ids.
     public function GetSkillNames($ids) {
+        $names = array();
         if (count($ids) > 0) {
             $statement = "SELECT * FROM skills where id in (";
             $values = "";
@@ -71,16 +72,13 @@ class skills extends TableObject {
                 $values = $values . "?";
             }
             $statement = $statement . $values . ")";
-            $skillnames = $this->connection->execute($statement, $parameters);
-            $names = array();
+            $skillnames = $this->GetConnection()->execute($statement, $parameters);
+            
             foreach ($skillnames as $skillname) {
                 $names[] = $skillname['name'];
             }
-            return $names;
         }
-        return array();
+        return $names;
     }
 
 }
-?>
-
