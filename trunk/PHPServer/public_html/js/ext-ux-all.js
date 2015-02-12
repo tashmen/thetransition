@@ -176,8 +176,7 @@ Ext.define('Ext.ux.MapPanel', {
 		this.keyStore.each(function(record){
 			keyContainer.add(Ext.create('Ext.container.Container', {
 				data: record,
-				/*Do not remove the raw comments here since they are here to prevent the page from parsing the src*/
-				tpl: '<img sr{% raw %}{%endraw%}c="'+Transition.global.imagesLocation+'{icon}"/><span>- {name}</span>'
+				tpl: '<img src="'+Transition.global.imagesLocation+'{icon}"/><span>- {name}</span>'
 			}));
 		});
 		
