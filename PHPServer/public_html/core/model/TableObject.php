@@ -8,7 +8,7 @@
  */
 
 abstract class TableObject implements iExtOperations, iCRUDOperations {
-    
+    //Note Private variables can't be accessed from sub-classes; use the protected/public methods instead
     private $connection;
     private $request;
     private $properties;
@@ -65,6 +65,16 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
     protected function GetColumnSchema()
     {
         return $this->columnSchema;
+    }
+    
+    protected function GetConnection()
+    {
+        return $this->connection;
+    }
+    
+    protected function GetRequest()
+    {
+        return $this->request;
     }
     
     protected function GetData()

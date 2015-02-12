@@ -57,7 +57,7 @@ class userskills extends TableObject {
         return array('read', 'create', 'update', 'delete');
     }
 
-    protected function create() {
+    public function create() {
         parent::create();
         $records = $this->GetData();
         $userid = "";
@@ -69,14 +69,14 @@ class userskills extends TableObject {
         }
 
         if ($userid != "") {
-            $skills = new skills($this->connection);
+            $skills = new skills($this->GetConnection(), $this->GetRequest());
             $skillnames = $skills->GetSkillNames($skillids);
             $nb = new NationBuilder();
             $nb->PushTags($userid, $skillnames);
         }
     }
 
-    protected function delete() {
+    public function delete() {
         parent::delete();
         $records = $this->GetData();
         $userid = "";
@@ -87,7 +87,7 @@ class userskills extends TableObject {
         }
 
         if ($userid != "") {
-            $skills = new skills($this->connection);
+            $skills = new skills($this->GetConnection(), $this->GetRequest());
             $skillnames = $skills->GetSkillNames($skillids);
             $nb = new NationBuilder();
             foreach ($skillnames as $skillname) {
@@ -96,5 +96,3 @@ class userskills extends TableObject {
         }
     }
 }
-?>
-

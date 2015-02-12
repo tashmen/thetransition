@@ -2,6 +2,24 @@
 
 date_default_timezone_set('Etc/UTC');
 
+register_shutdown_function( "fatal_handler" );
+
+function fatal_handler()
+{
+    $error = error_get_last();
+
+    if( $error !== NULL) {
+        $errno   = $error["type"];
+        $errfile = $error["file"];
+        $errline = $error["line"];
+        $errstr  = $error["message"];
+        if($errno != 8)//Do not log 'notice' errors
+        {
+            Logger::LogError("Error # " . $errno . " \n File: " . $errfile . " \n Line: " . $errline . " \n Message: " . $errstr, Logger::fatalError);
+        }
+    }
+}
+
 /* auto load all classes */
 
 function __autoload($class_name) {

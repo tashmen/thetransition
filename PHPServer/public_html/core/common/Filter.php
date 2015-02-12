@@ -9,7 +9,7 @@ class Filter implements iFilter {
     private $value;
     private $operator;
 
-    public function __construct(array $filter) {
+    public function __construct($filter) {
         $this->column = $filter->property;
         $this->value = $filter->value;
         $this->operator = $this->ConvertOperator($filter->operator);

@@ -56,7 +56,7 @@ abstract class BaseTest {
     protected function Assert($expected, $actual, $message = '')
     {
         if($expected != $actual){
-                echo ('Expected: ' . $expected . '<br> Actual: ' . $actual . '<br> Message: ' . get_class($this) . ' ' . $message . '<br><br>');
+                echo ('<br> Expected: ' . $expected . '<br> Actual: ' . $actual . '<br> Message: ' . get_class($this) . ' ' . $message . '<br><br>');
                 debug_print_backtrace();
         }
     }
@@ -78,6 +78,7 @@ abstract class BaseTest {
         //curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
 
         $json_response = curl_exec($ch);
+        Logger::LogError(print_r($json_response, true), Logger::debug);
         if ($curl_error = curl_error($ch)) {
             throw new Exception($curl_error, oauthException::CURL_ERROR);
         }
