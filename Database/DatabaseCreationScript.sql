@@ -6,11 +6,12 @@
 
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
-    `id` int(11) NOT NULL COMMENT 'id of a user; matches to nationbuilder',
-    `fullname` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'full name of the user; combined first + last name from nationbuilder',
-    `creationdt` datetime DEFAULT NULL,
-    PRIMARY KEY (`id`)
-)  ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE = utf8_unicode_ci COMMENT='User table synchronized from NationBuilder for easier queryi';
+  `id` int(11) NOT NULL COMMENT 'id of a user; matches to nationbuilder',
+  `fullname` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'full name of the user; combined first + last name from nationbuilder',
+  `creationdt` datetime DEFAULT NULL,
+  `adminflg` tinyint(1) DEFAULT NULL COMMENT 'Determines if the user has admin access',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='User table synchronized from NationBuilder for easier queryi';
 
 
 -- --------------------------------------------------------
