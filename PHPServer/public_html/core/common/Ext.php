@@ -82,7 +82,12 @@ class Ext {
                 break;
             case 'date':
             case 'datetime':
-                $return['xtype'] = 'datefield';
+                if($columnSchema->GetColumnName() == "creationdt" || $columnSchema->GetColumnName() == "lastupdated"){
+                    $return['xtype'] = 'hiddenfield';
+                }
+                else {
+                    $return['xtype'] = 'datefield';
+                }
                 break;
         }
         return $return;

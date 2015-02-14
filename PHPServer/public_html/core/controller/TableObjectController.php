@@ -21,6 +21,7 @@ class TableObjectController extends AbstractController{
         $this->resourceToObjectMap['userreviews'] = 'userreviews';
         $this->resourceToObjectMap['userskills'] = 'userskills';
         $this->resourceToObjectMap['userspaces'] = 'userspaces';
+        $this->resourceToObjectMap['users'] = 'users';
         
         //crud operations available
         $this->actionsToFunctionMap['create'] = 'create';
