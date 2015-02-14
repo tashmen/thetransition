@@ -34,7 +34,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
      */
     abstract public function GetSecurity();
     
-    public function __construct(iDatabase $con, iTableRequest $request) {
+    public function __construct(iDatabase $con, iTableRequest $request = null) {
         $this->connection = $con;
         $this->request = $request;
         $this->properties = array();

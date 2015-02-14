@@ -42,18 +42,17 @@ class users extends TableObject {
         $creationdt = $person['created_at'];
 
         $parameters[] = $id;
-        $total = $this->connection->rowCount("SELECT COUNT(*) FROM users where id = (?)", $parameters);
+        $total = $this->GetConnection()->rowCount("SELECT COUNT(*) FROM users where id = (?)", $parameters);
         if ($total > 0) {//if user exists update
             $param[] = $name;
             $param[] = $creationdt;
             $param[] = $id;
-            $this->connection->execute("UPDATE users set fullname = (?), creationdt = (?) where id = (?)", $param, false);
+            $this->GetConnection()->execute("UPDATE users set fullname = (?), creationdt = (?) where id = (?)", $param, false);
         } else {//Else create new user
             $parameters[] = $name;
             $parameters[] = $creationdt;
-            $this->connection->execute("Insert into users (id, fullname, creationdt) values (?, ?, ?)", $parameters, false);
+            $this->GetConnection()->execute("Insert into users (id, fullname, creationdt) values (?, ?, ?)", $parameters, false);
         }
     }
-
 }
 ?>

@@ -28,7 +28,7 @@ function __autoload($class_name) {
     foreach ($autoloadLocations as $location) {
         $file = Constants::$$location . $filename;
         if (file_exists($file)) {
-            require($file);
+            include_once($file);
         }
     }
     return false;
