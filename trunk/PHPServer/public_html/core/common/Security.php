@@ -2,17 +2,24 @@
 class Security {
     public static $userid;
     public static $creationdt;
+    public static $isAdmin;
 
-    public static function VerifySecurity($database) {
+    public static function VerifySecurity(iDatabase $database) {
         self::$userid = RequestData::GetRequestData('id1');
         self::$creationdt = RequestData::GetRequestData('id2');
 
-        $statement = "Select count(*) from users where id = (?)"; // and creationdt = (?)";
+        
+        $select = "Select count(*) from users ";
+        $where = "where id = (?)"; // and creationdt = (?)";
         $parameters[] = self::$userid;
         //$parameters[] = self::$creationdt;
 
+        $statement = $select . $where;
         $count = $database->rowCount($statement, $parameters);
         if ($count == 1){
+            $select = "Select adminflg from users " . $where;
+            $records = $database->execute($select, $parameters);
+            self::$isAdmin = $records[0]['adminflg'];
             return true;
         }
         throw new Exception("User is not allowed access to this system");
@@ -30,7 +37,10 @@ class Security {
     
     public static function IsAdmin()
     {
-        return true;
+        $return = false;
+        if(self::$isAdmin == "1")
+            $return = true;
+        return $return;
     }
 }
 ?>

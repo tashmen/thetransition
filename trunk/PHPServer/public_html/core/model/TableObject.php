@@ -19,28 +19,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
       @return - the primary table as a string
      */
 
-    abstract public function GetPrimaryTable();
-
-    /*
-      Retrieves the view name for the object
-      @return - the view of the object
-     */
-
-    abstract protected function GetPrimaryTableView();
-
-    /*
-      Retrieves the column list for the table
-      @return - a list of columns for the table
-     */
-
-    abstract protected function GetColumns();
-
-    /*
-      Retrieves the column list for the view
-      @return a list of columns for the view
-     */
-
-    abstract protected function GetColumnsView();
+    abstract public function GetPrimaryTable();    
 
     /*
       Retrieves the default sort column name
@@ -60,6 +39,44 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         $this->request = $request;
         $this->properties = array();
         $this->columnSchema = $this->connection->GetColumnSchema($this->GetPrimaryTable());
+    }
+    
+    /*
+      Retrieves the column list for the table
+      @return - a list of columns for the table
+     */
+
+    protected function GetColumns(){
+        $columnSchema = $this->GetColumnSchema();
+        $columns = array();
+        $keys = array();
+        foreach($columnSchema as $column)
+        {
+            array_push($columns, $column->GetColumnName());
+            if($column->IsPrimaryKey())
+            {
+                array_push($keys, $column->GetColumnName());
+            }
+        }
+        return new ColumnList($this->GetPrimaryTable(), $columns, $keys);
+    }
+    
+    /*
+      Retrieves the column list for the view
+      @return a list of columns for the view
+     */
+
+    protected function GetColumnsView(){
+        return $this->GetColumns();
+    }
+    
+    /*
+      Retrieves the view name for the object
+      @return - the view of the object
+     */
+
+    protected function GetPrimaryTableView(){
+        return $this->GetPrimaryTable();
     }
     
     protected function GetColumnSchema()

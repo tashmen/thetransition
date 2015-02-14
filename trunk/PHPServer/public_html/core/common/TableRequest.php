@@ -14,35 +14,41 @@ class TableRequest implements iTableRequest {
     private $sortDirection;
     private $DEFAULT_LIMIT = 25;
 
-    public function __construct() {
-        $this->data = RequestData::GetRequestData('data', RequestData::$filterJson);
+    public function __construct($initFromRequest = true) {
+        if($initFromRequest){
+            $this->data = RequestData::GetRequestData('data', RequestData::$filterJson);
 
-        $filters = RequestData::GetRequestData('filter', RequestData::$filterJson);
-        $this->filters = array();
-        if(is_array($filters))
-        {
-            foreach ($filters as $filter) {
-                $this->filters[] = new Filter($filter);
+            $filters = RequestData::GetRequestData('filter', RequestData::$filterJson);
+            $this->filters = array();
+            if(is_array($filters))
+            {
+                foreach ($filters as $filter) {
+                    $this->filters[] = new Filter($filter);
+                }
             }
+
+            $start = RequestData::GetRequestData('start');
+            $limit = RequestData::GetRequestData('limit');
+            if ($limit != "" && $start != "") {
+                $start = intval($start);
+                $limit = intval($limit);
+                if ($start < 0) {
+                    $start = 0;
+                }
+                if ($limit <= 0) {
+                    $limit = $this->DEFAULT_LIMIT;
+                }
+            }
+            $this->limit = $limit;
+            $this->start = $start;
+
+            $sort = RequestData::GetRequestData('sort', RequestData::$filterJson);
+            $this->SetSort($sort);
         }
-
-        $start = RequestData::GetRequestData('start');
-        $limit = RequestData::GetRequestData('limit');
-        if ($limit != "" && $start != "") {
-            $start = intval($start);
-            $limit = intval($limit);
-            if ($start < 0) {
-                $start = 0;
-            }
-            if ($limit <= 0) {
-                $limit = $this->DEFAULT_LIMIT;
-            }
-        }
-        $this->limit = $limit;
-        $this->start = $start;
-
-        $sort = RequestData::GetRequestData('sort', RequestData::$filterJson);
-        $this->SetSort($sort);
+    }
+    
+    public function SetData($data){
+        $this->data = $data;
     }
 
     public function GetData() {

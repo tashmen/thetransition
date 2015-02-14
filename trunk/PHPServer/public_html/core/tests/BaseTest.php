@@ -26,13 +26,20 @@ abstract class BaseTest {
     protected function CreateUsers()
     {
         $this->users = array();
-        $this->users[] = array('id' => '1', 'first_name' => 'test', 'last_name' => 'user', 'created_at' => date('y-m-d', time()));
-        $this->users[] = array('id' => '2', 'first_name' => 'test1', 'last_name' => 'user1', 'created_at' => date('y-m-d', time()));
-        foreach($this->users as $user)
+        $this->users[] = array('id' => '1', 'fullname' => 'test user', 'creationdt' => date('y-m-d', time()), 'adminflg' => true);
+        $this->users[] = array('id' => '2', 'fullname' => 'test1 user1', 'creationdt' => date('y-m-d', time()), 'adminflg' => true);
+        
+        //Convert to stdClass object so that create works
+        $data = array();
+        foreach ($this->users as $user)
         {
-            $usersModel = new users($this->con);
-            $usersModel->createupdate($user);
+            $data[] = (object)$user;
         }
+        
+        $request = new TableRequest(false);
+        $request->SetData($data);
+        $usersModel = new users($this->con, $request);
+        $usersModel->create();  
     }
     
     protected function DeleteUsers()
@@ -78,7 +85,7 @@ abstract class BaseTest {
         //curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
 
         $json_response = curl_exec($ch);
-        Logger::LogError(print_r($json_response, true), Logger::debug);
+        //Logger::LogError(print_r($json_response, true), Logger::debug);
         if ($curl_error = curl_error($ch)) {
             throw new Exception($curl_error, oauthException::CURL_ERROR);
         }
