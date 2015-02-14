@@ -19,7 +19,7 @@ class Ext {
             collapsible => false,
             border => false,
             margin => '5',
-            defaults => array(labelAlign => 'right')
+            defaults => array(labelAlign => 'right', width => '100%')
         );
         
         $itemObject = array();
@@ -63,12 +63,19 @@ class Ext {
         $return = array();
         switch ($columnSchema->GetDataType())
         {
+            case 'double':
             case 'int':
-                $return['xtype'] = 'numberfield';
+                if($columnSchema->GetColumnName() == "id")
+                {
+                    $return['xtype'] = 'hiddenfield';
+                }
+                else {
+                    $return['xtype'] = 'numberfield';
+                }
                 break;
             case 'tinyint':
                 $return['xtype'] = 'checkboxfield';
-                break;
+                break;  
             case 'varchar':
                 $return['maxLength'] = $columnSchema->GetMaxLength();
                 $return['xtype'] = $return['maxLength'] == 100 ? 'textfield' : 'textareafield';

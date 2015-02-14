@@ -19,7 +19,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
       @return - the primary table as a string
      */
 
-    abstract protected function GetPrimaryTable();
+    abstract public function GetPrimaryTable();
 
     /*
       Retrieves the view name for the object

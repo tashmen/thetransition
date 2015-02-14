@@ -4,62 +4,124 @@
     Ext.onReady(function() {
 		Ext.QuickTips.init();
 		
-		Ext.define('Tables', {
-			extend: 'Ext.data.Model',
-			fields: [
-				{
-					name: 'id',
-				}
-			],
-			proxy: 
-			{
-				extraParams: {
-					resource: 'tableobject'
-				},
-				reader: {
-					type: 'json',
-					rootProperty: 'tableobject'
-				},
-				type: 'customphp'
+		Ext.Ajax.request({
+			url: Transition.global.siteLocation,
+			useDefaultXhrHeader: false, 
+			params: {
+				id1: Transition.user.id,
+				id2: Transition.user.id2,
+				resource: 'tableobject',
+				action: 'gettables'
+			},
+			success: function(response){
+				var response = response.responseText;
+				var tables = Ext.JSON.decode(response)
+				ProcessSuccess(tables.tableobject);
 			}
 		});
 		
-		var tablesStore = Ext.create('Ext.data.Store', {
-			storeId:'tablesStore',
-			model: 'Tables',
-			remoteSort: false,
-			remoteFilter: false,
-			pageSize: 0
-		});
+		function ProcessSuccess(tables)
+		{
+			var tableStore = Ext.create('Ext.data.Store', {
+				storeId: 'tableStore',
+				fields: ['id'],
+				remoteSort: false,
+				remoteFilter: false,
+				data: tables
+			});
 		
-		var grid = Ext.create('Ext.ux.FormPanel', {
-			title: 'Table Editor',
-			store: '',
-			tbar:[
-				{
-					xtype: 'menu',
-					items:[
-						{
-							xtype: 'combobox'
-							emptyText: 'Select Table'
-							name: 'table',
-							store: tableStore,
-							valueField: 'id',
-							displayField: 'id'
-							listeners: {
-								change: function(this, newValue, oldValue, eOpts){
-									var stopHere;
+			var grid = Ext.create('Ext.ux.FormGrid', {
+				title: 'Table Editor',
+				store: '',
+				formItems: '',
+				GetFormItems: function(){
+					return this.formItems;
+				},
+				dataArray: [],//Used for caching table information
+				tbar:[
+					{
+						text: 'Tables',
+						xtype: 'combobox',
+						emptyText: 'Select Table',
+						name: 'table',
+						store: tableStore,
+						valueField: 'id',
+						displayField: 'id',
+						listeners: {
+							change: function(combo, newValue, oldValue, eOpts){
+								if(grid.dataArray.indexOf(newValue) != -1)
+								{
+									var data = dataArray[newValue];
+									grid.changeTable(data.columns, data.form, data.model, newValue);
+								}
+								else
+								{
+									Ext.Ajax.request({
+										url: Transition.global.siteLocation,
+										useDefaultXhrHeader: false, 
+										params: {
+											id1: Transition.user.id,
+											id2: Transition.user.id2,
+											resource: newValue,
+											action: 'extdata'
+										},
+										success: function(response){
+											var response = response.responseText;
+											var resource = newValue;
+											var data = Ext.JSON.decode(response)[resource];
+											grid.dataArray.push({resource : data});
+											grid.changeTable(data.columns, data.form, data.model, newValue);
+										}
+									});
 								}
 							}
 						}
-					]
+					}
+				],
+				columns: [
+				],
+				renderTo: 'grid',
+				changeTable: function(columns, form, model, resource)
+				{
+					this.formItems = form;
+					if(Ext.ClassManager.get(resource) == null)
+					{
+						Ext.define(resource, {
+							extend: 'Ext.data.Model',
+							fields: model,
+							proxy: 
+							{
+								extraParams: {
+									resource: resource
+								},
+								reader: {
+									type: 'json',
+									rootProperty: resource
+								},
+								type: 'customphp'
+							}
+						});
+					}
+					
+					var objectStore = Ext.create('Ext.data.Store', {
+						storeId:'objectStore',
+						model: resource,
+						remoteSort: true,
+						remoteFilter: true,
+						pageSize: 25
+					});
+					
+					var localGrid = grid;//Using global grid object here.
+					localGrid.reconfigure(objectStore, columns);
+					var toolbar = grid.dockedItems.findBy(function(object, item, key){return object.xtype == 'pagingtoolbar'})
+					toolbar.setStore(objectStore);
+					toolbar.doRefresh();
 				}
-			],
-			columns: [
-				
-			],
-			renderTo: 'grid'
-		});
+			});
+		}
+
+		
+		
 	});
 </script>
 {% include "breadcrumbs" %}

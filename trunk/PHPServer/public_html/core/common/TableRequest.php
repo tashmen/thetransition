@@ -71,7 +71,7 @@ class TableRequest implements iTableRequest {
     
     public function HasPaging(){
         $return = false;
-        if($this->limit != '' && $this->start != ''){
+        if($this->limit !== '' && $this->start !== ''){
             $return = true;
         }
         return $return;
