@@ -3,14 +3,16 @@ Ext.define('Ext.ux.FormGrid',{
 	alias: 'widget.formgrid',
 	width: 'auto',
 	forceFit: true,
+	plugins: [],
 	viewConfig: {
 		listeners: {
 			expandbody: function(rowNode, record, expandRow, eOpts){
 				var row = 'rowExpander-row-' + record.get('id');
 				if(Ext.get(row).dom.innerHTML == '')
 				{
+					var grid = this.findParentByType('grid');
 					var formPanel = Ext.create("Ext.form.Panel", {
-						items: GetFormItems()
+						items: grid.GetFormItems()
 					});
 					formPanel.render(row);
 					formPanel.loadRecord(record);
@@ -44,62 +46,69 @@ Ext.define('Ext.ux.FormGrid',{
 		this.plugins.splice(0,0,rowExpander);//Row expander is assumed to be the first plugin.
 		
 		this.callParent();
-		this.addDocked([{
+		this.addDocked([
+			{
 				xtype: 'pagingtoolbar',
 				store: this.store,
 				dock: 'bottom',
 				displayInfo: true
-			}]);
-		this.addTool([
-			{
-				text: 'Add',
-				iconCls: 'add-icon',
-				handler : function() {
-					var grid = this.findParentByType('grid');
-
-					// Create a model instance
-					var r = {};
-					var store = grid.getStore();
-					store.insert(0, r);
-					
-					grid.plugins[0].toggleRow(0, store.getAt(0));
-				}
-			}, 
-			{
-				itemId: 'remove',
-				text: 'Remove',
-				iconCls: 'remove-icon',
-				handler: function() {
-					var sm = this.findParentByType('grid').getSelectionModel();
-					var store = this.findParentByType('grid').getStore();
-					store.remove(sm.getSelection());
-					if (store.getCount() > 0) {
-						sm.select(0);
-					}
-				},
-				disabled: true
 			},
 			{
-				itemId: 'save',
-				text: 'Save',
-				iconCls: 'save-icon',
-				handler: function() {
-					var grid = this.findParentByType('grid');
-					grid.allFormsValid = true;
-					grid.plugins[0].expandAll(false);
-					if(grid.allFormsValid)
-						grid.getStore().sync();
-				}
+				xtype: 'toolbar',
+				dock: 'top',
+				items:[
+					{
+						xtype: 'button',
+						text: 'Add',
+						iconCls: 'add-icon',
+						handler : function() {
+							var grid = this.findParentByType('grid');
+
+							// Create a model instance
+							var r = {};
+							var store = grid.getStore();
+							store.insert(0, r);
+							
+							grid.plugins[0].toggleRow(0, store.getAt(0));
+						}
+					}, 
+					{
+						xtype: 'button',
+						itemId: 'remove',
+						text: 'Remove',
+						iconCls: 'remove-icon',
+						handler: function() {
+							var sm = this.findParentByType('grid').getSelectionModel();
+							var store = this.findParentByType('grid').getStore();
+							store.remove(sm.getSelection());
+							if (store.getCount() > 0) {
+								sm.select(0);
+							}
+						},
+						disabled: true
+					},
+					{
+						xtype: 'button',
+						itemId: 'save',
+						text: 'Save',
+						iconCls: 'save-icon',
+						handler: function() {
+							var grid = this.findParentByType('grid');
+							grid.allFormsValid = true;
+							grid.plugins[0].expandAll(false);
+							if(grid.allFormsValid)
+								grid.getStore().sync();
+						}
+					}
+				]
 			}
 		]);
-			
-		
 		
 		this.on('selectionchange', function(view, records) {
 					this.down('#remove').setDisabled(!records.length);
 				}, this);
 	},
-	getForm: function(){
+	GetFormItems: function(){
 		alert("Developer must provide this function");
 	}
 });
@@ -567,12 +576,12 @@ Ext.define('proxy.customphp', {
 	extend: 'Ext.data.proxy.Ajax', 
 	useDefaultXhrHeader: false, 
 	method:'post',
-	url: 'http://thetransition.comeze.com/api.php',
+	url: Transition.global.siteLocation,
 	api: {
-		create  : 'http://thetransition.comeze.com/api.php?action=create',
-		read    : 'http://thetransition.comeze.com/api.php?action=read',
-		update  : 'http://thetransition.comeze.com/api.php?action=update',
-		destroy : 'http://thetransition.comeze.com/api.php?action=delete'
+		create  : Transition.global.siteLocation + '?action=create',
+		read    : Transition.global.siteLocation + '?action=read',
+		update  : Transition.global.siteLocation + '?action=update',
+		destroy : Transition.global.siteLocation + '?action=delete'
 	},
 	extraParams: {
 		id1: Transition.user.id,

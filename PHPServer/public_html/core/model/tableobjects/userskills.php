@@ -9,7 +9,7 @@ class userskills extends TableObject {
       @return - the primary table as a string
      */
 
-    protected function GetPrimaryTable() {
+    public function GetPrimaryTable() {
         return "userskills";
     }
 
