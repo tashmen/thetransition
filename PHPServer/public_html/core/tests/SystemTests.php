@@ -12,6 +12,7 @@ class SystemTests {
         $this->testMap[] = 'UserReviewsTest';
         $this->testMap[] = 'SkillsTest';
         $this->testMap[] = 'UserSkillsTest';
+        $this->testMap[] = 'UserPhaseStepsTest';
     }
     
     public function run($connection)

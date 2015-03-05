@@ -52,6 +52,9 @@ class Filter implements iFilter {
             case "lt":
                 $operator = "<";
                 break;
+            case "lte":
+                $operator = "<=";
+                break;
             default:
                 throw new Exception("Invalid operator given: " . $operator);
         }

@@ -83,7 +83,7 @@ class Logger {
         if ($filesize > 4000000){
             rename(Constants::$mysite . $filename, Constants::$mysite . $filename . date('m-d-Y-h-i-s', time()));
         }
-        fwrite($fp, date('m/d/Y h:i:s ', time()) . $req_dump);
+        fwrite($fp, date('m/d/Y h:i:s ', time()) . $req_dump . "\r\n");
         fclose($fp);
     }
 

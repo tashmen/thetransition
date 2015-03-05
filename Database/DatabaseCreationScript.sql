@@ -427,7 +427,15 @@ VIEW `userspacesview` AS
         join `userspaces` ON ((`users`.`id` = `userspaces`.`userid`)))
         join `spaces` ON ((`userspaces`.`spaceid` = `spaces`.`id`)));
 
+		
 --
--- Dumping data for table `userspacesview`
+-- Table structure for table `userphasestepsview`
 --
+DROP VIEW IF EXISTS	`userphasestepsview`;
+CREATE VIEW `userphasestepsview` AS
+SELECT ups.*, pp.name as planphasename, ps.name as phasestepname, u.fullname, ps.planphaseid 
+FROM  userphasesteps ups 
+inner join phasesteps ps on ps.id = ups.phasestepid 
+inner join planphases pp on pp.id = ps.planphaseid
+inner join users u on u.id = ups.userid
 

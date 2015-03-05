@@ -133,6 +133,22 @@ Ext.define('Ext.ux.RowExpander', {
 	}
 });
 
+//Override to fix an IE issue where colspan can't be set to 0
+Ext.define('Ext.grid.feature.RowBody', {
+    override :'Ext.grid.feature.RowBody',
+
+    onColumnsChanged: function (headerCt) {
+		var items = this.view.el.query(this.rowBodyTdSelector),
+			colspan = headerCt.getVisibleGridColumns().length,
+			len = items.length,
+			i;
+		colspan = colspan == 0 ? 1 : colspan;
+		for (i = 0; i < len; ++i) {
+			items[i].colSpan = colspan;
+		}
+	}
+});
+
 /* Using this panel requires the following script include:
 src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=geometry"
 */

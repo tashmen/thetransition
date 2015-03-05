@@ -1,4 +1,5 @@
 <?php
+
 /*
   Generic Table Object for handling the base functions (create, read, update, delete)
   Read - Should be able to handle sorting and filtering
@@ -8,18 +9,23 @@
  */
 
 abstract class TableObject implements iExtOperations, iCRUDOperations {
+
     //Note Private variables can't be accessed from sub-classes; use the protected/public methods instead
     private $connection;
     private $request;
     private $properties;
     private $results;
     private $columnSchema;
+    private $columnList;
+    private $columnSchemaView;
+    private $columnListView;
+
     /*
       Retrieves the primary table for the object
       @return - the primary table as a string
      */
 
-    abstract public function GetPrimaryTable();    
+    abstract public function GetPrimaryTable();
 
     /*
       Retrieves the default sort column name
@@ -27,91 +33,107 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
      */
 
     abstract protected function GetDefaultSortColumn();
-    
+
     /*
      * Retrieves the security string for accessing the table object
      * @return an array of allowed functions
      */
+
     abstract public function GetSecurity();
-    
+
     public function __construct(iDatabase $con, iTableRequest $request = null) {
         $this->connection = $con;
         $this->request = $request;
         $this->properties = array();
         $this->columnSchema = $this->connection->GetColumnSchema($this->GetPrimaryTable());
+        $columnSchema = $this->GetColumnSchema();
+        $columns = array();
+        $keys = array();
+        foreach ($columnSchema as $column) {
+            array_push($columns, $column->GetColumnName());
+            if ($column->IsPrimaryKey()) {
+                array_push($keys, $column->GetColumnName());
+            }
+        }
+        $this->columnList = new ColumnList($this->GetPrimaryTable(), $columns, $keys);
+        
+        if($this->GetPrimaryTable() != $this->GetPrimaryTableView())
+        {
+            $this->columnSchemaView = $this->connection->GetColumnSchema($this->GetPrimaryTableView());
+            $columnSchema = $this->columnSchemaView;
+            $columns = array();
+            $keys = array();
+            foreach ($columnSchema as $column) {
+                array_push($columns, $column->GetColumnName());
+                if ($column->IsPrimaryKey()) {
+                    array_push($keys, $column->GetColumnName());
+                }
+            }
+            $this->columnListView = new ColumnList($this->GetPrimaryTableView(), $columns, $keys);
+        }
     }
-    
+
     /*
       Retrieves the column list for the table
       @return - a list of columns for the table
      */
 
-    protected function GetColumns(){
-        $columnSchema = $this->GetColumnSchema();
-        $columns = array();
-        $keys = array();
-        foreach($columnSchema as $column)
-        {
-            array_push($columns, $column->GetColumnName());
-            if($column->IsPrimaryKey())
-            {
-                array_push($keys, $column->GetColumnName());
-            }
-        }
-        return new ColumnList($this->GetPrimaryTable(), $columns, $keys);
+    protected function GetColumns() {
+        return $this->columnList;
     }
-    
+
     /*
       Retrieves the column list for the view
       @return a list of columns for the view
      */
 
-    protected function GetColumnsView(){
-        return $this->GetColumns();
+    protected function GetColumnsView() {
+        $columns = $this->GetColumns();
+        if($this->GetPrimaryTable() != $this->GetPrimaryTableView())
+        {
+            $columns = $this->columnListView;
+        }
+        return $columns;
     }
-    
+
     /*
       Retrieves the view name for the object
       @return - the view of the object
      */
 
-    protected function GetPrimaryTableView(){
+    protected function GetPrimaryTableView() {
         return $this->GetPrimaryTable();
     }
-    
-    protected function GetColumnSchema()
-    {
+
+    protected function GetColumnSchema() {
         return $this->columnSchema;
     }
-    
-    protected function GetConnection()
-    {
+
+    protected function GetConnection() {
         return $this->connection;
     }
-    
-    protected function GetRequest()
-    {
+
+    protected function GetRequest() {
         return $this->request;
     }
-    
-    protected function GetData()
-    {
+
+    protected function GetData() {
         return $this->request->GetData();
     }
-    
+
     protected function AddProperty($name, $value) {
         $this->properties[$name] = $value;
     }
-    
-    public function GetProperties(){
+
+    public function GetProperties() {
         return $this->properties;
     }
-    
-    public function GetResults(){
+
+    public function GetResults() {
         return $this->results;
     }
-    
-    protected function SetResults(array $results){
+
+    protected function SetResults(array $results) {
         $this->results = $results;
     }
 
@@ -244,12 +266,12 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         }
         $this->SetResults($records);
     }
-    
+
     /*
      * Returns a string for the Order by clause.  This function will default to using the Default sort order and ascending if none is specified.
      */
-    private function GetOrderBy()
-    {
+
+    private function GetOrderBy() {
         //Grab sorting
         $orderColumn = $this->request->GetSortColumn();
         if (!$this->ValidateColumnView($orderColumn)) {
@@ -260,12 +282,12 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         $orderby = " Order By " . $orderColumn . " " . $orderDirection;
         return $orderby;
     }
-    
+
     /*
      * Returns a string containing the limit if one is required for paging.
      */
-    private function GetLimit()
-    {
+
+    private function GetLimit() {
         //Add paging parameters if they exist
         $strLimit = "";
         if ($this->request->HasPaging()) {
@@ -275,13 +297,13 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         }
         return $strLimit;
     }
-    
+
     /*
      * @param parameters - An array of parameters to be returned for the where clause
      * @return Returns the string container the parameterized where clause
      */
-    private function GetWhere(&$parameters)
-    {
+
+    private function GetWhere(&$parameters) {
         $where = "";
         //Implement filtering
         $filters = $this->request->GetFilters();
@@ -294,7 +316,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
             }
             $value = $filter->GetValue();
             $operator = $filter->GetOperator();
-            
+
             if ($filter->IsValid()) {
                 if ($criteria != "") {
                     $criteria = $criteria . "and ";
@@ -303,11 +325,10 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
                 $parameters[] = $value;
             }
         }
-        if($criteria != "")
-        {
+        if ($criteria != "") {
             $where = " where " . $criteria;
         }
-        
+
         return $where;
     }
 
@@ -316,15 +337,14 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         $strLimit = $this->GetLimit();
 
         $select = "SELECT * FROM " . $this->GetPrimaryTableView();
-        
+
         $parameters = array();
         $where = $this->GetWhere($parameters);
-        
+
         //Use count to find the actual total results since we might be paging
         $countSelect = "SELECT COUNT(*) FROM " . $this->GetPrimaryTableView();
 
         $statement = $select . $where . $orderby . $strLimit;
-        Logger::LogError($statement, Logger::debug);
         $countStatement = $countSelect . $where;
 
         //Execute the statements and return the results
@@ -353,8 +373,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
     public function GetExtColumns() {
         $columnSchema = $this->GetColumnSchema();
         $itemArray = array();
-        foreach($columnSchema as $column)
-        {
+        foreach ($columnSchema as $column) {
             $itemArray[] = Ext::BuildColumnObject($column);
         }
         return $itemArray;
@@ -364,8 +383,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
     public function GetExtModel() {
         $columnSchema = $this->GetColumnSchema();
         $itemArray = array();
-        foreach($columnSchema as $column)
-        {
+        foreach ($columnSchema as $column) {
             $itemArray[] = Ext::BuildModelObject($column);
         }
         return $itemArray;
@@ -375,8 +393,8 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
     public function GetExtStore() {
         //$columnSchema = $this->GetColumnSchema();
         $itemArray = array();
-        
-        
+
+
         return $itemArray;
     }
 
@@ -387,10 +405,8 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         $extview['columns'] = $this->GetExtColumns();
         $extview['model'] = $this->GetExtModel();
         $extview['store'] = $this->GetExtStore();
-        
+
         $this->SetResults($extview);
     }
 
 }
-?>
-

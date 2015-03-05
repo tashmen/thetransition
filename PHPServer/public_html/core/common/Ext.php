@@ -37,7 +37,7 @@ class Ext {
             $itemObject[] = $formObject;
         }
         
-        $fieldSet[items] = $itemObject;
+        $fieldSet['items'] = $itemObject;
         return array($fieldSet);
     }
     
@@ -78,7 +78,7 @@ class Ext {
                 break;  
             case 'varchar':
                 $return['maxLength'] = $columnSchema->GetMaxLength();
-                $return['xtype'] = $return['maxLength'] == 100 ? 'textfield' : 'textareafield';
+                $return['xtype'] = $return['maxLength'] <= 100 ? 'textfield' : 'textareafield';
                 break;
             case 'date':
             case 'datetime':
