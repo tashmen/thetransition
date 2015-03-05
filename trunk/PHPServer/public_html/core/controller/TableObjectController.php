@@ -15,9 +15,12 @@ class TableObjectController extends AbstractController{
         //The value is the class name that is mapped to the given key
         $this->resourceToObjectMap['objectcategory'] = 'objectcategory';
         $this->resourceToObjectMap['objectpermanence'] = 'objectpermanence';
+        $this->resourceToObjectMap['phasesteps'] = 'phasesteps';
+        $this->resourceToObjectMap['planphases'] = 'planphases';
         $this->resourceToObjectMap['skills'] = 'skills';
         $this->resourceToObjectMap['spaces'] = 'spaces';
         $this->resourceToObjectMap['userobjects'] = 'userobjects';
+        $this->resourceToObjectMap['userphasesteps'] = 'userphasesteps';
         $this->resourceToObjectMap['userreviews'] = 'userreviews';
         $this->resourceToObjectMap['userskills'] = 'userskills';
         $this->resourceToObjectMap['userspaces'] = 'userspaces';
@@ -151,5 +154,3 @@ class TableObjectController extends AbstractController{
         return $results;
     }
 }
-
-?>

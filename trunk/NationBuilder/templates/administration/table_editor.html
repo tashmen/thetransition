@@ -4,21 +4,16 @@
     Ext.onReady(function() {
 		Ext.QuickTips.init();
 		
-		Ext.Ajax.request({
-			url: Transition.global.siteLocation,
-			useDefaultXhrHeader: false, 
-			params: {
-				id1: Transition.user.id,
-				id2: Transition.user.id2,
-				resource: 'tableobject',
-				action: 'gettables'
-			},
-			success: function(response){
-				var response = response.responseText;
-				var tables = Ext.JSON.decode(response)
-				ProcessSuccess(tables.tableobject);
-			}
-		});
+		var params = {
+			resource: 'tableobject',
+			action: 'gettables'
+		};
+		var onSuccess = function(response){
+			var response = response.responseText;
+			var tables = Ext.JSON.decode(response)
+			ProcessSuccess(tables.tableobject);
+		};
+		Transition.global.ajaxRequest(params, onSuccess);
 		
 		function ProcessSuccess(tables)
 		{

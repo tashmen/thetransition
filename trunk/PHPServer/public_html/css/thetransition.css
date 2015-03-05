@@ -10,7 +10,7 @@
 .x-action-col-cell img.ux-rating-icon {
 	height: 16px;
 	width: 16px;
-	background-image: url('thetransitionimages/grid/rating.gif');
+	background-image: url('thetransitionimages/rating.gif');
 }
 .x-action-col-cell img.ux-rating-icon-on {
 	background-position: 0 -16px;

@@ -5,7 +5,23 @@ var Transition = {
 		imagesLocation: 'http://thetransition.comeze.com/css/thetransitionimages/',
 		imageUploadLocation: 'http://thetransition.comeze.com/upload/images/',
 		uploadImageFileExtension: '.png',
-		siteLocation: 'http://thetransition.comeze.com/api.php'
+		siteLocation: 'http://thetransition.comeze.com/api.php',
+		ajaxRequest: function(params, onSuccess){
+			params.id1 = Transition.user.id
+			params.id2 = Transition.user.id2
+			Ext.Ajax.request({
+				url: Transition.global.siteLocation,
+				useDefaultXhrHeader: false, 
+				params: params,
+				success: Ext.Function.createInterceptor(onSuccess, function(response, opts){
+					//TODO: Add possible failure logic; check if we can reuse some of the logic in the customphp proxy
+					return true;
+				}),
+				failure: function(response, opts){
+					//TODO: Add failure logic; check if we can reuse some of the logic in the customphp proxy
+				}
+			});
+		}
 	},
 	user: {
 		id: '{{request.current_user.id}}',

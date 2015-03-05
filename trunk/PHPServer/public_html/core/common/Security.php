@@ -22,14 +22,14 @@ class Security {
             self::$isAdmin = $records[0]['adminflg'];
             return true;
         }
-        throw new Exception("User is not allowed access to this system");
+        throw new Exception("Security: User is not allowed access to this system");
     }
 
     public static function ValidateColumn($columnName, $columnValue) {
         if ($columnName == 'userid') {
-            if (self::$userid != $columnValue)
+            if (self::$userid != $columnValue && !self::IsAdmin())
             {
-                throw new Exception("Attempt to set a record to an invalid user");
+                throw new Exception("Security: Attempt to set a record to an invalid user: " . $columnValue);
             }
         }
         return true;
@@ -38,10 +38,11 @@ class Security {
     public static function IsAdmin()
     {
         $return = false;
-        if(self::$isAdmin == "1")
+        if(self::$isAdmin == "1"){
             $return = true;
+        }
         return $return;
     }
 }
-?>
+
 

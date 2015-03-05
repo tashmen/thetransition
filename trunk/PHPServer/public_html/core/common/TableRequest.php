@@ -45,6 +45,13 @@ class TableRequest implements iTableRequest {
             $sort = RequestData::GetRequestData('sort', RequestData::$filterJson);
             $this->SetSort($sort);
         }
+        else{
+            $this->filters = array();
+            $this->limit = '';
+            $this->start = '';
+            $this->sortColumn = '';
+            $this->sortDirection = 'ASC';
+        }
     }
     
     public function SetData($data){
@@ -53,6 +60,13 @@ class TableRequest implements iTableRequest {
 
     public function GetData() {
         return $this->data;
+    }
+    
+    /*
+     * Sets an array of filters on the request
+     */
+    public function SetFilters(array $filters){
+        $this->filters = $filters;
     }
 
     public function GetFilters() {
