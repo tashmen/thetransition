@@ -439,3 +439,20 @@ inner join phasesteps ps on ps.id = ups.phasestepid
 inner join planphases pp on pp.id = ps.planphaseid
 inner join users u on u.id = ups.userid
 
+
+
+
+--
+-- Table structure for table `userbuds`
+--
+
+DROP TABLE IF EXISTS `userbuds`;
+CREATE TABLE `userbuds` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `userid` int(11) NOT NULL COMMENT 'User who created the Bud',
+  `name` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name of the BUD',
+  `description` varchar(4000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Description of the BUD',
+  `seedperson` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'The Seed Person for the BUD',
+  PRIMARY KEY (`id`),
+  KEY `userid` (`userid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Holds User created BUDs' AUTO_INCREMENT=1 ;
