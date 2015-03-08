@@ -1,0 +1,295 @@
+{% include "thetransitionglobaluser" %}
+{% include "thetransitionextheader" %}
+<script type="text/javascript">
+    Ext.onReady(function() {
+		Ext.QuickTips.init();
+		
+		Ext.define('UserBuds', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id',
+				}, 
+				{
+					name: 'userid',
+					defaultValue: Transition.user.id
+				},
+				{
+					name: 'name'
+				},
+				{
+					name: 'description'
+				},
+				{
+					name: 'imageFile'
+				},
+				{
+					name: 'imageDisplay',
+					calculate: function (data) {
+						//There is no image for newly created records so don't display one
+						if(data.id)
+							return Transition.global.imageUploadLocation + 'userbuds/' + data.id + Transition.global.uploadImageFileExtension;
+						return "";
+					}
+				},
+				{
+					name: 'seedperson'
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'userbuds'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'userbuds'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		
+		function GetFormItems()
+		{
+			return [
+				{
+					xtype: 'container',
+					collapsible: false,
+					border: false,
+					layout: 'column',
+					items: [
+						{
+							xtype: 'image',
+							itemId: 'imageDisplay',
+							columnWidth: 0.2
+						},
+						{
+							xtype: 'hiddenfield',
+							name: 'imageDisplay',
+							setValue: function(value)
+							{
+								if(value != undefined)
+								{
+									var form = this.findParentByType('form');
+									var imageDisplay = form.down('#imageDisplay');
+									imageDisplay.setSrc(value);
+								}
+							}
+						},
+						{
+							xtype: 'fieldset',
+							collapsible: false,
+							border: false,
+							margin: '5',
+							columnWidth: 0.8,
+							defaults: {
+								labelAlign: 'right',
+								width: '100%'
+							},
+							items:[
+								{
+									xtype: 'textfield',
+									fieldLabel: 'Name',
+									name: 'name',
+									allowBlank: false,
+									maxLength: '500'
+								},
+								{
+									xtype: 'textareafield',
+									fieldLabel: 'Description',
+									name: 'description',
+									allowBlank: false,
+									maxLength: '4000'
+								},
+								{
+									xtype: 'textfield',
+									fieldLabel: 'Seed Person',
+									name: 'seedperson',
+									allowBlank: false,
+									maxLength: '500'
+								},
+								{
+									xtype: 'filefield',
+									name: 'image',
+									fieldLabel: 'Photo',
+									allowBlank: true,
+									buttonText: 'Select Photo...',
+									listeners: {
+										change: function( self, value, eOpts )
+										{
+											var files = self.fileInputEl.dom.files;
+											var f = files[0];//only consider the first file
+											// Only process image files.
+											if (!f.type.match('image.*')) {
+												Ext.MessageBox.show({
+													title: 'Invalid File',
+													msg: 'The uploaded file is not an image',
+													buttons: Ext.MessageBox.OK,
+													icon: Ext.MessageBox.ERROR
+												});
+											}
+											
+											 var reader = new FileReader();
+
+											// Closure to capture the file information.
+											reader.onload = (function(theFile, self) {
+												return function(e) {
+													// Render thumbnail.
+													var form = self.findParentByType('form');
+													var imageDisplay = form.down('#imageDisplay');
+													imageDisplay.setSrc(e.target.result);
+													form.getForm().findField('imageFile').setValue(e.target.result);
+												};
+											})(f, self);
+
+											// Read in the image file as a data URL.
+											reader.readAsDataURL(f);
+										}
+									}
+								},
+								{
+									xtype: 'hiddenfield',
+									name: 'imageFile'
+								}
+							]
+						}
+					]
+				}
+			];
+		}
+		
+		var myBudsStore = Ext.create('Ext.data.Store', {
+			storeId:'myBudsStore',
+			model: 'UserBuds',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [
+				{
+					property: "userid",
+					value: Transition.user.id,
+					operator: "eq"
+				}
+			],
+			pageSize: 20
+		});
+		
+		
+		
+		var otherBudsStore = Ext.create('Ext.data.Store', {
+			storeId:'otherBudsStore',
+			model: 'UserBuds',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [
+				{
+					property: "userid",
+					value: Transition.user.id,
+					operator: "ne"
+				}
+			],
+			pageSize: 20
+		});
+		
+		var grid = Ext.create('Ext.ux.FormGrid', {
+			title: 'My Buds',
+			store: myBudsStore,
+			GetFormItems: GetFormItems,
+			columns: [
+				{
+					text: 'Name',
+					dataIndex: 'name',
+					hideable: false,
+					sortable: false,
+				},
+				{
+					text: 'Seed Person',  
+					dataIndex: 'seedperson', 
+					hideable: false,
+					sortable: false
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'grid'
+		});
+		
+		var otherGrid = Ext.create('Ext.ux.FormGrid', {
+			title: 'Other Member\'s Buds',
+			store: otherBudsStore,
+			GetFormItems: GetFormItems,
+			allowAdd: false,
+			allowSave: false,
+			allowRemove: false,
+			columns: [
+				{
+					text: 'Name',
+					dataIndex: 'name',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Seed Person',  
+					dataIndex: 'seedperson', 
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'othergrid',
+			plugins: ['gridfilters']
+		});
+		
+		myBudsStore.load();
+		otherBudsStore.load();
+	});
+</script>
+{% include "breadcrumbs" %}
+
+{% if page.headline.size > 0 %}
+<h2 class="headline">{{ page.headline }}</h2>
+{% endif %}
+
+<div id="content">
+
+  <div id="intro" class="intro">
+    <div class="text-content">
+      {{ page.basic.content }}
+    </div>
+  </div>
+
+
+	<div id = "grid"></div>
+	<br>
+	<br>
+	<div id = "othergrid"></div>
+	
+	{% if page.tags_count > 0 %}
+  <div class="page-tags">
+    {% include "page_tags" with page %}
+  </div>
+  {% endif %}
+
+  {% if page.is_homepage? == true and site.page_tags contains "homepage" %}
+    {% tag "homepage" with "homepage_widget" %}
+  {% endif %}
+
+  <div class="like-page">
+    <strong>Do you like this page?</strong>
+    {% include "like_page" %}
+  </div>
+
+  {% if page.show_stream? %}
+  {% include "page_stream" %}
+  {% endif %}
+
+</div>
+
+{% include "donateLink" with "pay_what_you_want" %} 

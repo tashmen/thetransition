@@ -51,23 +51,18 @@
 								}
 								else
 								{
-									Ext.Ajax.request({
-										url: Transition.global.siteLocation,
-										useDefaultXhrHeader: false, 
-										params: {
-											id1: Transition.user.id,
-											id2: Transition.user.id2,
-											resource: newValue,
-											action: 'extdata'
-										},
-										success: function(response){
-											var response = response.responseText;
-											var resource = newValue;
-											var data = Ext.JSON.decode(response)[resource];
-											grid.dataArray.push({resource : data});
-											grid.changeTable(data.columns, data.form, data.model, newValue);
-										}
-									});
+									var params = {
+										resource: newValue,
+										action: 'extdata'
+									}
+									var onSuccess = function(response){
+										var response = response.responseText;
+										var resource = newValue;
+										var data = Ext.JSON.decode(response)[resource];
+										grid.dataArray.push({resource : data});
+										grid.changeTable(data.columns, data.form, data.model, newValue);
+									};
+									Transition.global.ajaxRequest(params, onSuccess);
 								}
 							}
 						}
@@ -114,9 +109,6 @@
 				}
 			});
 		}
-
-		
-		
 	});
 </script>
 {% include "breadcrumbs" %}

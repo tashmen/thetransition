@@ -3,6 +3,9 @@ Ext.define('Ext.ux.FormGrid',{
 	alias: 'widget.formgrid',
 	width: 'auto',
 	forceFit: true,
+	allowAdd: true,
+	allowSave: true,
+	allowRemove: true,
 	plugins: [],
 	viewConfig: {
 		listeners: {
@@ -46,63 +49,78 @@ Ext.define('Ext.ux.FormGrid',{
 		this.plugins.splice(0,0,rowExpander);//Row expander is assumed to be the first plugin.
 		
 		this.callParent();
-		this.addDocked([
-			{
-				xtype: 'pagingtoolbar',
-				store: this.store,
-				dock: 'bottom',
-				displayInfo: true
-			},
-			{
+		
+		var toolbarItems = [];
+		if(this.allowAdd)
+		{
+			toolbarItems.push({
+				xtype: 'button',
+				text: 'Add',
+				iconCls: 'add-icon',
+				handler : function() {
+					var grid = this.findParentByType('grid');
+
+					// Create a model instance
+					var r = {};
+					var store = grid.getStore();
+					store.insert(0, r);
+					
+					grid.plugins[0].toggleRow(0, store.getAt(0));
+				}
+			});
+		}
+		if(this.allowRemove)
+		{
+			toolbarItems.push({
+				xtype: 'button',
+				itemId: 'remove',
+				text: 'Remove',
+				iconCls: 'remove-icon',
+				handler: function() {
+					var sm = this.findParentByType('grid').getSelectionModel();
+					var store = this.findParentByType('grid').getStore();
+					store.remove(sm.getSelection());
+					if (store.getCount() > 0) {
+						sm.select(0);
+					}
+				},
+				disabled: true
+			});
+		}
+		if(this.allowSave)
+		{
+			toolbarItems.push({
+				xtype: 'button',
+				itemId: 'save',
+				text: 'Save',
+				iconCls: 'save-icon',
+				handler: function() {
+					var grid = this.findParentByType('grid');
+					grid.allFormsValid = true;
+					grid.plugins[0].expandAll(false);
+					if(grid.allFormsValid)
+						grid.getStore().sync();
+				}
+			});
+		}
+		
+		var dockedItems = [{
+			xtype: 'pagingtoolbar',
+			store: this.store,
+			dock: 'bottom',
+			displayInfo: true
+		}];
+		
+		if(toolbarItems.length != 0)
+		{
+			dockedItems.push({
 				xtype: 'toolbar',
 				dock: 'top',
-				items:[
-					{
-						xtype: 'button',
-						text: 'Add',
-						iconCls: 'add-icon',
-						handler : function() {
-							var grid = this.findParentByType('grid');
-
-							// Create a model instance
-							var r = {};
-							var store = grid.getStore();
-							store.insert(0, r);
-							
-							grid.plugins[0].toggleRow(0, store.getAt(0));
-						}
-					}, 
-					{
-						xtype: 'button',
-						itemId: 'remove',
-						text: 'Remove',
-						iconCls: 'remove-icon',
-						handler: function() {
-							var sm = this.findParentByType('grid').getSelectionModel();
-							var store = this.findParentByType('grid').getStore();
-							store.remove(sm.getSelection());
-							if (store.getCount() > 0) {
-								sm.select(0);
-							}
-						},
-						disabled: true
-					},
-					{
-						xtype: 'button',
-						itemId: 'save',
-						text: 'Save',
-						iconCls: 'save-icon',
-						handler: function() {
-							var grid = this.findParentByType('grid');
-							grid.allFormsValid = true;
-							grid.plugins[0].expandAll(false);
-							if(grid.allFormsValid)
-								grid.getStore().sync();
-						}
-					}
-				]
-			}
-		]);
+				items:toolbarItems
+			});
+		}
+		
+		this.addDocked(dockedItems);
 		
 		this.on('selectionchange', function(view, records) {
 					this.down('#remove').setDisabled(!records.length);
