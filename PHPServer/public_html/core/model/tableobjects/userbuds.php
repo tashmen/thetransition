@@ -12,6 +12,15 @@ class userbuds extends TableObject {
     public function GetPrimaryTable(){
         return 'userbuds';
     }
+    
+    /*
+      Retrieves the view name for the object
+      @return - the view of the object
+     */
+    
+    protected function GetPrimaryTableView() {
+        return 'userbudsview';
+    }
 
     /*
       Retrieves the default sort column name

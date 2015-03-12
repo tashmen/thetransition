@@ -28,3 +28,13 @@
 	width: 16px;
 	background-image: url('thetransitionimages/filter-delete-icon.png');
 }
+.expandall-icon{
+	height: 16px;
+	width: 16px;
+	background-image: url('images/grid/group-expand.gif');
+}
+.collapseall-icon{
+	height: 16px;
+	width: 16px;
+	background-image: url('images/grid/group-collapse.gif');
+}

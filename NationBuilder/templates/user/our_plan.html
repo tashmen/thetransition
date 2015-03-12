@@ -368,6 +368,10 @@
 			model: 'OtherUserPhaseSteps',
 			remoteSort: true,
 			remoteFilter: true,
+			sorters: [{
+				property: 'phasestepnumber',
+				direction: 'ASC'
+			}],
 			filters: [{
 				property: "userid",
 				value: Transition.user.id,
