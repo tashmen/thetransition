@@ -1,3 +1,4 @@
+
 Ext.define('Ext.ux.FormGrid',{
 	extend: 'Ext.grid.GridPanel',
 	alias: 'widget.formgrid',
@@ -6,6 +7,8 @@ Ext.define('Ext.ux.FormGrid',{
 	allowAdd: true,
 	allowSave: true,
 	allowRemove: true,
+	allowExpandCollapseAll: true,
+	formReadOnly: false,
 	plugins: [],
 	viewConfig: {
 		listeners: {
@@ -19,25 +22,35 @@ Ext.define('Ext.ux.FormGrid',{
 					});
 					formPanel.render(row);
 					formPanel.loadRecord(record);
+					
+					if(this.grid.formReadOnly)
+					{
+						formPanel.getForm().getFields().each (function (field) {
+						  field.setReadOnly(true);
+						});
+					}
 				}
 			},
 			collapsebody: function(rowNode, record, expandRow, eOpts){
-				var row = 'rowExpander-row-' + record.get('id');
-				var form = Ext.getCmp(Ext.get(row).dom.children[0].id);
-				if(form.isValid())
+				if(this.grid.allowSave)
 				{
-					form.updateRecord(record);
-				}
-				else
-				{
-					this.grid.plugins[0].toggleRow(this.grid.getStore().indexOfId(record.id),record);
-					this.grid.allFormsValid = false;
-					Ext.MessageBox.show({
-						title: "Error",
-						msg: "Form is invalid.  Please fix the errors.",
-						buttons: Ext.MessageBox.OK,
-						icon: Ext.MessageBox.ERROR
-					});
+					var row = 'rowExpander-row-' + record.get('id');
+					var form = Ext.getCmp(Ext.get(row).dom.children[0].id);
+					if(form.isValid())
+					{
+						form.updateRecord(record);
+					}
+					else
+					{
+						this.grid.plugins[0].toggleRow(this.grid.getStore().indexOfId(record.id),record);
+						this.grid.allFormsValid = false;
+						Ext.MessageBox.show({
+							title: "Error",
+							msg: "Form is invalid.  Please fix the errors.",
+							buttons: Ext.MessageBox.OK,
+							icon: Ext.MessageBox.ERROR
+						});
+					}
 				}
 			}
 		}
@@ -104,6 +117,31 @@ Ext.define('Ext.ux.FormGrid',{
 			});
 		}
 		
+		if(this.allowExpandCollapseAll)
+		{
+			toolbarItems.push({
+				xtype: 'button',
+				itemId: 'expandall',
+				text: 'Expand All',
+				iconCls: 'expandall-icon',
+				handler: function(){
+					var grid = this.findParentByType('grid');
+					grid.plugins[0].expandAll(true);
+				}
+			});
+		
+			toolbarItems.push({
+				xtype: 'button',
+				itemId: 'collapseall',
+				text: 'Collapse All',
+				iconCls: 'collapseall-icon',
+				handler: function(){
+					var grid = this.findParentByType('grid');
+					grid.plugins[0].expandAll(false);
+				}
+			});
+		}
+		
 		var dockedItems = [{
 			xtype: 'pagingtoolbar',
 			store: this.store,
@@ -122,9 +160,12 @@ Ext.define('Ext.ux.FormGrid',{
 		
 		this.addDocked(dockedItems);
 		
-		this.on('selectionchange', function(view, records) {
-					this.down('#remove').setDisabled(!records.length);
-				}, this);
+		if(this.allowRemove)
+		{
+			this.on('selectionchange', function(view, records) {
+				this.down('#remove').setDisabled(!records.length);
+			}, this);
+		}
 	},
 	GetFormItems: function(){
 		alert("Developer must provide this function");

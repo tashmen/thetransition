@@ -433,7 +433,7 @@ VIEW `userspacesview` AS
 --
 DROP VIEW IF EXISTS	`userphasestepsview`;
 CREATE VIEW `userphasestepsview` AS
-SELECT ups.*, pp.name as planphasename, ps.name as phasestepname, u.fullname, ps.planphaseid 
+SELECT ups.*, pp.name as planphasename, ps.name as phasestepname, ps.number as phasestepnumber, u.fullname, ps.planphaseid 
 FROM  userphasesteps ups 
 inner join phasesteps ps on ps.id = ups.phasestepid 
 inner join planphases pp on pp.id = ps.planphaseid
@@ -456,3 +456,16 @@ CREATE TABLE `userbuds` (
   PRIMARY KEY (`id`),
   KEY `userid` (`userid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Holds User created BUDs' AUTO_INCREMENT=1 ;
+
+--
+-- Table structure for view 'userbudsview'
+--
+
+DROP VIEW IF EXISTS `userbudsview`;
+CREATE 
+VIEW `userbudsview` AS
+    select ub.*, u.fullname
+        
+    from
+		userbuds ub inner join
+		users u on u.id = ub.userid

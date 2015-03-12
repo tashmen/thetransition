@@ -15,6 +15,9 @@
 					defaultValue: Transition.user.id
 				},
 				{
+					name: 'fullname'
+				},
+				{
 					name: 'name'
 				},
 				{
@@ -96,18 +99,18 @@
 									maxLength: '500'
 								},
 								{
-									xtype: 'textareafield',
-									fieldLabel: 'Description',
-									name: 'description',
-									allowBlank: false,
-									maxLength: '4000'
-								},
-								{
 									xtype: 'textfield',
 									fieldLabel: 'Seed Person',
 									name: 'seedperson',
 									allowBlank: false,
 									maxLength: '500'
+								},
+								{
+									xtype: 'htmleditor',
+									fieldLabel: 'Description',
+									name: 'description',
+									allowBlank: false,
+									maxLength: '4000'
 								},
 								{
 									xtype: 'filefield',
@@ -151,6 +154,72 @@
 								{
 									xtype: 'hiddenfield',
 									name: 'imageFile'
+								}
+							]
+						}
+					]
+				}
+			];
+		}
+		
+		function GetOtherFormItems()
+		{
+			return [
+				{
+					xtype: 'container',
+					collapsible: false,
+					border: false,
+					layout: 'column',
+					items: [
+						{
+							xtype: 'image',
+							itemId: 'imageDisplay',
+							columnWidth: 0.2
+						},
+						{
+							xtype: 'hiddenfield',
+							name: 'imageDisplay',
+							setValue: function(value)
+							{
+								if(value != undefined)
+								{
+									var form = this.findParentByType('form');
+									var imageDisplay = form.down('#imageDisplay');
+									imageDisplay.setSrc(value);
+								}
+							}
+						},
+						{
+							xtype: 'fieldset',
+							collapsible: false,
+							border: false,
+							margin: '5',
+							columnWidth: 0.8,
+							defaults: {
+								labelAlign: 'right',
+								width: '100%'
+							},
+							items:[
+								{
+									xtype: 'textfield',
+									fieldLabel: 'Name',
+									name: 'name',
+									allowBlank: false,
+									maxLength: '500'
+								},
+								{
+									xtype: 'textfield',
+									fieldLabel: 'Seed Person',
+									name: 'seedperson',
+									allowBlank: false,
+									maxLength: '500'
+								},
+								{
+									xtype: 'displayfield',
+									fieldLabel: 'Description',
+									name: 'description',
+									allowBlank: false,
+									maxLength: '4000'
 								}
 							]
 						}
@@ -217,10 +286,11 @@
 		var otherGrid = Ext.create('Ext.ux.FormGrid', {
 			title: 'Other Member\'s Buds',
 			store: otherBudsStore,
-			GetFormItems: GetFormItems,
+			GetFormItems: GetOtherFormItems,
 			allowAdd: false,
 			allowSave: false,
 			allowRemove: false,
+			formReadOnly: true,
 			columns: [
 				{
 					text: 'Name',
@@ -235,6 +305,15 @@
 					text: 'Seed Person',  
 					dataIndex: 'seedperson', 
 					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Owner',
+					dataIndex: 'fullname',
+					hidable: false,
 					sortable: true,
 					filter: {
 						type: 'string'
