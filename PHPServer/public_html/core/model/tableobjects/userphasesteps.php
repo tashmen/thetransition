@@ -29,7 +29,7 @@ class userphasesteps extends TableObject{
      */
 
     protected function GetDefaultSortColumn(){
-        return 'userid';
+        return 'phasestepnumber';
     }
     
     /*
