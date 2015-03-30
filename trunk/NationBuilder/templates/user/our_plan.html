@@ -75,8 +75,8 @@
 		remoteSort: true,
 		remoteFilter: true,
 		sorters: [{
-				 property: 'number',
-				 direction: 'ASC'
+			 property: 'number',
+			 direction: 'ASC'
 		}],
 		pageSize: 0
 	});
@@ -265,6 +265,52 @@
 				var toolbar = this.dockedItems.findBy(function(object, item, key){return object.xtype == 'pagingtoolbar'})
 				toolbar.doRefresh();
 			},
+			saveStep: function(){
+				var grid = this;
+				var store = grid.getStore();
+				var isPhaseComplete = true;
+				store.each(function(record){
+					if(record.get('completed') != 1)
+					{
+						isPhaseComplete = false;
+						return false;
+					}
+				});
+				var options = {
+					isPhaseComplete: isPhaseComplete,//passthrough
+					success: function(batch, options)
+					{
+						if(options.isPhaseComplete){
+							var planStore = Ext.StoreManager.get('planPhasesStore');
+							var index = planStore.indexOf(grid.currentPhase);
+							index++;
+							var currentPhase = grid.currentPhase;
+							var msg = "";
+							var nextPhase;
+							if(index < planStore.count())
+							{
+								nextPhase = planStore.getAt(index);
+								msg += "Congratulations, you are now eligible for the next phase.";
+							}
+							else{
+								nextPhase = planStore.getAt(index-1);
+								msg += "Congratulations, you've completed all the steps!";
+							}
+							
+							Ext.MessageBox.show({
+								title: "You've completed " + currentPhase.get('name'),
+								msg: msg,
+								buttons: Ext.MessageBox.OK
+							});
+							
+							grid.currentPhase = nextPhase;
+							grid.down('#phaseSelector').clearValue();
+							grid.refreshPhase(nextPhase, 1);
+						}
+					}
+				}
+				grid.getStore().sync(options);
+			},
 			dockedItems: [{
 				xtype: 'pagingtoolbar',
 				store: userPhaseStepsStore,
@@ -278,7 +324,13 @@
 					dataIndex:'completed', 
 					hideable: false,
 					sortable: false,
-					width: .2
+					width: .2,
+					listeners: {
+						'checkchange': function(column, rowIndex, value, options){
+							var grid = this.findParentByType('grid');
+							grid.saveStep();
+						}
+					}
 				},
 				{
 					text: 'Step',
@@ -305,43 +357,7 @@
 				iconCls: 'save-icon',
 				handler: function() {
 					var grid = this.findParentByType('grid');
-					var store = grid.getStore();
-					var isPhaseComplete = true;
-					store.each(function(record){
-						if(record.get('completed') != 1)
-						{
-							isPhaseComplete = false;
-							return false;
-						}
-					});
-					grid.getStore().sync();
-					if(isPhaseComplete){
-						var planStore = Ext.StoreManager.get('planPhasesStore');
-						var index = planStore.indexOf(grid.currentPhase);
-						index++;
-						var currentPhase = grid.currentPhase;
-						var msg = "";
-						var nextPhase;
-						if(index < planStore.count())
-						{
-							nextPhase = planStore.getAt(index);
-							msg += "Congratulations, you are now eligible for the next phase.";
-						}
-						else{
-							nextPhase = planStore.getAt(index-1);
-							msg += "Congratulations, you've completed all the steps!";
-						}
-						
-						Ext.MessageBox.show({
-							title: "You've completed " + currentPhase.get('name'),
-							msg: msg,
-							buttons: Ext.MessageBox.OK
-						});
-						
-						grid.currentPhase = nextPhase;
-						grid.down('#phaseSelector').clearValue();
-						grid.refreshPhase(nextPhase, 1);
-					}
+					grid.saveStep();
 				}
 			},
 			{
