@@ -19,7 +19,12 @@ class userbuds extends TableObject {
      */
     
     protected function GetPrimaryTableView() {
-        return 'userbudsview';
+        $view = 'userbudsview';
+        if(RequestData::GetRequestData('includestatus') == "1")
+        {
+            $view = 'userbudsmembershipstatusview';
+        }
+        return $view;
     }
 
     /*

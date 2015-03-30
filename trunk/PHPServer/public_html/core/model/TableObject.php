@@ -158,6 +158,10 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         if (in_array($columnName, $columnNames)) {//See if the column is a valid column for the view
             $return = true;
         }
+        else    
+        {
+            Logger::LogError("Invalid column attempted to be used: " . $columnName, Logger::debug);
+        }
         return $return;
     }
 
@@ -176,7 +180,23 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
     public function create() {
         $columns = $this->GetColumns();
         $arrayInsertFields = array_fill(0, $columns->GetCount(), "?");
-        $statement = "INSERT INTO " . $this->GetPrimaryTable() . " (" . implode(",", $columns->GetNames()) . ")" . " VALUES (" . implode(",", $arrayInsertFields) . ")";
+        $statement = "INSERT INTO " . $this->GetPrimaryTable() . 
+                " (" . implode(",", $columns->GetNames()) . ")" . 
+                " VALUES (" . implode(",", $arrayInsertFields) . ")" .
+                " ON DUPLICATE KEY UPDATE ";
+        
+        $duplicateUpdate = "";
+        foreach ($columns->GetColumns() as $column) {
+            if (!($column->IsKey())) {
+                if($duplicateUpdate != "")
+                {
+                    $duplicateUpdate = $duplicateUpdate . ", ";
+                }
+                $duplicateUpdate = $duplicateUpdate . $column->GetName() . " = " . "VALUES(" . $column->GetName() . ")";
+            }
+        }
+        $statement = $statement . $duplicateUpdate;
+        Logger::LogError($statement, Logger::debug);
         $records = $this->GetData();
         foreach ($records as $record) {
             $parameters = array();

@@ -1,4 +1,26 @@
 
+Ext.define('SystemFox.overrides.view.Table', {
+    override: 'Ext.view.Table',
+    checkThatContextIsParentGridView: function(e){
+        var target = Ext.get(e.target);
+        var parentGridView = target.up('.x-grid-view');
+        if (this.el != parentGridView) {
+            /* this is event of different grid caused by grids nesting */
+            return false;
+        } else {
+            return true;
+        }
+    },
+    processItemEvent: function(record, row, rowIndex, e) {
+        if (e.target && !this.checkThatContextIsParentGridView(e)) {
+            return false;
+        } else {
+            return this.callParent([record, row, rowIndex, e]);
+        }
+    }
+});
+
+
 Ext.define('Ext.ux.FormGrid',{
 	extend: 'Ext.grid.GridPanel',
 	alias: 'widget.formgrid',
@@ -18,7 +40,7 @@ Ext.define('Ext.ux.FormGrid',{
 				{
 					var grid = this.findParentByType('grid');
 					var formPanel = Ext.create("Ext.form.Panel", {
-						items: grid.GetFormItems()
+						items: grid.GetFormItems(record)
 					});
 					formPanel.render(row);
 					formPanel.loadRecord(record);

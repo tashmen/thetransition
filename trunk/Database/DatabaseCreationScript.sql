@@ -469,3 +469,42 @@ VIEW `userbudsview` AS
     from
 		userbuds ub inner join
 		users u on u.id = ub.userid
+
+
+--
+-- Table structure for view 'userbudsmembershipstatusview
+--
+DROP VIEW IF EXISTS `userbudsmembershipstatusview`;
+CREATE 
+VIEW `userbudsmembershipstatusview` AS
+    select 
+        ub.*, COALESCE(ubm.status,0) as status, ubm.userid as membershipuserid
+    from
+		userbudsview ub left join
+		userbudsmembership ubm on ubm.userbudid = ub.id
+		
+--
+-- Table structure for table `userbudsmembership`
+--
+
+DROP TABLE IF EXISTS `userbudsmembership`;
+CREATE TABLE `userbudsmembership` (
+  `userbudid` int(11) NOT NULL COMMENT 'id of the userbud record',
+  `userid` int(11) NOT NULL COMMENT 'id of the user record',
+  `status` int(11) DEFAULT NULL COMMENT 'membership status',
+  PRIMARY KEY (`userbudid`,`userid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Stores information on who is a member of each bud';
+
+--
+-- Table structure for view 'userbudsmembershipview'
+--
+
+DROP VIEW IF EXISTS `userbudsmembershipview`;
+CREATE 
+VIEW `userbudsmembershipview` AS
+    select 
+        ubm.*, u.fullname, ub.fullname as userbudowner, ub.name as userbudname, ub.description as userbuddescription, ub.seedperson as userbudseedperson
+    from
+		userbudsmembership ubm inner join
+		users u on u.id = ubm.userid inner join
+		userbudsview ub on ubm.userbudid = ub.id

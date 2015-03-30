@@ -34,8 +34,8 @@ class MySqlDB implements iDatabase{
      */
 
     public function execute($statement, $parameters = null, $fetchData = true) {
-        //Logger::LogData('database.log', $statement);
-        //Logger::LogData('database.log', print_r($parameters, true));
+        Logger::LogData('database.log', $statement);
+        Logger::LogData('database.log', print_r($parameters, true));
         $return = array();
         if (count($parameters) > 0) {//prepared statements
             $prepare = $this->connection->prepare($statement);

@@ -37,12 +37,18 @@
 				},
 				{
 					name: 'seedperson'
+				},
+				{
+					name: 'status',
+					type: 'int',
+					defaultValue: 0
 				}
 			],
 			proxy: 
 			{
 				extraParams: {
-					resource: 'userbuds'
+					resource: 'userbuds',
+					includestatus: '1'
 				},
 				reader: {
 					type: 'json',
@@ -52,9 +58,58 @@
 			}
 		});
 		
+		Ext.define('UserBudsMembership', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'userbudid',
+				}, 
+				{
+					name: 'userid',
+					defaultValue: Transition.user.id
+				},
+				{
+					name: 'status',
+					type: 'int',
+					defaultValue: 0
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'userbudsmembership'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'userbudsmembership'
+				},
+				type: 'customphp'
+			}
+		});
 		
-		function GetFormItems()
+		
+		function GetFormItems(record)
 		{
+			var store = Ext.create('Ext.data.Store', {
+				model: 'UserBudsMembership',
+				remoteSort: true,
+				remoteFilter: true,
+				filters: [
+					{
+						property: "userbudid",
+						value: record.get("id"),
+						operator: "eq"
+					},
+					{
+						property: "status",
+						value: "0",
+						operator: "ne"
+					}
+				],
+				pageSize: 20
+			});
+			store.load();
+
 			return [
 				{
 					xtype: 'container',
@@ -158,12 +213,166 @@
 							]
 						}
 					]
+				},
+				{
+					xtype: 'container',
+					border: false,
+					layout: 'fit',
+					padding: '0 5 5 5',
+					items: [
+						{
+							xtype: 'gridpanel',
+							title: 'Members',
+							store: store,
+							dockedItems:[
+								{
+									xtype: 'pagingtoolbar',
+									store: store,
+									dock: 'bottom',
+									displayInfo: true
+								}
+							],
+							columns: [
+								{
+									text: 'Name',
+									dataIndex: 'fullname',
+									hideable: false,
+									sortable: false
+								},
+								{
+									xtype: 'actioncolumn',
+									text: 'Status',  
+									dataIndex: 'status', 
+									hideable: false,
+									sortable: false,
+									items:[
+										{
+											handler: function(view, rowIndex, colIndex, item, e, record){
+												var value = record.get(this.dataIndex);
+												switch(value)
+												{
+													case 1://Pending Approval
+														record.set(this.dataIndex,3)
+														break;
+													case 2://Accepted
+														record.set(this.dataIndex, 0);
+														var grid = this.findParentByType('grid');
+														var toolbar = grid.dockedItems.findBy(function(object, item, key){return object.xtype == 'pagingtoolbar'})
+														toolbar.doRefresh();
+														break;
+													case 3://Denied
+														record.set(this.dataIndex, 2);
+														break;
+												}
+												record.save();
+											},
+											getClass: function(value, metadata, record, rowIndex, colIndex, store){
+												var cls = 'hidden-icon'
+												switch(value)
+												{
+													case 1://Pending Approval
+														cls = 'accept-icon';
+														break;
+													case 2://Accepted
+														cls = 'accept-icon';
+														break;
+													case 3://Denied
+														cls = 'decline-icon';
+														break;
+												}
+												return cls;
+											},
+											getTip: function(value, metadata, record, rowIndex, colIndex, store){
+												var tooltip = ''
+												switch(value)
+												{
+													case 1://Pending Approval
+														tooltip = "Approve " + record.get("fullname") + " as a new member?";
+														break;
+													case 2://Accepted
+														tooltip = record.get('fullname') + " has been accepted.  Do you want to remove this member?";
+														break;
+													case 3: //Declined
+														tooltip = record.get('fullname') + " has been declined.  Do you want to accept this member?";
+														break;
+												}
+												return tooltip;
+											}
+										},
+										{
+											handler: function(view, rowIndex, colIndex, item, e, record){
+												var value = record.get(this.dataIndex);
+												switch(value)
+												{
+													case 1://Pending Approval
+														record.set(this.dataIndex, 3);
+														break;
+												}
+												record.save();
+											},
+											getClass: function(value, metadata, record, rowIndex, colIndex, store){
+												var cls = ' hidden-icon'
+												switch(value)
+												{
+													case 1://Pending Approval
+														cls = 'decline-icon';
+														break;
+												}
+												return cls;
+											},
+											getTip: function(value, metadata, record, rowIndex, colIndex, store){
+												var tooltip = ''
+												switch(value)
+												{
+													case 1://Pending Approval
+														tooltip = "Decline membership for " + record.get("fullname");
+														break;
+												}
+												return tooltip;
+											},
+											isDisabled: function(value, metadata, record, rowIndex, colIndex, store){
+												var disable = true;
+												switch(value)
+												{
+													case 1://Pending Approval
+														disable = false;
+														break;
+												}
+												return disable;
+											}
+										}
+									]
+								}
+							],
+							width: 'auto',
+							forceFit: true
+						}
+					]
 				}
 			];
 		}
 		
-		function GetOtherFormItems()
+		function GetOtherFormItems(record)
 		{
+			var store = Ext.create('Ext.data.Store', {
+				model: 'UserBudsMembership',
+				remoteSort: true,
+				remoteFilter: true,
+				filters: [
+					{
+						property: "userbudid",
+						value: record.get("id"),
+						operator: "eq"
+					},
+					{
+						property: "status",
+						value: "2",
+						operator: "eq"
+					}
+				],
+				pageSize: 20
+			});
+			store.load();
 			return [
 				{
 					xtype: 'container',
@@ -222,6 +431,37 @@
 									maxLength: '4000'
 								}
 							]
+						}
+					]
+				},
+				{
+					xtype: 'container',
+					border: false,
+					layout: 'fit',
+					padding: '0 5 5 5',
+					items: [
+						{
+							xtype: 'gridpanel',
+							title: 'Members',
+							store: store,
+							dockedItems:[
+								{
+									xtype: 'pagingtoolbar',
+									store: store,
+									dock: 'bottom',
+									displayInfo: true
+								}
+							],
+							columns: [
+								{
+									text: 'Name',
+									dataIndex: 'fullname',
+									hideable: false,
+									sortable: false
+								}
+							],
+							width: 'auto',
+							forceFit: true
 						}
 					]
 				}
@@ -313,11 +553,86 @@
 				{
 					text: 'Owner',
 					dataIndex: 'fullname',
-					hidable: false,
+					hideable: false,
 					sortable: true,
 					filter: {
 						type: 'string'
 					}
+				},
+				{
+					xtype: 'actioncolumn',
+					text: 'Membership Status',
+					dataIndex: 'status',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'list',
+						store: 'membershipStatusStore'
+					},
+					items:[{
+						handler: function(view, rowIndex, colIndex, item, e, record){
+							var value = record.get(this.dataIndex);
+							switch(value)
+							{
+								case 0://Request to join
+									record.set(this.dataIndex, 1);
+									var rec = new UserBudsMembership();
+									rec.set(this.dataIndex, 1);
+									rec.set('userbudid', record.get('id'));
+									rec.save();
+									break;
+								case 1://Pending Approval
+								case 2://Accepted
+									record.set(this.dataIndex, 0);
+									var rec = new UserBudsMembership();
+									rec.set(this.dataIndex, 0);
+									rec.set('userbudid', record.get('id'));
+									rec.save();
+									break;
+								case 3://Denied
+									break;
+							}
+							record.commit();
+						},
+						getClass: function(value, metadata, record, rowIndex, colIndex, store){
+							var cls = ''
+							switch(value)
+							{
+								case 0://Request to join
+									cls = 'join-icon';
+									break;
+								case 1://Pending Approval
+									cls = 'cancel-icon';
+									break;
+								case 2://Accepted
+									cls = 'accept-icon';
+									break;
+								case 3://Denied
+									cls = 'decline-icon';
+									break;
+							}
+							return cls;
+						},
+						getTip: function(value, metadata, record, rowIndex, colIndex, store){
+							var tooltip = ''
+							switch(value)
+							{
+								case 0://Request to join
+									tooltip = "Request to join " + record.get('name') + "?";
+									break;
+								case 1://Pending Approval
+									tooltip = "Request to join " + record.get('name') + " is waiting on approval from " + record.get('fullname') + ". Do you want to cancel this request?";
+									break;
+								case 2://Accepted
+									tooltip = "You are a member of " + record.get('name') + " Do you want to leave this BUD?";
+									break;
+								case 3://Denied
+									tooltip = "Your request to join " + record.get('name') + " has been denied.";
+									break;
+							}
+							return tooltip;
+						}
+					}]
 				}
 			],
 			width: 'auto',
