@@ -18,6 +18,9 @@
 .x-action-col-cell img.ux-rating-icon-hover {
 	background-position: 0 -32px;
 }
+.hidden-icon{
+	display: none;
+}
 .filter-icon{
 	height: 16px;
 	width: 16px;
@@ -37,4 +40,24 @@
 	height: 16px;
 	width: 16px;
 	background-image: url('images/grid/group-collapse.gif');
+}
+.join-icon{
+	height: 16px;
+	width: 16px;
+	background-image: url('thetransitionimages/join.png');
+}
+.cancel-icon{
+	height: 16px;
+	width: 16px;
+	background-image: url('thetransitionimages/cancel.png');
+}
+.accept-icon{
+	height: 16px;
+	width: 16px;
+	background-image: url('thetransitionimages/accept.png');
+}
+.decline-icon{
+	height: 16px;
+	width: 16px;
+	background-image: url('thetransitionimages/decline.png');
 }
