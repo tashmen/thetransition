@@ -67,7 +67,7 @@
 			var EventColors = ['#d13737', '#97bf0d', '#4d73b2', '#8f0a76', '#edad00'];
 			
 			var allEvents = [];
-			{% for event in page.calendar.events %}
+			{% for event in page.calendar.events_upcoming %}
 			allEvents.push(
 				{
 					title: '{{ event.headline }}',
