@@ -20,6 +20,71 @@ Ext.define('SystemFox.overrides.view.Table', {
     }
 });
 
+Ext.define('Ext.ux.LocationField', {
+	extend: 'Ext.form.field.TextArea',
+	alias: 'widget.locationfield',
+	initComponent: function(){
+		//Assume the field is on a form object and add required hidden fields
+		var form = this.findParentByType('form');
+		form.add(
+			Ext.create('Ext.form.field.Hidden', {
+				name: 'latitude'
+			})
+		);
+		form.add(
+			Ext.create('Ext.form.field.Hidden', {
+				name: 'longitude'
+			})
+		);
+		this.callParent();
+	},
+	listeners: {
+		blur: function(field, event, eOpts){
+			var address = field.getValue();
+			var form = field.findParentByType('form').getForm();
+			form.findField('latitude').setValue(-1);
+			form.findField('longitude').setValue(-1);
+			var geocoder = new google.maps.Geocoder();
+			geocoder.geocode( { 'address': address}, Ext.Function.bind(function(results, status) {
+			  if (status == google.maps.GeocoderStatus.OK) {
+				if(results.length > 1)
+				{
+					Ext.MessageBox.show({
+						title: "Error",
+						msg: "Location is not specific enough.  Please enter a more specific location by providing the address, city, state, country and zipcode.",
+						buttons: Ext.MessageBox.OK,
+						icon: Ext.MessageBox.ERROR
+					});
+					return;
+				}
+				var f = this.findParentByType('form');
+				var location = results[0].geometry.location;
+				f.getForm().findField('latitude').setValue(location.lat());
+				f.getForm().findField('longitude').setValue(location.lng());
+			  } else {
+				Ext.MessageBox.show({
+					title: "Error",
+					msg: "Location could not be found for the following reason: "+status,
+					buttons: Ext.MessageBox.OK,
+					icon: Ext.MessageBox.ERROR
+				});
+			  }
+			}, field)
+			);
+		}
+	},
+	validator: function(value){
+		var address = value;
+		
+		var form = this.findParentByType('form').getForm();
+		var lat = form.findField('latitude').getValue();
+		var lng = form.findField('longitude').getValue();
+		if(lat == -1 || lng == -1)
+			return 'Location could not be found';
+		
+		return true;
+	}
+});
 
 Ext.define('Ext.ux.FormGrid',{
 	extend: 'Ext.grid.GridPanel',
@@ -270,29 +335,35 @@ Ext.define('Ext.ux.MapPanel', {
 			
 		this.filterMenuConfig.filterStore = this.mapStore;
 			
-		var keyContainer = Ext.create('Ext.panel.Panel', {
-			region: 'east',
-			defaults: {
-				padding: '0, 5, 0, 5'
-			},
-			title: 'Key',
-			collapsible: true
-		});
-		
-		this.keyStore.each(function(record){
-			keyContainer.add(Ext.create('Ext.container.Container', {
-				data: record,
-				tpl: '<img src="'+Transition.global.imagesLocation+'{icon}"/><span>- {name}</span>'
-			}));
-		});
-		
 		this.add({
 			xtype: 'container',
 			id: 'mapContainer',
 			region: 'center',
 			height: this.height
 		});
-		this.add(keyContainer);
+		
+		if(this.keyStore.getCount() > 1)
+		{
+		
+			var keyContainer = Ext.create('Ext.panel.Panel', {
+				region: 'east',
+				defaults: {
+					padding: '0, 5, 0, 5'
+				},
+				title: 'Key',
+				collapsible: true
+			});
+		
+		
+			this.keyStore.each(function(record){
+				keyContainer.add(Ext.create('Ext.container.Container', {
+					data: record,
+					tpl: '<img src="'+Transition.global.imagesLocation+'{icon}"/><span>- {name}</span>'
+				}));
+			});
+			
+			this.add(keyContainer);
+		}
 		
 		this.addDocked({
 			xtype: 'toolbar',
@@ -348,12 +419,16 @@ Ext.define('Ext.ux.MapPanel', {
 		{
 			var record = this.mapStore.getAt(i);
 			var marker = new google.maps.Marker({
-			  icon: Transition.global.imagesLocation + record.get('icon'),
+			  //icon: Transition.global.imagesLocation + record.get('icon'),
 			  position: new google.maps.LatLng(record.get('latitude'), record.get('longitude')),
 			  map: this.map,
 			  title: record.get('name'),
 			  id: record.get('id')
 			});
+			if(record.get('icon') != '')
+			{
+				marker.icon = Transition.global.imagesLocation + record.get('icon');
+			}
 			this.markerArray.push(marker);
 		}
 		
