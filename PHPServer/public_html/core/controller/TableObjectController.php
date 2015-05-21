@@ -13,6 +13,7 @@ class TableObjectController extends AbstractController{
         
         //The key is the value given from the user; changing the key will require changing the frontend logic 
         //The value is the class name that is mapped to the given key
+        $this->resourceToObjectMap['locations'] = 'locations';
         $this->resourceToObjectMap['objectcategory'] = 'objectcategory';
         $this->resourceToObjectMap['objectpermanence'] = 'objectpermanence';
         $this->resourceToObjectMap['phasesteps'] = 'phasesteps';
@@ -21,6 +22,7 @@ class TableObjectController extends AbstractController{
         $this->resourceToObjectMap['spaces'] = 'spaces';
         $this->resourceToObjectMap['userbuds'] = 'userbuds';
         $this->resourceToObjectMap['userbudsmembership'] = 'userbudsmembership';
+        $this->resourceToObjectMap['userlocations'] = 'userlocations';
         $this->resourceToObjectMap['userobjects'] = 'userobjects';
         $this->resourceToObjectMap['userphasesteps'] = 'userphasesteps';
         $this->resourceToObjectMap['userreviews'] = 'userreviews';
