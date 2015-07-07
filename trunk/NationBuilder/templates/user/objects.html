@@ -49,6 +49,12 @@
 				},
 				{
 					name: 'categoryname'
+				},
+				{
+					name: 'linkedname',
+					calculate: function(data){
+						return '<a href="/'+data.userid+'">'+data.fullname + '</a>';
+					}
 				}
 			],
 			proxy: 
@@ -441,7 +447,7 @@
 			columns: [
 				{
 					text: 'User',
-					dataIndex: 'fullname',
+					dataIndex: 'linkedname',
 					hideable: false,
 					sortable: true,
 					filter: {

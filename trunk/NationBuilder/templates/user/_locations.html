@@ -5,8 +5,10 @@
     Ext.onReady(function() {
 		Ext.QuickTips.init();
 		
-		var locationId = {{locations}};
-		var locationName = '';
+		var locations = '{{locations}}';
+		var aryLocations = locations.split(',');
+		var locationId = aryLocations.length == 1 ? aryLocations[0] : '';
+		var locationName = 'Locations';
 		
 		Ext.define('UserLocations', {
 			extend: 'Ext.data.Model',
@@ -101,8 +103,14 @@
 		
 		var locationFilter = {
 				property: 'id',
-				value: locationId,
-				operator: "eq"
+				value: locations,
+				operator: "in"
+			};
+			
+		var locationFilterUsers = {
+				property: 'locationid',
+				value: locations,
+				operator: "in"
 			};
 		
 		var userLocationsStore = Ext.create('Ext.data.Store', {
@@ -115,32 +123,34 @@
 				value: Transition.user.id,
 				operator: "eq"
 			},
-			locationFilter],
+			locationFilterUsers],
 			pageSize: 20
 		});
 		
 		var otherUserLocationsStore = Ext.create('Ext.data.Store', {
 			storeId:'otherUserLocationsStore',
 			model: 'UserLocations',
-			remoteSort: false,
-			remoteFilter: false,
+			remoteSort: true,
+			remoteFilter: true,
 			filters: [{
 				property: "userid",
 				value: Transition.user.id,
 				operator: "ne"
 			},
-			locationFilter],
+			locationFilterUsers],
 			pageSize: 0
 		});
 		
 		var locationsStore = Ext.create('Ext.data.Store', {
 			storeId: 'locationsStore',
 			model: 'Locations',
+			remoteSort: true,
+			remoteFilter: true,
 			sorters: [{
 				 property: 'name',
 				 direction: 'ASC'
 			}],
-			filters:[locationFilter],
+			filters: [locationFilter],
 			pageSize: 0
 		});
 		
@@ -161,6 +171,41 @@
 		
 		function GetLocationsForm()
 		{
+			var items = [
+			{
+				xtype: 'textfield',
+				fieldLabel: 'Name',
+				name: 'name',
+				allowBlank: false,
+				maxLength: '500'
+			},
+			{
+				xtype: 'textareafield',
+				fieldLabel: 'Description',
+				name: 'description',
+				allowBlank: true,
+				maxLength: '2000'
+			},
+			{
+				xtype: 'locationfield',
+				fieldLabel: 'Location',
+				name: 'location',
+				allowBlank: false,
+				maxLength: '2000'
+			}
+			]
+			if(locationsStore.getCount() != 1)
+			{
+				items.push({
+					xtype: 'combo',
+					fieldLabel: 'Type',
+					valueField: 'id',
+					displayField: 'name',
+					name: 'locationid',
+					allowBlank: false,
+					store: Ext.StoreManager.get('locationsStore')
+				});
+			}
 			return Ext.create(Ext.form.Panel,{
 				items: [
 				{
@@ -169,34 +214,10 @@
 					border: false,
 					margin: '5',
 					defaults: {
-						labelAlign: 'right'
+						labelAlign: 'right',
+						width: '95%'
 					},
-					items:[
-					{
-						xtype: 'textfield',
-						fieldLabel: 'Name',
-						name: 'name',
-						allowBlank: false,
-						width: '95%',
-						maxLength: '500'
-					},
-					{
-						xtype: 'textareafield',
-						fieldLabel: 'Description',
-						name: 'description',
-						allowBlank: true,
-						width: '95%',
-						maxLength: '2000'
-					},
-					{
-						xtype: 'locationfield',
-						fieldLabel: 'Location',
-						name: 'location',
-						allowBlank: false,
-						width: '95%',
-						maxLength: '2000'
-					}
-					]
+					items: items
 				}
 				]
 			});
@@ -220,6 +241,28 @@
 				renderTo: 'ext'
 			});
 			
+			var filters = [
+				{
+					text: 'Distance',
+					emptyText: 'Enter distance in miles.',
+					dataIndex: 'distance',
+					operator: '<=',
+					type: 'number'
+				}
+			]
+			
+			if(Ext.StoreManager.get('locationsStore').getCount() > 1)
+			{
+				filters.push({
+					text: 'Type',
+					emptyText: '',
+					dataIndex: 'id',
+					store: Ext.StoreManager.get('locationsStore'),
+					operator: 'in',
+					type: 'list'
+				});
+			}
+			
 			var mapPanel = Ext.create('Ext.ux.MapPanel',{
 				title: locationName + ' entered by others',
 				renderTo: 'map_panel',
@@ -227,15 +270,7 @@
 				keyStore: Ext.StoreManager.get('locationsStore'),
 				mapStore: Ext.StoreManager.get('otherUserLocationsStore'),
 				filterMenuConfig: {
-					filters:[
-						{
-							text: 'Distance',
-							emptyText: 'Enter distance in miles.',
-							dataIndex: 'distance',
-							operator: '<=',
-							type: 'number'
-						}
-					]
+					filters: filters
 				},
 				getMapStoreForm: GetLocationsForm
 			});

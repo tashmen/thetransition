@@ -24,6 +24,12 @@
 				{ 
 					name: 'userrating',
 					defaultValue: 0
+				},
+				{
+					name: 'linkedname',
+					calculate: function(data){
+						return '<a href="/'+data.userid+'">'+data.fullname + '</a>';
+					}
 				}
 			],
 			proxy: 
@@ -324,7 +330,7 @@
 			columns: [
 				{
 					text: 'Member',
-					dataIndex: 'fullname',
+					dataIndex: 'linkedname',
 					hideable: false,
 					filter: {
 						type: 'string'

@@ -142,6 +142,12 @@
 			},
 			{
 				name: 'phasestepname'
+			},
+			{
+				name: 'linkedname',
+				calculate: function(data){
+					return '<a href="/'+data.userid+'">'+data.fullname + '</a>';
+				}
 			}
 		],
 		proxy: 
@@ -198,8 +204,8 @@
 			}],
 			filters: [{
 				id: 'phaseFilter',
-				property: 'id',
-				value: currentPhase.get('id'),
+				property: 'number',
+				value: currentPhase.get('number'),
 				operator: 'lte'
 			}],
 			pageSize: 0
@@ -218,8 +224,8 @@
 					currentPlanPhaseStore.remoteFilter = true;
 					currentPlanPhaseStore.addFilter({
 						id: 'phaseFilter',
-						property: 'id',
-						value: currentPhase.get('id'),
+						property: 'number',
+						value: currentPhase.get('number'),
 						operator: 'lte'
 					});
 				}
@@ -441,7 +447,7 @@
 			columns: [
 				{
 					text: 'User',
-					dataIndex: 'fullname',
+					dataIndex: 'linkedname',
 					hideable: false,
 					sortable: true,
 					filter: {
