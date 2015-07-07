@@ -334,15 +334,13 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
             if (!$this->ValidateColumnView($property)) {
                 continue;
             }
-            $value = $filter->GetValue();
-            $operator = $filter->GetOperator();
 
             if ($filter->IsValid()) {
                 if ($criteria != "") {
                     $criteria = $criteria . "and ";
                 }
-                $criteria = $criteria . $property . " " . $operator . " (?) ";
-                $parameters[] = $value;
+                $criteria = $criteria . $filter->BuildQuery();
+                $filter->SetParameters($parameters);
             }
         }
         if ($criteria != "") {

@@ -37,7 +37,7 @@ class userphasesteps extends TableObject{
      * @return an array of allowed functions
      */
     public function GetSecurity(){
-        return array('read');
+        return array('read','update');
     }
     
     public function read(){

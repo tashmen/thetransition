@@ -99,7 +99,17 @@ class TableRequest implements iTableRequest {
 
     private function SetSort($sort) {
         $this->sortColumn = $sort[0]->property;
-        $orderDirection = $sort[0]->direction;
+        $this->SetSortDirection($sort[0]->direction);
+    }
+    
+    public function SetSortColumn($column)
+    {
+        $this->sortColumn = $column;
+    }
+
+    public function SetSortDirection($direction)
+    {
+        $orderDirection = $direction;
         if ($orderDirection == "DESC") {
             $orderDirection = "DESC";
         } else {
@@ -107,7 +117,6 @@ class TableRequest implements iTableRequest {
         }
         $this->sortDirection = $orderDirection;
     }
-
 }
 
 
