@@ -19,7 +19,7 @@ class planphases extends TableObject{
      */
 
     protected function GetDefaultSortColumn(){
-        return 'name';
+        return 'number';
     }
     
     /*

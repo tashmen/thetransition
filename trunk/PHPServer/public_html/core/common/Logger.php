@@ -35,6 +35,39 @@ class Logger {
         return $return;
     }
 
+    
+    private static function get_caller_info() {
+        $c = '';
+        $file = '';
+        $func = '';
+        $class = '';
+        $trace = debug_backtrace();
+        if (isset($trace[2])) {
+            $file = $trace[1]['file'];
+            $func = $trace[2]['function'];
+            if ((substr($func, 0, 7) == 'include') || (substr($func, 0, 7) == 'require')) {
+                $func = '';
+            }
+        } else if (isset($trace[1])) {
+            $file = $trace[1]['file'];
+            $func = '';
+        }
+        if (isset($trace[3]['class'])) {
+            $class = $trace[3]['class'];
+            $func = $trace[3]['function'];
+            $file = $trace[2]['file'];
+        } else if (isset($trace[2]['class'])) {
+            $class = $trace[2]['class'];
+            $func = $trace[2]['function'];
+            $file = $trace[1]['file'];
+        }
+        if ($file != '') $file = basename($file);
+        $c = $file . ": ";
+        $c .= ($class != '') ? ":" . $class . "->" : "";
+        $c .= ($func != '') ? $func . "(): " : "";
+        return($c);
+    }
+
     /*
       Logs error to the error.log file
       @error - The error message to log
@@ -43,7 +76,7 @@ class Logger {
 
     public static function LogError($error, $level) {
         if (self::CheckLogLevel($level)) {
-            $req_dump = " Error: " . $error . "\r\n";
+            $req_dump = " Error: " . $error . "\r\n" . print_r(debug_backtrace(),TRUE) . "\r\n";
             $filename = 'error.log';
             self::LogData($filename, $req_dump);
         }

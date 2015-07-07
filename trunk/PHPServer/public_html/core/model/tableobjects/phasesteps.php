@@ -13,6 +13,15 @@ class phasesteps extends TableObject{
     public function GetPrimaryTable(){
         return 'phasesteps';
     }
+    
+    /*
+      Retrieves the view name for the object
+      @return - the view of the object
+     */
+
+    protected function GetPrimaryTableView() {
+        return 'phasestepsview';
+    }
 
     /*
       Retrieves the default sort column name
@@ -20,7 +29,7 @@ class phasesteps extends TableObject{
      */
 
     protected function GetDefaultSortColumn(){
-        return 'planphaseid, number';
+        return 'plannumber, number';
     }
     
     /*

@@ -34,6 +34,30 @@ class Filter implements iFilter {
         }
         return $return;
     }
+    
+    public function BuildQuery(){
+        if($this->GetOperator() == "in")
+        {
+            $array = explode(",", $this->value);
+            $count = count($array);
+            $criteria = sprintf("?%s", str_repeat(",?", ($count ? $count-1 : 0)));
+            return $this->GetColumn() . " " . $this->GetOperator() . " (" . $criteria . ") ";  
+        }
+        return $this->GetColumn() . " " . $this->GetOperator() . " (?) ";
+    }
+    
+    public function SetParameters(&$parameters){
+        if($this->GetOperator() == "in")
+        {
+            $array = explode(",", $this->value);
+            foreach($array as $value)
+            {
+                $parameters[] = $value;
+            }
+            
+        }
+        else $parameters[] = $this->GetValue();
+    }
 
     private function ConvertOperator($operator) {
         switch ($operator) {
@@ -54,6 +78,9 @@ class Filter implements iFilter {
                 break;
             case "lte":
                 $operator = "<=";
+                break;
+            case "in":
+		
                 break;
             default:
                 throw new Exception("Invalid operator given: " . $operator);
