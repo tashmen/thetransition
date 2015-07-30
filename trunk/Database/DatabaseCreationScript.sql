@@ -508,3 +508,65 @@ VIEW `userbudsmembershipview` AS
 		userbudsmembership ubm inner join
 		users u on u.id = ubm.userid inner join
 		userbudsview ub on ubm.userbudid = ub.id
+		
+		
+--
+-- Table structure for table `locations`
+--
+
+DROP TABLE IF EXISTS `locations`;
+CREATE TABLE `locations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `name` varchar(4000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name of the location',
+  `icon` varchar(4000) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Icon to display on the map ',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci COMMENT='Stores information about location types that are available.' AUTO_INCREMENT=19 ;
+
+--
+-- Dumping data for table `locations`
+--
+
+INSERT INTO `locations` VALUES(1, 'Local Farms', NULL);
+INSERT INTO `locations` VALUES(2, 'Community Supported Agriculture', NULL);
+INSERT INTO `locations` VALUES(3, 'Community Gardens', NULL);
+INSERT INTO `locations` VALUES(4, 'Farmer''s Markets', NULL);
+INSERT INTO `locations` VALUES(5, 'Food Co-ops', NULL);
+INSERT INTO `locations` VALUES(6, 'Wild Edibles', 'wildedibles.png');
+INSERT INTO `locations` VALUES(7, 'Food Forest', NULL);
+INSERT INTO `locations` VALUES(8, 'Bagel Shop', NULL);
+INSERT INTO `locations` VALUES(9, 'Food Pantry', 'foodpantry.png');
+INSERT INTO `locations` VALUES(10, 'Soup Kitchen', 'soupkitchen.png');
+INSERT INTO `locations` VALUES(11, 'Happy Hour', 'happyhour.png');
+INSERT INTO `locations` VALUES(12, 'Grocery Samples', 'grocerysamples.png');
+INSERT INTO `locations` VALUES(13, 'Birthday Meals', 'birthdaymeals.png');
+INSERT INTO `locations` VALUES(14, 'Pay What You Can Afford Restaurant', 'paywhatyoucanaffordrestaurant.png');
+INSERT INTO `locations` VALUES(15, 'Potluck', 'potluck.png');
+INSERT INTO `locations` VALUES(16, 'Food Not Bombs', 'foodnotbombs.png');
+INSERT INTO `locations` VALUES(17, 'Food Is Free', 'foodisfree.png');
+INSERT INTO `locations` VALUES(18, 'Falling Fruit', 'fallingfruit.png');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `userlocations`
+--
+
+DROP TABLE IF EXISTS `userlocations`;
+CREATE TABLE `userlocations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `userid` int(11) NOT NULL COMMENT 'Foreign Key to users',
+  `locationid` int(11) NOT NULL COMMENT 'Foreign Key to locations',
+  `name` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name of the location',
+  `description` varchar(4000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Description of the location',
+  `location` varchar(4000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Address of the location',
+  `latitude` double NOT NULL COMMENT 'Latitude of the location',
+  `longitude` double NOT NULL COMMENT 'Longitude of the location',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Holds information for user entered locations that are displa' AUTO_INCREMENT=2 ;
+
+--
+-- Table structure for table `userlocationsview`
+--
+
+DROP TABLE IF EXISTS `userlocationsview`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`a1466265_nb`@`localhost` SQL SECURITY DEFINER VIEW `a1466265_nb`.`userlocationsview` AS select `a1466265_nb`.`users`.`fullname` AS `fullname`,`a1466265_nb`.`userlocations`.`id` AS `id`,`a1466265_nb`.`userlocations`.`userid` AS `userid`,`a1466265_nb`.`userlocations`.`locationid` AS `locationid`,`a1466265_nb`.`userlocations`.`name` AS `name`,`a1466265_nb`.`userlocations`.`description` AS `description`,`a1466265_nb`.`userlocations`.`location` AS `location`,`a1466265_nb`.`userlocations`.`latitude` AS `latitude`,`a1466265_nb`.`userlocations`.`longitude` AS `longitude`,`a1466265_nb`.`locations`.`icon` AS `icon` from ((`a1466265_nb`.`users` join `a1466265_nb`.`userlocations` on((`a1466265_nb`.`users`.`id` = `a1466265_nb`.`userlocations`.`userid`))) join `a1466265_nb`.`locations` on((`a1466265_nb`.`userlocations`.`locationid` = `a1466265_nb`.`locations`.`id`)));
