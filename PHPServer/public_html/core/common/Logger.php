@@ -76,9 +76,10 @@ class Logger {
 
     public static function LogError($error, $level) {
         if (self::CheckLogLevel($level)) {
-            $req_dump = " Error: " . $error . "\r\n" . print_r(debug_backtrace(),TRUE) . "\r\n";
+            $req_dump = " Error: " . $error . "\r\n";
             $filename = 'error.log';
             self::LogData($filename, $req_dump);
+            self::LogData("extrainfo.log", print_r(debug_backtrace(), TRUE) . "\r\n");
         }
     }
 

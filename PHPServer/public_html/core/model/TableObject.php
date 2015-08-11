@@ -160,7 +160,8 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         }
         else    
         {
-            Logger::LogError("Invalid column attempted to be used: " . $columnName, Logger::debug);
+            if($columnName != "")
+                Logger::LogError("Invalid column attempted to be used: " . $columnName, Logger::debug);
         }
         return $return;
     }

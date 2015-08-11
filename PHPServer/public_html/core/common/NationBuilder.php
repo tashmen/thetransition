@@ -67,6 +67,23 @@ class NationBuilder {
             }
         }
     }
+    
+    /*
+     * Synchronize a single user base on the id
+     * @database - PDO connection to our MySQL DB
+     * @id - Id of the user to obtain
+     */
+    
+    public function SynchronizeUser($database, $id)
+    {
+        if($this->IsEnabled())
+        {
+            $user = new users($database);
+            $response = $this->Execute('/api/v1/people/' . $id);
+            $person = $response['result']['person'];
+            $user->createupdate($person);
+        }
+    }
 
     /*
       Add some person webhooks so that we can keep data in sync
