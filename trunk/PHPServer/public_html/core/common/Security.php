@@ -22,6 +22,16 @@ class Security {
             self::$isAdmin = $records[0]['adminflg'];
             return true;
         }
+        //User could not be found so try to sync the user from nationbuilder and then check again
+        $nb = new NationBuilder();
+        $nb->SynchronizeUser($database, self::$userid);
+        $count = $database->rowCount($statement, $parameters);
+        if ($count == 1){
+            $select = "Select adminflg from users " . $where;
+            $records = $database->execute($select, $parameters);
+            self::$isAdmin = $records[0]['adminflg'];
+            return true;
+        }
         throw new Exception("Security: User is not allowed access to this system");
     }
 
