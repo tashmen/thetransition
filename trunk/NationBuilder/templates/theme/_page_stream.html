@@ -72,10 +72,13 @@
       <div id="reactions" class="content-list">
         <ul id="page-stream" class="activities">
           {% for activity in page.activities %}
+          {% if activity.show_page_view contains "canceled" %}
+          {% else %}
           <li class="activity clearfix">
             <div class="stream-pic">{{ activity.signup.profile_image }}</div>
             {{ activity.show_page_view }}
           </li>
+          {% endif %}
           {% endfor %}
         </ul>
         {{ page.activities | paginate prev_label: "&laquo;" next_label: "&raquo;" }}
