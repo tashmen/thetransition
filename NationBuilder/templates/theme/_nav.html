@@ -1,6 +1,7 @@
 <nav id="menu" role="navigation">
   <ul id="topnav" class="topnav desktop-nav">
     {% for child in site.root_nav_pages %}
+    {% if child.name != "Administration" or request.current_user.id == 2 or request.current_user.id == 3 %}
     {% if child.leaf? or child.nav_children.size == 0 %}
     <li {% if child.is_or_is_ancestor_of_current_page? %}class="active"{% endif %}>
       <a href="{{ child.url }}">{{ child.name }}</a>
@@ -19,6 +20,7 @@
         {% endfor %}
       </ul>
     </li>
+    {% endif %}
     {% endif %}
     {% endfor %}
   </ul>

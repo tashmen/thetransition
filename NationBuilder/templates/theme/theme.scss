@@ -250,7 +250,7 @@ strong, b {
 // allows embedded images to expand/contract with viewport
 
 img {
-  /*max-width: 100%; Removing this because it messes up the google map image*/
+  max-width: 100%; 
   height: auto;
   vertical-align: middle;
   border: none;
@@ -2059,7 +2059,7 @@ a.login-button-twitter {
     overflow: visible;
     z-index: 2;
     p {
-      top: 80%;//25%
+      top: 72%;//25%
       font-weight: 700;
       position: absolute;
       padding: 0 .625em;
@@ -2268,4 +2268,9 @@ ul.homepage_excerpt-list {
     display: block;
     margin: 1em 0;
   }
+}
+
+.videocenter {
+  display: flex;
+	justify-content: center;
 }
