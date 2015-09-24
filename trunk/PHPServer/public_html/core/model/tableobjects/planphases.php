@@ -29,4 +29,18 @@ class planphases extends TableObject{
     public function GetSecurity(){
         return array('read');
     }
+    
+    /*
+     * Retrieves the phase number given a phaseid
+     * @param $phaseid - The id of the phase to return the number of
+     * @return The phase number
+     */
+    public function GetNumber($phaseid)
+    {
+        $sql = "Select number from " . $this->GetPrimaryTable() . " where id = (?)";
+        $parameters[] = $phaseid;
+        $resultSet = $this->GetConnection()->execute($sql, $parameters);
+        Logger::LogError(print_r($resultSet, true), Logger::debug);
+        return $resultSet[0]['number'];
+    }
 }

@@ -86,6 +86,55 @@ class userphasesteps extends TableObject{
         }    
     }
     
+    public function update()
+    {
+        parent::update();
+        
+        //We need to check all of the phases this user has completed and update/delete tags in Nationbuilder
+        $results = $this->GetResults();
+        
+        $phaseid = $results[0]->planphaseid;
+        $complete = $results[0]->completed;
+        $planphase = new planphases($this->GetConnection());
+        $lastNumber = $planphase->GetNumber($phaseid);
+        $number = $this->GetCurrentPhaseNumber(Security::$userid);
+        
+        $nb = new NationBuilder();
+        $tags = '';
+        Logger::LogError("number: " . $lastNumber . " new number: " . $number, Logger::debug);
+        //Last number was the same as their current step and it's incomplete
+        if($lastNumber == $number && complete == 0)
+        {
+            //Delete the tag
+            $phaseNum = 'Phase' . $lastNumber;
+            Logger::LogError($phaseNum, Logger::debug);
+            $nb->DeleteTag(Security::$userid, $phaseNum);
+        }
+        else if($lastNumber < $number)//Last number is smaller so they must have gone up a step
+        {
+            //Push all the tags at once
+            for($c = 0; $c < $number; $c++)
+            {
+                if($tags != '')
+                {
+                    $tags = $tags . ', ';
+                }
+                $tags = $tags . 'Phase' . $c;
+            }
+            Logger::LogError($tags . $number, Logger::debug);
+            $nb->PushTags(Security::$userid, $tags);
+        }
+    }
+    
+    private function GetCurrentPhaseNumber($userid)
+    {
+        $sql = "Select number from currentphasenumberbyuser where userid = (?)";
+        $parameters[] = $userid;
+        $resultSet = $this->GetConnection()->execute($sql, $parameters);
+        Logger::LogError(print_r($resultSet, true), Logger::debug);
+        return $resultSet[0]['number'];
+    }
+    
     private function GetCurrentPhaseId(array $aryUserPhaseSteps, array $aryPhaseSteps){
         $currentPhase = '';
         $planPhase = '';

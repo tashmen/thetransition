@@ -99,7 +99,7 @@ DROP TABLE IF EXISTS `phasesteps`;
 CREATE TABLE `phasesteps` (
     `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
     `planphaseid` int(11) NOT NULL COMMENT 'Foreign Key to planphase',
-    `name` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'name of the plan step',
+    `name` varchar(2000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'name of the plan step',
     `number` int(11) NOT NULL COMMENT 'Stores the step number.',
     PRIMARY KEY (`id`),
     KEY `planphasesid` (`planphaseid`)
@@ -570,3 +570,10 @@ CREATE TABLE `userlocations` (
 
 DROP TABLE IF EXISTS `userlocationsview`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`a1466265_nb`@`localhost` SQL SECURITY DEFINER VIEW `a1466265_nb`.`userlocationsview` AS select `a1466265_nb`.`users`.`fullname` AS `fullname`,`a1466265_nb`.`userlocations`.`id` AS `id`,`a1466265_nb`.`userlocations`.`userid` AS `userid`,`a1466265_nb`.`userlocations`.`locationid` AS `locationid`,`a1466265_nb`.`userlocations`.`name` AS `name`,`a1466265_nb`.`userlocations`.`description` AS `description`,`a1466265_nb`.`userlocations`.`location` AS `location`,`a1466265_nb`.`userlocations`.`latitude` AS `latitude`,`a1466265_nb`.`userlocations`.`longitude` AS `longitude`,`a1466265_nb`.`locations`.`icon` AS `icon` from ((`a1466265_nb`.`users` join `a1466265_nb`.`userlocations` on((`a1466265_nb`.`users`.`id` = `a1466265_nb`.`userlocations`.`userid`))) join `a1466265_nb`.`locations` on((`a1466265_nb`.`userlocations`.`locationid` = `a1466265_nb`.`locations`.`id`)));
+
+--
+-- Table structure for table `currentphasenumberbyuser`
+--
+
+DROP TABLE IF EXISTS `currentphasenumberbyuser`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`a1466265_nb`@`localhost` SQL SECURITY DEFINER VIEW `currentphasenumberbyuser` AS select `planphases`.`number` AS `number`,`userphasestepsview`.`userid` AS `userid`,`userphasestepsview`.`phasestepid` AS `phasestepid`,`userphasestepsview`.`completed` AS `completed`,`userphasestepsview`.`planphasename` AS `planphasename`,`userphasestepsview`.`phasestepname` AS `phasestepname`,`userphasestepsview`.`phasestepnumber` AS `phasestepnumber`,`userphasestepsview`.`fullname` AS `fullname`,`userphasestepsview`.`planphaseid` AS `planphaseid` from (`userphasestepsview` join `planphases` on((`userphasestepsview`.`planphaseid` = `planphases`.`id`))) where `userphasestepsview`.`completed` = 0 group by `userphasestepsview`.`planphaseid`,`userphasestepsview`.`userid` order by `planphases`.`number`;

@@ -135,8 +135,11 @@ class BaseObjectHandler {
             $nb->ClientSetup($code);
         }
         if (RequestData::GetRequestData('sync') == 1) {
-            $nb->SynchronizeUsers($this->con);
+            if(RequestData::GetRequestData('userid') != '')
+                $nb->SynchronizeUser ($this->con, RequestData::GetRequestData('userid'));
+            else $nb->SynchronizeUsers($this->con);
         }
+        
 
         //Check if this is a nationbuilder webhook:
         {
