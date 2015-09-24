@@ -79,7 +79,11 @@ class NationBuilder {
         if($this->IsEnabled())
         {
             $user = new users($database);
+            Logger::LogError("Attempting to sync user with id: " . $id, Logger::debug);
+            if($id == '')
+                throw new Exception ("Invalid ID");
             $response = $this->Execute('/api/v1/people/' . $id);
+            Logger::LogError("Sync User: " . print_r($response, true), Logger::debug);
             $person = $response['result']['person'];
             $user->createupdate($person);
         }
