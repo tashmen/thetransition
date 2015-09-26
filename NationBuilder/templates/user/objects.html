@@ -15,7 +15,10 @@
 					defaultValue: Transition.user.id
 				},
 				{
-					name: 'fullname'
+					name: 'fullname',
+					convert: function(v, record){
+						return '<a href="/'+record.data.userid+'">'+record.data.fullname + '</a>';
+					}
 				},
 				{
 					name: 'name'
@@ -49,12 +52,6 @@
 				},
 				{
 					name: 'categoryname'
-				},
-				{
-					name: 'linkedname',
-					calculate: function(data){
-						return '<a href="/'+data.userid+'">'+data.fullname + '</a>';
-					}
 				}
 			],
 			proxy: 
@@ -447,7 +444,7 @@
 			columns: [
 				{
 					text: 'User',
-					dataIndex: 'linkedname',
+					dataIndex: 'fullname',
 					hideable: false,
 					sortable: true,
 					filter: {

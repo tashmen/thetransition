@@ -47,7 +47,26 @@ class Ext {
         $columns['text'] = $columnSchema->GetColumnName();
         $columns['dataIndex'] = $columnSchema->GetColumnName();
         $columns['hideable'] = false;
-        $columns['sortable'] = false;
+        $columns['sortable'] = true;
+        $filter = array();
+        switch ($columnSchema->GetDataType())
+        {
+            case 'double':
+            case 'int':
+                $type = 'number';
+                break;
+            case 'tinyint':
+                $type = 'boolean';
+                break;  
+            case 'varchar':
+                $type = 'string';
+                break;
+            case 'date':
+            case 'datetime':
+                $type = 'date';
+        }
+        $filter['type'] = $type;
+        $columns['filter'] = $filter;
         return $columns;
     }
     

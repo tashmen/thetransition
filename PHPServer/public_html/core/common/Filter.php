@@ -65,18 +65,23 @@ class Filter implements iFilter {
                 $this->value = "%" . $this->value . "%";
                 break;
             case "eq":
+            case "=":
                 $operator = "=";
                 break;
             case "ne":
+            case "!=":
                 $operator = "!=";
                 break;
             case "gt":
+            case ">":
                 $operator = ">";
                 break;
             case "lt":
+            case "<":
                 $operator = "<";
                 break;
             case "lte":
+            case "<=":
                 $operator = "<=";
                 break;
             case "in":
