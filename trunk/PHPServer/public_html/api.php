@@ -73,8 +73,14 @@ require(Constants::$thirdPartyUtils . 'Oauth2/GrantType/AuthorizationCode.php');
 
 
 Logger::SetLogLevel(Settings::$loglevel);
-$handler = new BaseObjectHandler();
-$handler->handleRequest();
+try
+{
+    $handler = new BaseObjectHandler();
+    $handler->handleRequest();
+} catch (Exception $e) {
+    Logger::LogError($e->getMessage(), Logger::fatalError);
+    echo 'Fatal Error Occurred. Terminating.';
+}
 
 //Objects and Functions below here
 //********************************

@@ -12,7 +12,10 @@
 					defaultValue: Transition.user.id
 				}, 
 				{
-					name: 'fullname'
+					name: 'fullname',
+					convert: function(v, record){
+						return '<a href="/'+record.data.userid+'">'+record.data.fullname + '</a>';
+					}
 				},
 				{
 					name: 'skillid',
@@ -24,12 +27,6 @@
 				{ 
 					name: 'userrating',
 					defaultValue: 0
-				},
-				{
-					name: 'linkedname',
-					calculate: function(data){
-						return '<a href="/'+data.userid+'">'+data.fullname + '</a>';
-					}
 				}
 			],
 			proxy: 
@@ -330,7 +327,7 @@
 			columns: [
 				{
 					text: 'Member',
-					dataIndex: 'linkedname',
+					dataIndex: 'fullname',
 					hideable: false,
 					filter: {
 						type: 'string'
