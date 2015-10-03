@@ -1,0 +1,393 @@
+{% include "thetransitionglobaluser" %}
+{% include "thetransitionextheader" %}
+<style type="text/css">
+        .multilineColumn .x-grid-cell-inner {
+            white-space:  normal !important;
+        }
+    </style>
+<script type="text/javascript">
+    Ext.onReady(function() {
+		Ext.QuickTips.init();
+		
+		Ext.define('tasks', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id',
+				}, 
+				{
+					name: 'userid',
+					defaultValue: Transition.user.id
+				},
+				{
+					name: 'fullname'
+				},
+				{
+					name: 'taskid'
+				},
+				{
+					name: 'tasktitle'
+				},
+				{
+					name: 'taskdescription'
+				},
+				{
+					name: 'createddate',
+				},
+				{
+					name: 'starteddate'
+				},
+				{
+					name: 'closeddate',
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'tasks'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'tasks'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		Ext.define('taskcomments', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id',
+				}, 
+				{
+					name: 'taskid'
+				},
+				{
+					name: 'userid',
+					defaultValue: Transition.user.id
+				},
+				{
+					name: 'createddate',
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'taskcomments'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'taskcomments'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		
+		function GetFormItems(record)
+		{
+			var store = Ext.create('Ext.data.Store', {
+				model: 'taskcomments',
+				remoteSort: true,
+				remoteFilter: true,
+				filters: [
+					{
+						property: "taskid",
+						value: record.get("taskid"),
+						operator: "eq"
+					}
+				],
+				pageSize: 20
+			});
+			store.load(function (records, operation, success){
+				if(success)
+				{
+					grid.updateLayout();
+					othergrid.updateLayout();
+				}
+			});
+
+			return [
+				{
+					xtype: 'container',
+					collapsible: false,
+					border: false,
+					layout: 'column',
+					items: [
+						{
+							xtype: 'fieldset',
+							collapsible: false,
+							border: false,
+							margin: '5',
+							columnWidth: 0.8,
+							defaults: {
+								labelAlign: 'right',
+								width: '100%'
+							},
+							items:[
+								{
+									xtype: 'textfield',
+									fieldLabel: 'Task Title',
+									name: 'tasktitle',
+									allowBlank: false,
+									maxLength: '2000'
+								},
+								{
+									xtype: 'textareafield',
+									fieldLabel: 'Task Description',
+									name: 'taskdescription',
+									allowBlank: true,
+									maxLength: '4000'
+								},
+								{
+									xtype: 'textfield',
+									fieldLabel: 'Create Date',
+									name: 'createddate',
+									allowBlank: false,
+									maxLength: '200'
+								},
+								{
+									xtype: 'textfield',
+									name: 'starteddate',
+									fieldLabel: 'Start Date',
+									allowBlank: true,
+									maxLength: '200'
+								},
+								{
+									xtype: 'textfield',
+									name: 'closeddate',
+									fieldLabel: 'Closed Date',
+									allowBlank: true,
+									maxLength: '200'
+								}
+							]
+						}
+					]
+				},
+				{
+					xtype: 'container',
+					border: false,
+					layout: 'fit',
+					padding: '0 5 5 5',
+					items: [
+						{
+							xtype: 'gridpanel',
+							title: 'Comments',
+							store: store,
+							dockedItems:[
+								{
+									xtype: 'pagingtoolbar',
+									store: store,
+									dock: 'bottom',
+									displayInfo: true
+								}
+							],
+							columns: [
+								{
+									text: 'Task ID',
+									dataIndex: 'taskid',
+									hideable: false,
+									sortable: false
+								},
+								{
+									text: 'Comment Text',
+									dataIndex: 'commenttext',
+									hideable: false,
+									sortable: false,
+									renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+										metaData.css = 'multilineColumn'; return value;
+									}
+								},
+								{
+									text: 'Created Date',
+									dataIndex: 'createddate',
+									hideable: false,
+									sortable: false
+								}
+							],
+							width: 'auto',
+							forceFit: true
+						}
+					]
+				}
+			];
+		}
+		
+		var myTasksStore = Ext.create('Ext.data.Store', {
+			storeId:'myTasks',
+			model: 'tasks',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [
+				{
+					property: "userid",
+					value: Transition.user.id,
+					operator: "eq"
+				}
+			],
+			pageSize: 20
+		});
+		
+		
+		
+		var otherTasksStore = Ext.create('Ext.data.Store', {
+			storeId:'otherTasksStore',
+			model: 'tasks',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [
+				{
+					property: "userid",
+					value: Transition.user.id,
+					operator: "ne"
+				}
+			],
+			pageSize: 20
+		});
+		
+		var grid = Ext.create('Ext.ux.FormGrid', {
+			title: 'My Tasks',
+			store: myTasksStore,
+			GetFormItems: GetFormItems,
+			columns: [
+				{
+					text: 'Task ID',
+					dataIndex: 'taskid',
+					hideable: false,
+					sortable: true,
+				},
+				{
+					text: 'Name',
+					dataIndex: 'fullname',
+					hideable: false,
+					sortable: false,
+				},
+				{
+					text: 'Title',  
+					dataIndex: 'tasktitle', 
+					hideable: false,
+					sortable: true
+				},
+				{
+					text: 'Created Date',  
+					dataIndex: 'createddate', 
+					hideable: false,
+					sortable: false
+				},
+				{
+					text: 'Start Date',  
+					dataIndex: 'starteddate', 
+					hideable: false,
+					sortable: false
+				},
+				{
+					text: 'Closed Date',  
+					dataIndex: 'closeddate', 
+					hideable: false,
+					sortable: false
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'grid'
+		});
+		
+		var otherGrid = Ext.create('Ext.ux.FormGrid', {
+			title: 'Other Member\'s Tasks',
+			store: otherTasksStore,
+			GetFormItems: GetFormItems,
+			allowAdd: false,
+			allowSave: false,
+			allowRemove: false,
+			formReadOnly: true,
+			columns: [
+				{
+					text: 'Task ID',
+					dataIndex: 'taskid',
+					hideable: false,
+					sortable: true,
+				},
+				{
+					text: 'Name',
+					dataIndex: 'fullname',
+					hideable: false,
+					sortable: false,
+				},
+				{
+					text: 'Title',  
+					dataIndex: 'tasktitle', 
+					hideable: false,
+					sortable: true
+				},
+				{
+					text: 'Created Date',  
+					dataIndex: 'createddate', 
+					hideable: false,
+					sortable: false
+				},
+				{
+					text: 'Start Date',  
+					dataIndex: 'starteddate', 
+					hideable: false,
+					sortable: false
+				},
+				{
+					text: 'Closed Date',  
+					dataIndex: 'closeddate', 
+					hideable: false,
+					sortable: false
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'othergrid',
+			plugins: ['gridfilters']
+		});
+		
+		myTasksStore.load();
+		otherTasksStore.load();
+	});
+</script>
+{% include "breadcrumbs" %}
+
+{% if page.headline.size > 0 %}
+<h2 class="headline">{{ page.headline }}</h2>
+{% endif %}
+
+<div id="content">
+
+  <div id="intro" class="intro">
+    <div class="text-content">
+      {{ page.basic.content }}
+    </div>
+  </div>
+
+
+	<div id = "grid"></div>
+	<br>
+	<br>
+	<div id = "othergrid"></div>
+	
+	{% if page.tags_count > 0 %}
+  <div class="page-tags">
+    {% include "page_tags" with page %}
+  </div>
+  {% endif %}
+
+  {% if page.is_homepage? == true and site.page_tags contains "homepage" %}
+    {% tag "homepage" with "homepage_widget" %}
+  {% endif %}
+
+  <div class="like-page">
+    <strong>Do you like this page?</strong>
+    {% include "like_page" %}
+  </div>
+
+  {% if page.show_stream? %}
+  {% include "page_stream" %}
+  {% endif %}
+
+</div>
+
+{% include "donateLink" with "pay_what_you_want" %} 
