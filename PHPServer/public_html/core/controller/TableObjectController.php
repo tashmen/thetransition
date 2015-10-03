@@ -1,36 +1,25 @@
 <?php
 
 class TableObjectController extends AbstractController{
-    private $connection;
+    protected $connection;
     //Stores the mapping from resource object to resource classes
-    private $resourceToObjectMap;
+    protected $resourceToObjectMap;
     //Stores the mapping from actions to function names
-    private $actionsToFunctionMap;
+    protected $actionsToFunctionMap;
     
     public function __construct(iDatabase $connection)
     {
         $this->connection = $connection;
         
-        //The key is the value given from the user; changing the key will require changing the frontend logic 
-        //The value is the class name that is mapped to the given key
-        $this->resourceToObjectMap['locations'] = 'locations';
-        $this->resourceToObjectMap['objectcategory'] = 'objectcategory';
-        $this->resourceToObjectMap['objectpermanence'] = 'objectpermanence';
-        $this->resourceToObjectMap['phasesteps'] = 'phasesteps';
-        $this->resourceToObjectMap['planphases'] = 'planphases';
-        $this->resourceToObjectMap['skills'] = 'skills';
-        $this->resourceToObjectMap['spaces'] = 'spaces';
-        $this->resourceToObjectMap['userbuds'] = 'userbuds';
-        $this->resourceToObjectMap['userbudsmembership'] = 'userbudsmembership';
-        $this->resourceToObjectMap['userlocations'] = 'userlocations';
-        $this->resourceToObjectMap['userobjects'] = 'userobjects';
-        $this->resourceToObjectMap['userphasesteps'] = 'userphasesteps';
-        $this->resourceToObjectMap['userreviews'] = 'userreviews';
-        $this->resourceToObjectMap['userskills'] = 'userskills';
-        $this->resourceToObjectMap['userspaces'] = 'userspaces';
-        $this->resourceToObjectMap['users'] = 'users';
-        
-        
+        $this->MapObjects();
+        $this->MapActions();
+    }
+    
+    /*
+     * Adds the mapping for the actions available in this controller
+     */
+    protected function MapActions()
+    {
         //crud operations available
         $this->actionsToFunctionMap['create'] = 'create';
         $this->actionsToFunctionMap['read'] = 'read';
@@ -40,63 +29,75 @@ class TableObjectController extends AbstractController{
         //Ext operations available
         $this->actionsToFunctionMap['extdata'] = 'GetExtData';
     }
+    
+    /*
+     * Adds the mapping for the objects available in this controller
+     */
+    protected function MapObjects()
+    {
+        //The key is the value given from the user; changing the key will require changing the frontend logic 
+        //The value is the class name that is mapped to the given key
+        $this->resourceToObjectMap['locations'] = 'locations';
+        $this->resourceToObjectMap['objectcategory'] = 'objectcategory';
+        $this->resourceToObjectMap['objectpermanence'] = 'objectpermanence';
+        $this->resourceToObjectMap['phasesteps'] = 'phasesteps';
+        $this->resourceToObjectMap['planphases'] = 'planphases';
+        $this->resourceToObjectMap['skills'] = 'skills';
+        $this->resourceToObjectMap['spaces'] = 'spaces';
+        $this->resourceToObjectMap['tasks'] = 'tasks';
+        $this->resourceToObjectMap['taskcomments'] = 'taskcomments';
+        $this->resourceToObjectMap['userbuds'] = 'userbuds';
+        $this->resourceToObjectMap['userbudsmembership'] = 'userbudsmembership';
+        $this->resourceToObjectMap['userlocations'] = 'userlocations';
+        $this->resourceToObjectMap['userobjects'] = 'userobjects';
+        $this->resourceToObjectMap['userphasesteps'] = 'userphasesteps';
+        $this->resourceToObjectMap['userreviews'] = 'userreviews';
+        $this->resourceToObjectMap['userskills'] = 'userskills';
+        $this->resourceToObjectMap['userspaces'] = 'userspaces';
+        $this->resourceToObjectMap['users'] = 'users';
+    }
 
     /*
-     * Process a resource with the given action
-     * @param resource - The resource to invoke the action on
-     * @param action - The action to perform on the resource
-     * @return array - The data returned from the function
+     * Internal Processing specific to this controller type
+     * @param function - The name of the function to call on the provided class
+     * @param className - The name of the class to instantiate
+     * @param resource - The original resource asked for in the request
+     * @return - The results of the processing
      */
-    public function Process($resource, $action)
+    
+    protected function ProcessInternal($function, $className, $resource)
     {
-        try {
-            
-            if($resource == "tableobject" && $action == "gettables")
-            {
-                $results = array();
-                $inputData = new TableRequest();
-                foreach($this->resourceToObjectMap as $className)
-                {
-                    $object = new $className($this->connection, $inputData);
-                    $results[] = array('id' => $object->GetPrimaryTable());
-                }
-                $results = $this->ConvertInputRecordsToOutput($resource, $results);
-            }
-            else 
-            {
-                Security::VerifySecurity($this->connection);
-                if(array_key_exists($resource, $this->resourceToObjectMap)){
-                    $className = $this->resourceToObjectMap[$resource];
-                    if(array_key_exists($action, $this->actionsToFunctionMap)){
-                        $function = $this->actionsToFunctionMap[$action];
-                        $inputData = new TableRequest();
-                        $table = new $className($this->connection, $inputData);
-                        Logger::LogError("Initiating request for class: " . $className . " and function: " . $function, Logger::debug);
-                        
-                        if(!(in_array($action, $table->GetSecurity()) || Security::IsAdmin()))
-                        {
-                            throw new Exception('Action is not allowed: ' . $action);
-                        }
-                        
-                        $table->$function($inputData);
-
-                        $this->ProcessImageFile($className, $function, $table->GetResults());
-
-                        $results = $this->GetOutput($resource, $table);
-                    }
-                    else{
-                        throw new Exception('Action is not supported: ' . $action);
-                    }
-                }
-                else {
-                    throw new Exception('Resource does not exist: ' . $resource);
-                }
-            }
-            $this->outputSuccess($results);
-        } catch (Exception $e) {
-            Logger::LogError($e->getMessage(), Logger::fatalError);
-            $this->outputFailure($e->getMessage());
+        $inputData = new TableRequest();
+        $table = new $className($this->connection, $inputData);
+        if(!(in_array($action, $table->GetSecurity()) || Security::IsAdmin()))
+        {
+            throw new Exception('Action is not allowed: ' . $action);
         }
+        $table->$function();
+        $this->ProcessImageFile($className, $function, $table->GetResults());
+        return $this->GetOutput($resource, $table);
+    }
+    
+    /*
+     * Processing for special actions
+     * @param resource - The name of the resource provided
+     * @param action - The name of the action to perform
+     */
+    protected function ProcessSpecialAction($resource, $action)
+    {
+        $results = null;
+        if($resource == "tableobject" && $action == "gettables")
+        {
+            $results = array();
+            $inputData = new TableRequest();
+            foreach($this->resourceToObjectMap as $className)
+            {
+                $object = new $className($this->connection, $inputData);
+                $results[] = array('id' => $object->GetPrimaryTable());
+            }
+            $results = $this->ConvertInputRecordsToOutput($resource, $results);
+        }
+        return $results;
     }
     
     protected function GetOutput($resource, TableObject $tableObject) {
@@ -145,17 +146,5 @@ class TableObjectController extends AbstractController{
                 }
             }
         }
-    }
-    
-    /*
-      Converts the input records from GetRequestData into the proper output format
-      @records - The array of input records
-      @return - The array of output records in proper format
-     */
-
-    private function ConvertInputRecordsToOutput($resource, $records) {
-        $results = array();
-        $results[$resource] = $records;
-        return $results;
     }
 }

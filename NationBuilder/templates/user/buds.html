@@ -108,7 +108,12 @@
 				],
 				pageSize: 20
 			});
-			store.load();
+			store.load(function (records, operation, success){
+				if(success)
+				{
+					grid.updateLayout();
+				}
+			});
 
 			return [
 				{
@@ -372,7 +377,12 @@
 				],
 				pageSize: 20
 			});
-			store.load();
+			store.load(function (records, operation, success){
+				if(success)
+				{
+					otherGrid.updateLayout();
+				}
+			});
 			return [
 				{
 					xtype: 'container',
