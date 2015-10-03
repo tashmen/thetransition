@@ -1,0 +1,323 @@
+{% include "thetransitionglobaluser" %}
+{% include "thetransitionextheader" %}
+{% include "thetransitiongooglemapheader" %}
+<script type="text/javascript">
+    Ext.onReady(function() {
+		Ext.QuickTips.init();
+		
+		var locations = '{{locations}}';
+		var aryLocations = locations.split(',');
+		var locationId = aryLocations.length == 1 ? aryLocations[0] : '';
+		var locationName = 'Locations';
+		
+		Ext.define('UserLocations', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id'
+				},
+				{
+					name: 'userid',
+					defaultValue: Transition.user.id
+				}, 
+				{
+					name: 'fullname'
+				},
+				{
+					name: 'locationid',
+					defaultValue: locationId,
+					validators: [{
+						type: 'presence',
+						message: 'Location is required'
+					}]
+				},
+				{
+					name: 'name'
+				},
+				{
+					name: 'description'
+				},
+				{
+					name: 'location'
+				},
+				{
+					name: 'latitude'
+				},
+				{
+					name: 'longitude'
+				},
+				{
+					name: 'icon'
+				},
+				{
+					name: 'distance',
+					calculate: function (data) {
+						return Transition.user.calculateDistance(data.latitude, data.longitude);
+					}
+				},
+				{
+					name: 'markertitle',
+					calculate: function(data){
+						return 'Location entered by: ' + data.fullname;
+					}
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'userlocations'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'userlocations'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		Ext.define('Locations', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id',
+				}, 
+				{
+					name: 'name'
+				},
+				{
+					name: 'icon'
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'locations'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'locations'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		var locationFilter = {
+				property: 'id',
+				value: locations,
+				operator: "in"
+			};
+			
+		var locationFilterUsers = {
+				property: 'locationid',
+				value: locations,
+				operator: "in"
+			};
+		
+		var userLocationsStore = Ext.create('Ext.data.Store', {
+			storeId:'userLocationsStore',
+			model: 'UserLocations',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [{
+				property: "userid",
+				value: Transition.user.id,
+				operator: "eq"
+			},
+			locationFilterUsers],
+			pageSize: 20
+		});
+		
+		var otherUserLocationsStore = Ext.create('Ext.data.Store', {
+			storeId:'otherUserLocationsStore',
+			model: 'UserLocations',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [{
+				property: "userid",
+				value: Transition.user.id,
+				operator: "ne"
+			},
+			locationFilterUsers],
+			pageSize: 0
+		});
+		
+		var locationsStore = Ext.create('Ext.data.Store', {
+			storeId: 'locationsStore',
+			model: 'Locations',
+			remoteSort: true,
+			remoteFilter: true,
+			sorters: [{
+				 property: 'name',
+				 direction: 'ASC'
+			}],
+			filters: [locationFilter],
+			pageSize: 0
+		});
+		
+		locationsStore.load(function (records, operation, success){
+			if(success)
+			{
+				if(locationsStore.getCount() == 1)
+					locationName = locationsStore.getAt(0).get('name');
+				userLocationsStore.load();
+				otherUserLocationsStore.load(function (records, operation, success){
+					if(success)
+					{
+						BuildGoogleMap();
+					}
+				});
+			}
+		});
+		
+		function GetLocationsForm()
+		{
+			var items = [
+			{
+				xtype: 'textfield',
+				fieldLabel: 'Name',
+				name: 'name',
+				allowBlank: false,
+				maxLength: '500'
+			},
+			{
+				xtype: 'textareafield',
+				fieldLabel: 'Description',
+				name: 'description',
+				allowBlank: true,
+				maxLength: '2000'
+			},
+			{
+				xtype: 'locationfield',
+				fieldLabel: 'Location',
+				name: 'location',
+				allowBlank: false,
+				maxLength: '2000'
+			}
+			]
+			if(locationsStore.getCount() != 1)
+			{
+				items.push({
+					xtype: 'combo',
+					fieldLabel: 'Type',
+					valueField: 'id',
+					displayField: 'name',
+					name: 'locationid',
+					allowBlank: false,
+					store: Ext.StoreManager.get('locationsStore')
+				});
+			}
+			return Ext.create(Ext.form.Panel,{
+				items: [
+				{
+					xtype: 'fieldset',
+					collapsible: false,
+					border: false,
+					margin: '5',
+					defaults: {
+						labelAlign: 'right',
+						width: '95%'
+					},
+					items: items
+				}
+				]
+			});
+		}
+		
+		function BuildGoogleMap(){
+			var grid = Ext.create('Ext.ux.FormGrid', {
+				title: locationName + ' entered by me',
+				store: userLocationsStore,
+				GetFormItems: GetLocationsForm,
+				columns: [
+					{
+						text: 'Name',
+						dataIndex: 'name',
+						hideable: false,
+						sortable: false
+					}
+				],
+				width: 'auto',
+				forceFit: true,
+				renderTo: 'ext'
+			});
+			
+			var filters = [
+				{
+					text: 'Distance',
+					emptyText: 'Enter distance in miles.',
+					dataIndex: 'distance',
+					operator: '<=',
+					type: 'number'
+				}
+			]
+			
+			if(Ext.StoreManager.get('locationsStore').getCount() > 1)
+			{
+				filters.push({
+					text: 'Type',
+					emptyText: '',
+					dataIndex: 'id',
+					store: Ext.StoreManager.get('locationsStore'),
+					operator: 'in',
+					type: 'list'
+				});
+			}
+			
+			var mapPanel = Ext.create('Ext.ux.MapPanel',{
+				title: locationName + ' entered by others',
+				renderTo: 'map_panel',
+				height: 525,
+				keyStore: Ext.StoreManager.get('locationsStore'),
+				mapStore: Ext.StoreManager.get('otherUserLocationsStore'),
+				filterMenuConfig: {
+					filters: filters
+				},
+				getMapStoreForm: GetLocationsForm
+			});
+		}
+	});
+</script>
+
+
+{% include "breadcrumbs" %}
+
+{% if page.headline.size > 0 %}
+<h2 class="headline">{{ page.headline }}</h2>
+{% endif %}
+
+<div id="content">
+
+  <div id="intro" class="intro">
+    <div class="text-content">
+      {{ page.basic.content }}
+    </div>
+  </div>
+  <div id="ext"></div>
+  
+  <br>
+  <br>
+  <br>
+  <div id="map_panel"></div>
+
+  {% if page.tags_count > 0 %}
+  <div class="page-tags">
+    {% include "page_tags" with page %}
+  </div>
+  {% endif %}
+
+  {% if page.is_homepage? == true and site.page_tags contains "homepage" %}
+    {% tag "homepage" with "homepage_widget" %}
+  {% endif %}
+
+  <div class="like-page">
+    <strong>Do you like this page?</strong>
+    {% include "like_page" %}
+  </div>
+
+  {% if page.show_stream? %}
+  {% include "page_stream" %}
+  {% endif %}
+
+</div>
+
+{% include "donateLink" with "pay_what_you_want" %} 

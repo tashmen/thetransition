@@ -179,11 +179,13 @@ class BaseObjectHandler {
         $grantCoin = new GrantCoin();
         if($usdValue != '')
         {
-            echo '<br> Selling ' . $grantCoin->ConvertUSDToGRT($usdValue) . ' GRT today would earn a USD value of ' . $usdValue;
+            echo '<br> Buying ' . $usdValue . ' USD would cost ' . $grantCoin->ConvertBuyUSDToGRT($usdValue) . ' GRT';
+            echo '<br> Selling ' . $usdValue . ' USD would provide ' . $grantCoin->ConvertSellUSDToGRT($usdValue) . ' GRT';
         }
         if($grtValue != '')
         {
-            echo '<br> Selling ' . $grantCoin->ConvertGRTToUSD($grtValue) . ' USD today would earn a GRT value of ' . $grtValue;
+            echo '<br> Buying ' . $grtValue . ' GRT would cost ' . $grantCoin->ConvertBuyGRTToUSD($grtValue) . ' USD';
+            echo '<br> Selling ' . $grtValue . ' GRT would provide ' . $grantCoin->ConvertSellGRTToUSD($grtValue) .  ' USD';
         }
         
     }
