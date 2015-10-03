@@ -105,6 +105,10 @@ Ext.define('Ext.ux.FormGrid',{
 				{
 					var grid = this.findParentByType('grid');
 					var formPanel = Ext.create("Ext.form.Panel", {
+						style: {
+							'overflow-y': 'auto',
+							'max-height': '500px'
+						},
 						items: grid.GetFormItems(record)
 					});
 					formPanel.render(row);

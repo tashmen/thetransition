@@ -23,7 +23,7 @@ function fatal_handler()
 /* auto load all classes */
 
 function __autoload($class_name) {
-    $autoloadLocations = array('common', 'model', 'view', 'tableobjects', 'controller', 'tests');
+    $autoloadLocations = array('common', 'model', 'view', 'tableobjects', 'controller', 'tests', 'grantcoin');
     $filename = $class_name . '.php';
     foreach ($autoloadLocations as $location) {
         $file = Constants::$$location . $filename;
@@ -50,6 +50,7 @@ class Constants {
     public static $tableobjects;
     public static $controller;
     public static $tests;
+    public static $grantcoin;
 
     public static function InitConstants() {
         Constants::$mysite = dirname(__FILE__) . '/';
@@ -62,6 +63,7 @@ class Constants {
         Constants::$controller = Constants::$coreLocation . 'controller/';
         Constants::$tableobjects = Constants::$model . 'tableobjects/';
         Constants::$tests = Constants::$coreLocation . 'tests/';
+        Constants::$grantcoin = Constants::$coreLocation . 'grantcoin/';
     }
 }
 
@@ -102,19 +104,26 @@ class BaseObjectHandler {
      */
 
     public function handleRequest() {
-            Logger::LogRequest('incoming.log', Logger::debug);
+        Logger::LogRequest('incoming.log', Logger::debug);
 
-            $resource = RequestData::GetRequestData('resource');
-            $action = RequestData::GetRequestData('action');
+        $resource = RequestData::GetRequestData('resource');
+        $action = RequestData::GetRequestData('action');
+        $command = RequestData::GetRequestData('command');
 
-
-            if ($resource == "" && $action == "") {
-                $this->processAdministrationHandlers();
-            } else {
-                $controller = new TableObjectController($this->con);
-                $controller->Process($resource, $action);
-            }
-       
+        if($command == 'grantcoin')
+        {
+            $controller = new GrantCoinController($this->con);
+            $controller->Process($resource, $action);
+        }
+        else if ($resource == "" || $action == "") 
+        {
+            $this->processAdministrationHandlers();
+        } 
+        else 
+        {
+            $controller = new TableObjectController($this->con);
+            $controller->Process($resource, $action);
+        }
     }
 
     private function processAdministrationHandlers() {
@@ -164,6 +173,19 @@ class BaseObjectHandler {
             $tests = new SystemTests();
             $tests->run($this->con);
         }
+        
+        $usdValue = RequestData::GetRequestData('usdvalue');
+        $grtValue = RequestData::GetRequestData('grtvalue');
+        $grantCoin = new GrantCoin();
+        if($usdValue != '')
+        {
+            echo '<br> Selling ' . $grantCoin->ConvertUSDToGRT($usdValue) . ' GRT today would earn a USD value of ' . $usdValue;
+        }
+        if($grtValue != '')
+        {
+            echo '<br> Selling ' . $grantCoin->ConvertGRTToUSD($grtValue) . ' USD today would earn a GRT value of ' . $grtValue;
+        }
+        
     }
 }
 
