@@ -69,9 +69,9 @@ class TableObjectController extends AbstractController{
     {
         $inputData = new TableRequest();
         $table = new $className($this->connection, $inputData);
-        if(!(in_array($action, $table->GetSecurity()) || Security::IsAdmin()))
+        if(!(in_array($function, $table->GetSecurity()) || Security::IsAdmin()))
         {
-            throw new Exception('Action is not allowed: ' . $action);
+            throw new Exception('Function is not allowed: ' . $function);
         }
         $table->$function();
         $this->ProcessImageFile($className, $function, $table->GetResults());
