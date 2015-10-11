@@ -15,6 +15,8 @@ class GrantCoinController extends TableObjectController {
     protected function ProcessSpecialAction($resource, $action)
     {
         $results = array();
+        Bittrex::SetConnection($this->connection);
+        Bitstamp::SetConnection($this->connection);
         if($resource == "bittrex" && $action == "getbtcgrtmarketsummary")
         {
             $results[] = Bittrex::GetBTCGRTMarketSummary();
