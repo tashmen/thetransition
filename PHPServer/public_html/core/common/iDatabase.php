@@ -1,6 +1,10 @@
 <?php
 
-
+/**
+ * Interface for database operations
+ *
+ * @author jnorcross
+ */
 interface iDatabase {
     public function lastInsertId();
     public function execute($statement, $parameters = null, $fetchData = true);

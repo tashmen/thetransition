@@ -115,6 +115,17 @@ class BaseObjectHandler {
             $controller = new GrantCoinController($this->con);
             $controller->Process($resource, $action);
         }
+        //Check if this is a nationbuilder webhook:
+        else if($resource == "users" && (action == "personupdate" || action == "personcreation"))
+        {
+            $json = file_get_contents('php://input');
+            $data = json_decode($json, true);
+            if ($data['nation_slug'] == 'thetransition') {
+                $person = $data['payload']['person'];
+                $user = new users($this->con);
+                $user->createupdate($person);
+            }
+        }
         else if ($resource == "" || $action == "") 
         {
             $this->processAdministrationHandlers();
@@ -149,24 +160,17 @@ class BaseObjectHandler {
         if ($code != "") {
             $nb->ClientSetup($code);
         }
+        
+        if(RequestData::GetRequestData('pushMembership')== 1){
+            $nb->PushMembership('18', 'Contributor', '10/19/2015');
+        }
+        
         if (RequestData::GetRequestData('sync') == 1) {
             if(RequestData::GetRequestData('userid') != '')
                 $nb->SynchronizeUser ($this->con, RequestData::GetRequestData('userid'));
             else $nb->SynchronizeUsers($this->con);
         }
-        
-
-        //Check if this is a nationbuilder webhook:
-        {
-            $json = file_get_contents('php://input');
-            $data = json_decode($json, true);
-            if ($data['nation_slug'] == 'thetransition') {
-                $person = $data['payload']['person'];
-                $user = new users($this->con);
-                $user->createupdate($person);
-            }
-        }
-        
+       
         $runTests = RequestData::GetRequestData('runtests');
         if($runTests == "1")
         {

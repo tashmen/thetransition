@@ -1,6 +1,8 @@
 <?php
 /*
   Handles sending requests to the MySQL Database
+ * 
+ * @author jnorcross
  */
 
 class MySqlDB implements iDatabase{
