@@ -47,7 +47,9 @@ class NationBuilder {
     public function Execute($statement, $parameters = array(), $method = Client::HTTP_METHOD_GET, $header = array()) {
         if($this->IsEnabled())
         {
-            return $this->client->fetch($this->baseApiUrl . $statement, $parameters, $method, $header);
+            $result = $this->client->fetch($this->baseApiUrl . $statement, $parameters, $method, $header);
+            Logger::LogData("nationbuilderresponse.log", print_r($result, true));
+            return $result;
         }
     }
 
@@ -129,7 +131,90 @@ class NationBuilder {
 
         print_r($this->Execute($statement));
     }
-
+    
+    /*
+     * Create the named membership in nationbuilder
+     * @param id - the id of the user
+     * @param expiration - the date the membership expires
+     * @param name - the name of the membership
+     * @param reason - the reason for creation
+     */
+    public function CreateMembership($id, $expiration, $name, $reason)
+    {
+        if(!$this->IsEnabled())
+        {
+            return;
+        }
+        $statement = '/api/v1/people/' . $id . '/memberships';
+        $user = array(
+            "membership" => array(
+                "name" => $name,
+                "status" => "active",
+                "status_reason" => $reason,
+                "expires_on" => $expiration
+            )
+        );
+        $this->postRequest($statement, $user, 'POST');
+    }
+    
+    /*
+     * Updates the named membership for a user to the specified expiration date
+     * @param id - The id of the user
+     * @param expiration - the expiration date for the membership
+     * @param name - the name of the membership
+     * @param reason - the reason for the update
+     */
+    public function UpdateMembership($id, $expiration, $name, $reason)
+    {
+        if(!$this->IsEnabled())
+        {
+            return;
+        }
+        $statement = '/api/v1/people/' . $id . '/memberships';
+        $user = array(
+            "membership" => array(
+                "name" => $name,
+                "status" => "active",
+                "status_reason" => $reason,
+                "expires_on" => $expiration
+            )
+        );
+        $this->postRequest($statement, $user, 'PUT');
+    }
+    
+    /*
+     * Retrieves the current named Membership for the user
+     * @param id - the id of the user
+     * @param name - the name of the membership
+     * @return The GrantCoin Membership
+     * 
+     * {
+            "name": "premier",
+            "person_id": 2,
+            "expires_on": null,
+            "started_at": "2014-07-21T13:48:51-07:00",
+            "created_at": "2014-07-21T13:48:51-07:00",
+            "updated_at": "2014-07-21T13:48:51-07:00",
+            "status": "active",
+            "status_reason": null
+        }
+     */
+    public function GetMembership($id, $name)
+    {
+        if(!$this->IsEnabled())
+        {
+            return;
+        }
+        $statement = '/api/v1/people/' . $id . '/memberships';
+        $results = $this->Execute($statement);
+        $results = $results['result']['results'];
+        foreach($results as $result){
+            if ($result['name'] == $name) {
+                return $result;
+            }
+        }
+        return null;
+    }
     /*
       Pushes tags to nationbuilder; This function will not delete tags which are missing.
       @id - the id of the user
@@ -207,7 +292,8 @@ class NationBuilder {
             throw new Exception($curl_error, oauthException::CURL_ERROR);
         }
         curl_close($ch);
-
+        
+        Logger::LogData('nationbuilderresponse.log', print_r(json_decode($json_response, true), true));
         return json_decode($json_response, true);
     }
 
