@@ -22,5 +22,8 @@ class Settings {
     public static $serverLocation = 'http://127.0.0.1:8888/api.php';
     
     public static $loglevel = Logger::debug;
+    
+    //The cost for a membership in the Transition in US dollars
+    public static $membershipCostInUSD = 5;
 }
 ?>

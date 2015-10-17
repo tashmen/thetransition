@@ -326,8 +326,8 @@ class NationBuilder {
     function ClientSetup($code) {
         /* Setup Clients */
 
-        $clientId = '35f177ad5138dd4eaa35f68b7db2561779c514e45a32da55369c89412ff1a170';
-        $clientSecret = 'dd72c5ac9e2f9d6b181b67782f4fd60dc48fb022449f2678d4eb7ffce806c745';
+        $clientId = '';
+        $clientSecret = '';
         $client = new Client($clientId, $clientSecret);
 
 
@@ -338,7 +338,7 @@ class NationBuilder {
         //Generate access token
         echo 'Code value given: ' . $code;
         echo '<br/>';
-        //$code = '24a015cf8d03da15baea07b0a23a185cdafc08046939c3fca69ca968761b4407'; 
+        //$code = ''; 
         // generate a token response
 
         $accessTokenUrl = 'https://thetransition.nationbuilder.com/oauth/token';
