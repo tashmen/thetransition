@@ -6,19 +6,41 @@ var Transition = {
 		imageUploadLocation: 'http://thetransition.comeze.com/upload/images/',
 		uploadImageFileExtension: '.png',
 		siteLocation: 'http://thetransition.comeze.com/api.php',
-		ajaxRequest: function(params, onSuccess){
+		ajaxRequest: function(params, onSuccess, onFailure){
 			params.id1 = Transition.user.id
 			params.id2 = Transition.user.id2
 			Ext.Ajax.request({
 				url: Transition.global.siteLocation,
 				useDefaultXhrHeader: false, 
 				params: params,
+				onFailure: onFailure,
 				success: Ext.Function.createInterceptor(onSuccess, function(response, opts){
-					//TODO: Add possible failure logic; check if we can reuse some of the logic in the customphp proxy
+					var response = response.responseText;
+					response = Ext.JSON.decode(response);
+					if(response.success)
+					{
+						return true;
+					}
+					else{
+						Ext.MessageBox.show({
+							title: 'Error',
+							msg: response.errortxt,
+							buttons: Ext.MessageBox.OK,
+							icon: Ext.MessageBox.ERROR
+						});
+						if(typeof(opts.onFailure) == 'function')
+							opts.onFailure(response);
+						return false;
+					}
 					return true;
 				}),
 				failure: function(response, opts){
-					//TODO: Add failure logic; check if we can reuse some of the logic in the customphp proxy
+					Ext.MessageBox.show({
+						title: 'Error',
+						msg: 'A major error occurred. Please retry the action.',
+						buttons: Ext.MessageBox.OK,
+						icon: Ext.MessageBox.ERROR
+					});
 				}
 			});
 		}
