@@ -47,7 +47,11 @@ class NationBuilder {
     public function Execute($statement, $parameters = array(), $method = Client::HTTP_METHOD_GET, $header = array()) {
         if($this->IsEnabled())
         {
+            Logger::LogData("nationbuilderresponse.log", $statement);
             $result = $this->client->fetch($this->baseApiUrl . $statement, $parameters, $method, $header);
+            if ($result['code'] != 200) {
+                throw new Exception("Nationbuilder response not successful: " . $result['code']);
+            }
             Logger::LogData("nationbuilderresponse.log", print_r($result, true));
             return $result;
         }
@@ -62,12 +66,43 @@ class NationBuilder {
         if($this->IsEnabled())
         {
             $user = new users($database);
-            $response = $this->Execute('/api/v1/people');
-            $results = $response['result']['results'];
-            foreach ($results as $result) {
-                $user->createupdate($result);
+            $statement = '/api/v1/people';
+            $parameters = array();
+            $next = '';
+            do
+            {
+                $response = $this->Execute($statement, $parameters);
+                $results = $response['result']['results'];
+                foreach ($results as $result) {
+                    $user->createupdate($result);
+                }
+                $next = $response['result']['next'];
+                Logger::LogError("next value: " . $next, Logger::debug);
+                $statement = explode('?', $next);
+                $statement = $statement[0];
+                Logger::LogError("Statement: " . $statement, Logger::debug);
+                $parameters = $this->FindParametersInURL($next);
+                Logger::LogError(print_r($parameters, true), Logger::debug);
+            } while (next != '' && $statement != '' && count($parameters)>0);
+        }
+    }
+    
+    /*
+     * Helper function for converting parameters in a url to an array
+     */
+    private function FindParametersInURL($url){
+        $array = array();
+        $split = explode('?', $url);
+        if(count($split) == 2)
+        {
+            $params = $split[1];
+            $params = explode('&', $params);
+            foreach($params as $param){
+                $values = explode('=', $param);
+                $array[$values[0]] = $values[1];
             }
         }
+        return $array;
     }
     
     /*

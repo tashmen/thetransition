@@ -751,8 +751,13 @@ Ext.define('proxy.customphp', {
 	alias: 'proxy.customphp', 
 	extend: 'Ext.data.proxy.Ajax', 
 	useDefaultXhrHeader: false, 
-	method:'post',
 	url: Transition.global.siteLocation,
+	actionMethods: {
+		create: 'POST', 
+		read: 'POST', 
+		update: 'POST', 
+		destroy: 'POST'
+	},
 	api: {
 		create  : Transition.global.siteLocation + '?action=create',
 		read    : Transition.global.siteLocation + '?action=read',

@@ -13,6 +13,7 @@ var Transition = {
 				url: Transition.global.siteLocation,
 				useDefaultXhrHeader: false, 
 				params: params,
+				method: 'POST',
 				onFailure: onFailure,
 				success: Ext.Function.createInterceptor(onSuccess, function(response, opts){
 					var response = response.responseText;

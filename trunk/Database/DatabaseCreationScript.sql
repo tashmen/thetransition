@@ -10,8 +10,21 @@ CREATE TABLE `users` (
   `fullname` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'full name of the user; combined first + last name from nationbuilder',
   `creationdt` datetime DEFAULT NULL,
   `adminflg` tinyint(1) DEFAULT NULL COMMENT 'Determines if the user has admin access',
+  `profileimage` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'profile image url',
+  `email` varchar(250) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'email address',
+  `mobile` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'mobile phone number',
+  `latitude` double DEFAULT NULL COMMENT 'latitude of the user''s primary address',
+  `longitude` double DEFAULT NULL COMMENT 'longitude of the user''s primary address',
+  `tags` varchar(4000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'tags associated with the user',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='User table synchronized from NationBuilder for easier queryi';
+
+--
+-- Table structure for table `usersview`
+--
+
+DROP TABLE IF EXISTS `usersview`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`a1466265_nb`@`localhost` SQL SECURITY DEFINER VIEW `usersview` AS select `users`.`id` AS `id`,`users`.`fullname` AS `fullname`,`users`.`profileimage` AS `profileimage`,`users`.`email` AS `email`,`users`.`mobile` AS `mobile`,`users`.`latitude` AS `latitude`,`users`.`longitude` AS `longitude`,`users`.`tags` AS `tags` from `users` where (`users`.`id` <> 1);
 
 
 -- --------------------------------------------------------
@@ -264,10 +277,6 @@ VIEW `userobjectsview` AS
         join `objectcategory` `oc` ON ((`uo`.`categoryid` = `oc`.`id`)))
         join `objectpermanence` `op` ON ((`uo`.`permanenceid` = `op`.`id`)))
         join `users` `u` ON ((`uo`.`userid` = `u`.`id`)));
-
---
--- Dumping data for table `userobjectsview`
---
 
 
 -- --------------------------------------------------------
