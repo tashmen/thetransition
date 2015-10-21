@@ -61,33 +61,6 @@
 			pageSize: 0,
 			data: tagToImageMapping
 		});
-	
-		var peopleData = { 
-			users: [
-				{% for signup in site.recent_supporters limit:2000 %}
-				{% if signup.custom_values.remove_from_map != "1" %}
-				{% if forloop.index0 > 0 %}
-				,
-				{% endif %}
-				{
-					id: '{{signup.id}}',
-					linkedfullname: '{{signup.published_name_linked}}',
-					name: '{{signup.published_name}}',
-					email: '{{signup.email}}',
-					mobile: '{{signup.mobile_number}}',
-					isVolunteer: '{{signup.is_volunteer?}}',
-					profileImage: '{{ signup.bigger_profile_image }}',
-					state: '{{signup.address.state}}',
-					country: '{{signup.address.country_code}}',
-					latitude: '{{signup.address.lat}}',
-					longitude: '{{signup.address.lng}}',
-					distance: 0,//Distance in miles
-					tags: '{{signup.tag_list}}'
-				}
-				{% endif %}
-				{% endfor %}
-			]
-		};
 		
 		Ext.define('Users', {
 			extend: 'Ext.data.Model',
@@ -96,34 +69,36 @@
 					name: 'id'
 				},
 				{
-					name: 'name'
+					name: 'fullname',
+					defaultValue: ''
 				},
 				{
-					name: 'linkedfullname'
+					name: 'linkedfullname',
+					convert: function(v, record){
+						return '<a href="/'+record.data.userid+'">'+record.data.fullname + '</a>';
+					}
 				},
 				{
-					name: 'email'
+					name: 'email',
+					defaultValue: ''
 				},
 				{
-					name: 'mobile'
+					name: 'mobile',
+					defaultValue: ''
 				},
 				{
-					name: 'isVolunteer'
+					name: 'profileimage',
+					convert: function(v, record){
+						return '<img src="' + record.data.profileimage+'"/>';
+					}
 				},
 				{
-					name: 'profileImage'
+					name: 'latitude',
+					defaultValue: 0
 				},
 				{
-					name: 'state'
-				},
-				{
-					name: 'country'
-				},
-				{
-					name: 'latitude'
-				},
-				{
-					name: 'longitude'
+					name: 'longitude',
+					defaultValue: 0
 				},
 				{
 					name: 'distance',
@@ -132,34 +107,41 @@
 					}
 				},
 				{
-					name: 'tags'
+					name: 'tags',
+					defaultValue: ''
 				},
 				{
 					name: 'markertitle',
 					calculate: function (data) {
-						return data.name;
+						return data.fullname;
 					}
 				},
 				{
 					name: 'icon',
 					calculate: function (data) {
-						var tagList = data.tags.split(', ');
-						for(var i = 0; i < tagList.length; i++)
+						if(data.tags)
 						{
-							var index = keyStore.find('name', tagList[i])
-							if(index != -1)
-								return keyStore.getAt(index).get('icon');
+							var tagList = data.tags.split(', ');
+							for(var i = 0; i < tagList.length; i++)
+							{
+								var index = keyStore.find('name', tagList[i])
+								if(index != -1)
+									return keyStore.getAt(index).get('icon');
+							}
 						}
 						return 'googlemapman.gif';
 					}
 				}
 			],
 			proxy: {
-				type: 'memory',
+				extraParams: {
+					resource: 'users'
+				},
 				reader: {
 					type: 'json',
 					rootProperty: 'users'
-				}
+				},
+				type: 'customphp'
 			}
 		});
 		
@@ -168,8 +150,14 @@
 			model: 'Users',
 			remoteSort: false,
 			remoteFilter: false,
-			pageSize: 0,
-			data: peopleData
+			pageSize: 500
+		});
+		
+		usersStore.load(function (records, operation, success){
+			if(success)
+			{
+				BuildGoogleMap();
+			}
 		});
 		
 		
@@ -199,7 +187,7 @@
 						items:[
 						{
 							xtype: 'field',
-							name: 'profileImage',
+							name: 'profileimage',
 							fieldSubTpl: '<div>{value}</div>',
 							columnWidth: 0.2
 						},
@@ -241,27 +229,30 @@
 			});
 		}
 		
-		var mapPanel = Ext.create('Ext.ux.MapPanel',{
-			renderTo: 'map_panel',
-			title: "Nearby Members",
-			height: 550,
-			markerWindowHeight: 150,
-			markerWindowWidth: 400,
-			keyStore: Ext.StoreManager.get('keyStore'),
-			mapStore: Ext.StoreManager.get('usersStore'),
-			filterMenuConfig: {
-				filters:[
-					{
-						text: 'Distance',
-						emptyText: 'Enter distance in miles.',
-						dataIndex: 'distance',
-						operator: '<=',
-						type: 'number'
-					}
-				]
-			},
-			getMapStoreForm: GetUsersForm
-		});
+		
+		function BuildGoogleMap(){
+			var mapPanel = Ext.create('Ext.ux.MapPanel',{
+				renderTo: 'map_panel',
+				title: "Nearby Members",
+				height: 550,
+				markerWindowHeight: 150,
+				markerWindowWidth: 400,
+				keyStore: Ext.StoreManager.get('keyStore'),
+				mapStore: Ext.StoreManager.get('usersStore'),
+				filterMenuConfig: {
+					filters:[
+						{
+							text: 'Distance',
+							emptyText: 'Enter distance in miles.',
+							dataIndex: 'distance',
+							operator: '<=',
+							type: 'number'
+						}
+					]
+				},
+				getMapStoreForm: GetUsersForm
+			});
+		}
 		
 		
 	
