@@ -1,11 +1,13 @@
 <?php
 
 /*
-  Generic Table Object for handling the base functions (create, read, update, delete)
-  Read - Should be able to handle sorting and filtering
-  Create - Add new record
-  Update - Update existing record
-  Delete - Delete existing record
+ * Generic Table Object for handling the base functions (create, read, update, delete)
+ * Read - Should be able to handle sorting and filtering
+ * Create - Add new record
+ * Update - Update existing record
+ * Delete - Delete existing record
+ * 
+ * @author jnorcross
  */
 
 abstract class TableObject implements iExtOperations, iCRUDOperations {
@@ -178,6 +180,9 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         return $return;
     }
 
+    /*
+     * Creates a new record for the table object
+     */
     public function create() {
         $columns = $this->GetColumns();
         $arrayInsertFields = array_fill(0, $columns->GetCount(), "?");
@@ -213,6 +218,9 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         $this->SetResults($records);
     }
 
+    /*
+     * Updates an existing record for a table object
+     */
     public function update() {
         $columns = $this->GetColumns();
         $statement = "Update " . $this->GetPrimaryTable() . " set ";
@@ -261,6 +269,9 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         $this->SetResults($records);
     }
 
+    /*
+     * Deletes an existing record for a table object
+     */
     public function delete() {
         $columns = $this->GetColumns();
         $statement = "Delete from " . $this->GetPrimaryTable() . " where ";
@@ -351,6 +362,9 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         return $where;
     }
 
+    /*
+     * Reads records from the table object
+     */
     public function read() {
         $orderby = $this->GetOrderBy();
         $strLimit = $this->GetLimit();

@@ -2,6 +2,7 @@
 
 /**
  * Handles all database interactions for the planphases table
+ * @author jnorcross
  */
 class planphases extends TableObject{
     /*

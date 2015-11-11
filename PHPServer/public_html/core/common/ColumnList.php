@@ -1,6 +1,7 @@
 <?php
 /*
-  Defines a list of columns
+ * Defines a list of columns
+ * @author jnorcross
  */
 
 class ColumnList {

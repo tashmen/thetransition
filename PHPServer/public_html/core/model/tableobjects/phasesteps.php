@@ -3,6 +3,7 @@
 /**
  * Handles database interaction for the phasesteps table
  *
+ * @author jnorcross
  */
 class phasesteps extends TableObject{
     /*

@@ -1,6 +1,7 @@
 <?php
 /*
-  Handles data interaction for the userskills table
+ * Handles data interaction for the userskills table
+ * @author jnorcross
  */
 
 class userskills extends TableObject {
@@ -20,24 +21,6 @@ class userskills extends TableObject {
 
     protected function GetPrimaryTableView() {
         return 'userskillsview';
-    }
-
-    /*
-      Retrieves the column list for the table
-      @return - a list of columns for the table
-     */
-
-    protected function GetColumns() {
-        return new ColumnList($this->GetPrimaryTable(), array('userid', 'skillid', 'userrating'), array('userid', 'skillid'));
-    }
-
-    /*
-      Retrieves the column list for the view
-      @return a list of columns for the view
-     */
-
-    protected function GetColumnsView() {
-        return new ColumnList($this->GetPrimaryTableView(), array('userid', 'skillid', 'userrating', 'fullname', 'name'), array('userid', 'skillid'));
     }
 
     /*

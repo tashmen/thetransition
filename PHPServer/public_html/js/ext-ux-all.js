@@ -1,4 +1,18 @@
 
+//Resize containers if the window size changes
+Ext.EventManager.onWindowResize(function () {
+	Ext.ComponentManager.each(function(item){
+		if(typeof(this[item].updateLayout) == 'function')
+		{
+			var xtype = this[item].xtype;
+			var allowedXTypes = ['grid', 'mappanel', 'formgrid', 'panel', 'container', 'form'];
+			if(allowedXTypes.indexOf(xtype) != -1){
+				this[item].updateLayout();
+			}
+		}
+	});
+});
+
 Ext.define('SystemFox.overrides.view.Table', {
     override: 'Ext.view.Table',
     checkThatContextIsParentGridView: function(e){
@@ -107,7 +121,7 @@ Ext.define('Ext.ux.FormGrid',{
 					var formPanel = Ext.create("Ext.form.Panel", {
 						style: {
 							'overflow-y': 'auto',
-							'max-height': '500px'
+							'max-height': '600px'
 						},
 						items: grid.GetFormItems(record)
 					});
@@ -309,6 +323,7 @@ Ext.define('Ext.ux.MapPanel', {
 	mapStore: '',
 	markerWindowHeight: 250,
 	markerWindowWidth: 600,
+	keyWidth: 300,
 	/*
 	{
 		filters: [
@@ -343,7 +358,12 @@ Ext.define('Ext.ux.MapPanel', {
 			xtype: 'container',
 			id: 'mapContainer',
 			region: 'center',
-			height: this.height
+			height: this.height,
+			listeners:{
+				resize: function(container, width, height, oldWidth, oldHeight, eOpts ){
+					google.maps.event.trigger(container.findParentByType("mappanel").map, "resize");
+				}
+			}
 		});
 		
 		if(this.keyStore.getCount() > 1)
@@ -351,6 +371,8 @@ Ext.define('Ext.ux.MapPanel', {
 		
 			var keyContainer = Ext.create('Ext.panel.Panel', {
 				region: 'east',
+				autoScroll: true,
+				width: this.keyWidth,
 				defaults: {
 					padding: '0, 5, 0, 5'
 				},
@@ -431,7 +453,7 @@ Ext.define('Ext.ux.MapPanel', {
 			});
 			if(record.get('icon') != '')
 			{
-				marker.icon = Transition.global.imagesLocation + record.get('icon');
+				marker.setIcon(Transition.global.imagesLocation + record.get('icon'));
 			}
 			this.markerArray.push(marker);
 		}

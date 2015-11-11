@@ -2,6 +2,7 @@
 
 /*
  * Stores filtering information for SQL where clauses
+ * @author jnorcross
  */
 class Filter implements iFilter {
 
@@ -27,6 +28,10 @@ class Filter implements iFilter {
         return $this->operator;
     }
 
+    /*
+     * Determines whether the filter is valid.  A valid filter has to have a column, value and operation.
+     * @return true if the vilter is valid
+     */
     public function IsValid() {
         $return = false;
         if ($this->column != "" && $this->value != "" && $this->operator != "") {
@@ -35,6 +40,10 @@ class Filter implements iFilter {
         return $return;
     }
     
+    /*
+     * Builds the query for the filter
+     * @return a string containing a filter to be added to a where clause
+     */
     public function BuildQuery(){
         if($this->GetOperator() == "in")
         {
@@ -43,9 +52,22 @@ class Filter implements iFilter {
             $criteria = sprintf("?%s", str_repeat(",?", ($count ? $count-1 : 0)));
             return $this->GetColumn() . " " . $this->GetOperator() . " (" . $criteria . ") ";  
         }
+        else if($this->GetOperator() == "notnull")
+        {
+            return $this->GetColumn() . " is not null ";
+        }
+        else if($this->GetOperator() == "null")
+        {
+            return $this->GetColumn() . " is null ";
+        }
         return $this->GetColumn() . " " . $this->GetOperator() . " (?) ";
     }
     
+    /*
+     * Sets the parameters for a prepared statement to fill in the column values for this filters where clause.
+     * @param parameters - The array of parameters to store the values.
+     * @return The list of parameters with the values set.
+     */
     public function SetParameters(&$parameters){
         if($this->GetOperator() == "in")
         {
@@ -59,6 +81,11 @@ class Filter implements iFilter {
         else $parameters[] = $this->GetValue();
     }
 
+    /*
+     * Transforms an operator into the corresponding SQL operation
+     * @param operator - The operator to convert
+     * @return The corresponding SQL operation
+     */
     private function ConvertOperator($operator) {
         switch ($operator) {
             case "like":
@@ -86,6 +113,10 @@ class Filter implements iFilter {
                 break;
             case "in":
 		
+                break;
+            case "notnull":
+            case "null":
+                $this->value = "null";
                 break;
             default:
                 throw new Exception("Invalid operator given: " . $operator);

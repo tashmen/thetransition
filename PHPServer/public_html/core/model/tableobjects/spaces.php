@@ -1,6 +1,7 @@
 <?php
 /*
-  Handles data interaction for the spaces table
+ * Handles data interaction for the spaces table
+ * @author jnorcross
  */
 
 class spaces extends TableObject {
@@ -11,33 +12,6 @@ class spaces extends TableObject {
 
     public function GetPrimaryTable() {
         return "spaces";
-    }
-
-    /*
-      Retrieves the view name for the object
-      @return - the view of the object
-     */
-
-    protected function GetPrimaryTableView() {
-        return $this->GetPrimaryTable();
-    }
-
-    /*
-      Retrieves the column list for the table
-      @return - a list of columns for the table
-     */
-
-    protected function GetColumns() {
-        return new ColumnList($this->GetPrimaryTable(), array('id', 'name', 'icon'), array('id'));
-    }
-
-    /*
-      Retrieves the column list for the view
-      @return a list of columns for the view
-     */
-
-    protected function GetColumnsView() {
-        return $this->GetColumns();
     }
 
     /*
@@ -57,5 +31,5 @@ class spaces extends TableObject {
         return array('read');
     }
 }
-?>
+
 

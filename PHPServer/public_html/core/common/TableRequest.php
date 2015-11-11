@@ -3,6 +3,7 @@
 /*
  * Stores all of the request information needed for TableObjects
  * Limit is defaulted to 25 if it doesn't exist
+ * @author jnorcross
  */
 class TableRequest implements iTableRequest {
 

@@ -3,6 +3,7 @@
 
 /**
  * Handles all of the conversions to Ext objects
+ * @author jnorcross
  *
  */
 class Ext {

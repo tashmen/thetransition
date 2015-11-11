@@ -1,9 +1,12 @@
 <?php
-
+/*
+ * Abstract controller class for handling basic output operations
+ * @author jnorcross
+ */
 abstract class AbstractController {
     /*
-      Successful json data output
-      @data - an array of data to output
+     * Successful data output
+     * @data - an array of data to output
      */
     protected function outputSuccess(array $data) {
         $data['success'] = true;
@@ -11,8 +14,8 @@ abstract class AbstractController {
     }
 
     /*
-      Failed json data output
-      @message - the error message to output
+     * Failed data output
+     * @message - the error message to output
      */
 
     protected function outputFailure($message) {
@@ -23,8 +26,8 @@ abstract class AbstractController {
     }
 
     /*
-      Outputs json data back to the requester
-      @data - an array of data to output
+     * Outputs json data back to the requester
+     * @data - an array of data to output
      */
 
     protected function outputData(array $data) {
@@ -100,4 +103,3 @@ abstract class AbstractController {
     
 }
 
-?>

@@ -1,6 +1,7 @@
 <?php
 /*
-  Handles sending information to NationBuilder
+ * Handles sending information to NationBuilder
+ * @author jnorcross
  */
 
 class NationBuilder {

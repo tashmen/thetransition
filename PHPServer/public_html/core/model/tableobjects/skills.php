@@ -1,6 +1,7 @@
 <?php
 /*
-  Handles data interaction for the skills table
+ * Handles data interaction for the skills table
+ * @author jnorcross
  */
 
 class skills extends TableObject {
@@ -11,33 +12,6 @@ class skills extends TableObject {
 
     public function GetPrimaryTable() {
         return "skills";
-    }
-
-    /*
-      Retrieves the view name for the object
-      @return - the view of the object
-     */
-
-    protected function GetPrimaryTableView() {
-        return $this->GetPrimaryTable();
-    }
-
-    /*
-      Retrieves the column list for the table
-      @return - a list of columns for the table
-     */
-
-    protected function GetColumns() {
-        return new ColumnList($this->GetPrimaryTable(), array('id', 'name'), array('id'));
-    }
-
-    /*
-      Retrieves the column list for the view
-      @return a list of columns for the view
-     */
-
-    protected function GetColumnsView() {
-        return $this->GetColumns();
     }
 
     /*
@@ -57,7 +31,11 @@ class skills extends TableObject {
         return array('read');
     }
 
-    //Gather skill names based on skill ids.
+    /*
+     * Gather skill names based on skill ids.
+     * @param ids - The array of ids to retrieve the names for
+     * @return an array of skill names
+     */
     public function GetSkillNames($ids) {
         $names = array();
         if (count($ids) > 0) {

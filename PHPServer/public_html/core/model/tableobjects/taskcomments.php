@@ -3,6 +3,7 @@
 /**
  * Handles database interaction for the taskcomments table
  *
+ * @author jnorcross
  */
 class taskcomments extends TableObject{
     /*

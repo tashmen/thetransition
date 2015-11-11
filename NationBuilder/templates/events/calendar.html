@@ -67,18 +67,16 @@
 			var EventColors = ['#d13737', '#97bf0d', '#4d73b2', '#8f0a76', '#edad00'];
 			
 			var allEvents = [];
-			{% for event in page.calendar.events_upcoming %}
-			allEvents.push(
-				{
-					title: '{{ event.headline }}',
-					start: '{{event.event.local_start_at | date: '%FT%TZ%z'}}',//'{{event.event.local_start_at | date:'%FT%TZ%z' }}',
-					end: '{{event.event.local_end_at | date:'%FT%TZ%z'}}',
-					allDay: false,
-					url: '{{event.url}}',
-					tags: '{% for tag in event.tags %}{% if forloop.index0 != 0%},{% endif %}{{tag.name}}{% endfor %}',
-					country: 'event.event.venue_address.country_code'
-				}
-			);
+			 {% for child in page.children %}
+				allEvents.push({
+				  title: '{{ child.headline }}',
+				  start: '{{child.event.local_start_at | date:'%FT%TZ%z'}}',//'{{child.event.local_start_at | date:'%FT%TZ%z' }}',
+				  end: '{{child.event.local_end_at | date:'%FT%TZ%z'}}',
+				  allDay: false,
+				  url: '{{child.url}}',
+				  tags: '{% for tag in child.tags %}{% if forloop.index0 != 0%},{% endif %}{{tag.name}}{% endfor %}',
+				  country: 'child.event.venue_address.country_code'
+				});
 			{% endfor %}
 			
 			//Testing code for setting up country filter

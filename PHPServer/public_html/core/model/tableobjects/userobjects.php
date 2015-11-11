@@ -1,6 +1,7 @@
 <?php
 /*
-  Handles data interaction for the user objects table
+ * Handles data interaction for the user objects table
+ * @author jnorcross
  */
 
 class userobjects extends TableObject {
@@ -20,24 +21,6 @@ class userobjects extends TableObject {
 
     protected function GetPrimaryTableView() {
         return "userobjectsview";
-    }
-
-    /*
-      Retrieves the column list for the table
-      @return - a list of columns for the table
-     */
-
-    protected function GetColumns() {
-        return new ColumnList($this->GetPrimaryTable(), array('id', 'userid', 'name', 'description', 'image', 'permanenceid', 'categoryid'), array('id'));
-    }
-
-    /*
-      Retrieves the column list for the view
-      @return a list of columns for the view
-     */
-
-    protected function GetColumnsView() {
-        return new ColumnList($this->GetPrimaryTableView(), array('id', 'userid', 'name', 'description', 'image', 'permanenceid', 'categoryid', 'fullname', 'categoryname', 'permanencename'), array('id'));
     }
 
     /*

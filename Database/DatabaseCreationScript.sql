@@ -586,3 +586,28 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`a1466265_nb`@`localhost` SQL SECURITY DEFINE
 
 DROP TABLE IF EXISTS `currentphasenumberbyuser`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`a1466265_nb`@`localhost` SQL SECURITY DEFINER VIEW `currentphasenumberbyuser` AS select `planphases`.`number` AS `number`,`userphasestepsview`.`userid` AS `userid`,`userphasestepsview`.`phasestepid` AS `phasestepid`,`userphasestepsview`.`completed` AS `completed`,`userphasestepsview`.`planphasename` AS `planphasename`,`userphasestepsview`.`phasestepname` AS `phasestepname`,`userphasestepsview`.`phasestepnumber` AS `phasestepnumber`,`userphasestepsview`.`fullname` AS `fullname`,`userphasestepsview`.`planphaseid` AS `planphaseid` from (`userphasestepsview` join `planphases` on((`userphasestepsview`.`planphaseid` = `planphases`.`id`))) where `userphasestepsview`.`completed` = 0 group by `userphasestepsview`.`planphaseid`,`userphasestepsview`.`userid` order by `planphases`.`number`;
+
+--
+-- Table structure for table `budtypes`
+--
+
+DROP TABLE IF EXISTS `budtypes`;
+CREATE TABLE `budtypes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Id of the bud type',
+  `name` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name of the bud type',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Contains types of BUDS' AUTO_INCREMENT=9 ;
+
+--
+-- Dumping data for table `budtypes`
+--
+
+INSERT INTO `budtypes` VALUES(1, 'Study & Analysis');
+INSERT INTO `budtypes` VALUES(2, 'Strategy');
+INSERT INTO `budtypes` VALUES(3, 'Support');
+INSERT INTO `budtypes` VALUES(4, 'Training');
+INSERT INTO `budtypes` VALUES(5, 'Cost Reduction');
+INSERT INTO `budtypes` VALUES(6, 'Income Generation');
+INSERT INTO `budtypes` VALUES(7, 'Community Creation');
+INSERT INTO `budtypes` VALUES(8, 'Social Change');
+
