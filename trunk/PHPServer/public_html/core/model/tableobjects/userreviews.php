@@ -1,4 +1,9 @@
 <?php
+
+/*
+ * Class for interacting with the userreviews table
+ * @author jnorcross
+ */
 class userreviews extends TableObject {
     /*
       Retrieves the primary table for the object
@@ -16,24 +21,6 @@ class userreviews extends TableObject {
 
     protected function GetPrimaryTableView() {
         return "userreviewsview";
-    }
-
-    /*
-      Retrieves the column list for the table
-      @return - a list of columns for the table
-     */
-
-    protected function GetColumns() {
-        return new ColumnList($this->GetPrimaryTable(), array('reviewerid', 'revieweeid', 'name', 'review', 'lastupdated'), array('reviewerid', 'revieweeid'));
-    }
-
-    /*
-      Retrieves the column list for the view
-      @return a list of columns for the view
-     */
-
-    protected function GetColumnsView() {
-        return new ColumnList($this->GetPrimaryTable(), array('reviewerid', 'revieweeid', 'name', 'review', 'lastupdated', 'reviewerfullname'), array('reviewerid', 'revieweeid'));
     }
 
     /*

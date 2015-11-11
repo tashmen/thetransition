@@ -3,7 +3,7 @@
 /**
  * Handles userlocation table object
  *
- * @author Jon
+ * @author jnorcross
  */
 class userlocations extends TableObject {
     /*

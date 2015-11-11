@@ -2,6 +2,7 @@
 
 /**
  * Holds all of the settings needed for the application
+ * @author jnorcross
  */
 class Settings {
     //MySQL settings for connecting to the database

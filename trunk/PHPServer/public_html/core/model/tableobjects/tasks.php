@@ -3,6 +3,7 @@
 /**
  * Handles database interaction for the tasks table
  *
+ * @author jnorcross
  */
 class tasks extends TableObject{
     /*

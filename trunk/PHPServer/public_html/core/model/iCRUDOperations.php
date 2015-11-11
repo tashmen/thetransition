@@ -1,18 +1,24 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- *
- * @author Jon
+ * Interface for CRUD operations
+ * @author jnorcross
  */
 interface iCRUDOperations {
+     /*
+     * Creates a new record
+     */
     public function create();
+    /*
+     * Reads the records
+     */
     public function read();
+    /*
+     * Updates an existing record
+     */
     public function update();
+    /*
+     * Deletes an existing record
+     */
     public function delete();
 }

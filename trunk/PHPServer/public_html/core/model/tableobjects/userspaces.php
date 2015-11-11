@@ -1,6 +1,7 @@
 <?php
 /*
-  Handles data interaction for the userspaces table
+ * Handles data interaction for the userspaces table
+ * @author jnorcross
  */
 
 class userspaces extends TableObject {
@@ -20,24 +21,6 @@ class userspaces extends TableObject {
 
     protected function GetPrimaryTableView() {
         return $this->GetPrimaryTable() . 'view';
-    }
-
-    /*
-      Retrieves the column list for the table
-      @return - a list of columns for the table
-     */
-
-    protected function GetColumns() {
-        return new ColumnList($this->GetPrimaryTable(), array('id', 'userid', 'spaceid', 'privacy', 'name', 'description', 'location', 'latitude', 'longitude'), array('id'));
-    }
-
-    /*
-      Retrieves the column list for the view
-      @return a list of columns for the view
-     */
-
-    protected function GetColumnsView() {
-        return new ColumnList($this->GetPrimaryTable(), array('id', 'userid', 'spaceid', 'privacy', 'name', 'description', 'location', 'latitude', 'longitude', 'fullname', 'icon'), array('id'));
     }
 
     /*

@@ -1,6 +1,7 @@
 <?php
 /*
-  Singleton logger class for logging information to files
+ * Singleton logger class for logging information to files
+ * @author jnorcross
  */
 
 class Logger {

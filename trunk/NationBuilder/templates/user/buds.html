@@ -42,6 +42,25 @@
 					name: 'status',
 					type: 'int',
 					defaultValue: 0
+				},
+				{
+					name: 'type',
+					convert: function(value, record){
+						if(value)
+						{
+							if(typeof(value) == 'object')
+								return value;
+							if(typeof(value) == 'string')
+								return value.split(',');
+						}
+						return value;
+					},
+					serialize: function(value, record){
+						if(value && typeof(value)=='object')
+							return value.join(',');
+						return value;
+					},
+					persist: true
 				}
 			],
 			proxy: 
@@ -87,6 +106,39 @@
 			}
 		});
 		
+		Ext.define('BudTypes', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id',
+				}, 
+				{
+					name: 'name',
+					defaultValue: Transition.user.id
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'budtypes'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'budtypes'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		var budStore = Ext.create('Ext.data.Store', {
+			storeId: 'typeStore',
+			model: 'BudTypes',
+			remoteSort: true,
+			remoteFilter: true,
+			pageSize: 0
+		});
+		
+		budStore.load();
 		
 		function GetFormItems(record)
 		{
@@ -164,6 +216,16 @@
 									name: 'seedperson',
 									allowBlank: false,
 									maxLength: '500'
+								},
+								{
+									xtype: 'multiselect',
+									fieldLabel: 'Type',
+									name: 'type',
+									valueField: 'id',
+									displayField: 'name',
+									msgTarget: 'side',
+									store: Ext.StoreManager.get('typeStore'),
+									maxSelections: 3
 								},
 								{
 									xtype: 'htmleditor',
@@ -432,6 +494,15 @@
 									name: 'seedperson',
 									allowBlank: false,
 									maxLength: '500'
+								},
+								{
+									xtype: 'combo',
+									fieldLabel: 'Type',
+									name: 'type',
+									multiSelect: true,
+									valueField: 'id',
+									displayField: 'name',
+									store: Ext.StoreManager.get('typeStore')
 								},
 								{
 									xtype: 'displayfield',

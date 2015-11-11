@@ -3,7 +3,7 @@
 /**
  * Handles the logic for interacting with the userbudsmembership table
  *
- * @author Jon
+ * @author jnorcross
  */
 class userbudsmembership extends TableObject{
     /*

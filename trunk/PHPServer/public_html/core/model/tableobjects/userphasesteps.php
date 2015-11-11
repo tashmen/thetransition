@@ -3,6 +3,7 @@
 /**
  * Handles database interaction for the userphasesteps table
  *
+ * @author jnorcross
  */
 class userphasesteps extends TableObject{
     /*

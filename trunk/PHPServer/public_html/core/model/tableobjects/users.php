@@ -1,6 +1,7 @@
 <?php
 /*
-  Handles data interaction for the users table
+ * Handles data interaction for the users table
+ * @author jnorcross
  */
 
 class users extends TableObject {

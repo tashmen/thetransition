@@ -148,8 +148,18 @@
 		var usersStore = Ext.create('Ext.data.Store', {
 			storeId:'usersStore',
 			model: 'Users',
-			remoteSort: false,
-			remoteFilter: false,
+			remoteSort: true,
+			remoteFilter: true,
+			filters:[
+				{
+					property: "latitude",
+					operator: "notnull"
+				},
+				{
+					property: "longitude",
+					operator: "notnull"
+				}
+			],
 			pageSize: 500
 		});
 		
@@ -253,10 +263,6 @@
 				getMapStoreForm: GetUsersForm
 			});
 		}
-		
-		
-	
-	
 	});
 </script>
 

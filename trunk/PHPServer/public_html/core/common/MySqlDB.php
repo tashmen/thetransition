@@ -1,6 +1,6 @@
 <?php
 /*
-  Handles sending requests to the MySQL Database
+ * Handles sending requests to the MySQL Database
  * 
  * @author jnorcross
  */
@@ -24,15 +24,20 @@ class MySqlDB implements iDatabase{
         $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
+    /*
+     * Retrieves the auto incremented id of the last inserted record from the internal PDO object
+     * @return id of the last inserted record
+     */
     public function lastInsertId() {
         return $this->connection->lastInsertId();
     }
 
     /*
-      Execute a sql statement and return an array of objects
-      @statement - The SQL Statement
-      @parameters - An array of parameters for the statment [['type', 'parameter']['type','parameter']...]
-      @return - An array of results
+     * Execute a sql statement and return an array of objects
+     * @statement - The SQL Statement
+     * @parameters - An array of parameters for the statment [['type', 'parameter']['type','parameter']...]
+     * @fetchData - Determines whether the statement should fetch data from the resultset.  This should be true for select statements and false for insert/update/delete statements.
+     * @return - An array of results
      */
 
     public function execute($statement, $parameters = null, $fetchData = true) {

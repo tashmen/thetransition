@@ -1,8 +1,9 @@
 <?php
 
 /*
-* Handles all input data formatting.  All access should be done through this class instead of global variables.
-*/
+ * Handles all input data formatting.  All access should be done through this class instead of global variables.
+ * @author jnorcross
+ */
 Class RequestData
 {
     public static $filterJson = 'json';

@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Class for handling the specifics of Table Objects
+ * @author jnorcross
+ */
 class TableObjectController extends AbstractController{
     protected $connection;
     //Stores the mapping from resource object to resource classes
@@ -37,6 +40,7 @@ class TableObjectController extends AbstractController{
     {
         //The key is the value given from the user; changing the key will require changing the frontend logic 
         //The value is the class name that is mapped to the given key
+        $this->resourceToObjectMap['budtypes'] = 'budtypes';
         $this->resourceToObjectMap['locations'] = 'locations';
         $this->resourceToObjectMap['objectcategory'] = 'objectcategory';
         $this->resourceToObjectMap['objectpermanence'] = 'objectpermanence';
@@ -109,7 +113,10 @@ class TableObjectController extends AbstractController{
     }
 
     /*
-      This function assumes that the records have id and imageFile attributes
+     * Processes image files for the CRUD operations.  This function assumes that the records have id and imageFile attributes.
+     * @param table - The name of the table; used to create a subfolder with that name.
+     * @param action - The CRUD operation being performed.
+     * @param results - The data to search through for the imageFile attribute
      */
 
     protected function ProcessImageFile($table, $action, array $results) {

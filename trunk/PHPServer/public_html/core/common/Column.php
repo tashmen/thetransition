@@ -1,6 +1,7 @@
 <?php
 /*
-  Defines a column for a table
+ * Defines a column for a table
+ * @author jnorcross
  */
 
 class Column {

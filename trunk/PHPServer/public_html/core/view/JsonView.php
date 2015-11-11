@@ -1,5 +1,9 @@
 <?php
-
+/*
+ * Class for rendering data as json
+ * 
+ * @author jnorcross
+ */
 Class JsonView implements iView
 {
     public function render(array $data)

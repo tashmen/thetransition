@@ -2,6 +2,7 @@
 
 /*
  * Handles all of the model logic for Buds
+ * @author jnorcross
  */
 class userbuds extends TableObject {
     /*

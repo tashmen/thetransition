@@ -1,5 +1,8 @@
 <?php
-
+/*
+ * Interface for a table request
+ * @author jnorcross
+ */
 interface iTableRequest {
 
     public function GetData();

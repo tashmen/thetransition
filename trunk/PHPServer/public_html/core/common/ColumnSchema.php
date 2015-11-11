@@ -4,6 +4,7 @@
 /**
  * Description of ColumnSchema
  * Wrapper class for handling schema information from a database
+ * @author jnorcross
  */
 class ColumnSchema {
     private $columnName;
