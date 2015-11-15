@@ -108,11 +108,10 @@ class GrantCoinController extends TableObjectController {
                 break;
             case $grantCoinUserTransaction->types['MEMBERSHIP']: //Purchase membership
                 $months = RequestData::GetRequestData("months");
-                $totalcost = RequestData::GetRequestData("totalcost");
                 $monthlysub = RequestData::GetRequestData("monthlysub");
                 $currentMonthlySub = $grantcoin->ConvertBuyUSDToGRT(Settings::$membershipCostInUSD);
                 $currentTotalCost = $currentMonthlySub * $months;
-                if($currentMonthlySub != $monthlysub)
+                if($currentMonthlySub . '' != $monthlysub . '')
                 {
                     throw new Exception("Current monthly sub of " . $monthlysub . " is no longer valid.  The new rate is " . $currentMonthlySub . ".  This new rate will be valid for about 30 minutes.");
                 }
@@ -123,6 +122,7 @@ class GrantCoinController extends TableObjectController {
                     throw new Exception("The total cost of this membership is " . $currentTotalCost . " which is more than your balance of " . $grantcoinuser->GetBalanceGRT());
                 }
                 else {
+                    $nb = new NationBuilder();
                     $membership = $nb->GetMembership(Security::$userid, $this->grantCoinMembershipName);
 
                     $expiration = null;
@@ -141,10 +141,11 @@ class GrantCoinController extends TableObjectController {
                         }
                     }
                     $expiration->modify("+" . $months . " months");
+                    $strExpiration = $expiration->format('Y-m-d');
                     
-                    $transactionID = $grantCoinUserTransaction->CreatePendingTransaction($grantCoinUserTransaction->types['MEMBERSHIP'], $currentTotalCost, $expiration);
+                    $transactionID = $grantCoinUserTransaction->CreatePendingTransaction($grantCoinUserTransaction->types['MEMBERSHIP'], $currentTotalCost, $strExpiration);
                     return array(
-                        confirmationtxt => "Do you want to purchase a membership for " + $currentTotalCost + " GRT?  Your membership would expire on " . $expiration . " if this membership is purchased.",
+                        confirmationtxt => "Do you want to purchase a membership for " . $currentTotalCost . " GRT?  Your membership would expire on " . $strExpiration . " if this membership is purchased.",
                         confirmationid => $transactionID
                     );
                 }

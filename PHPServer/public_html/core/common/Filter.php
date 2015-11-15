@@ -47,10 +47,18 @@ class Filter implements iFilter {
     public function BuildQuery(){
         if($this->GetOperator() == "in")
         {
-            $array = explode(",", $this->value);
+            $array = null;
+            if(is_array($this->value))
+            {
+                $array = $this->value;
+            }
+            else
+            {
+                $array = explode(",", $this->value);
+            }
             $count = count($array);
             $criteria = sprintf("?%s", str_repeat(",?", ($count ? $count-1 : 0)));
-            return $this->GetColumn() . " " . $this->GetOperator() . " (" . $criteria . ") ";  
+            return $this->GetColumn() . " " . $this->GetOperator() . " (" . $criteria . ") ";
         }
         else if($this->GetOperator() == "notnull")
         {
@@ -71,7 +79,15 @@ class Filter implements iFilter {
     public function SetParameters(&$parameters){
         if($this->GetOperator() == "in")
         {
-            $array = explode(",", $this->value);
+            $array = null;
+            if(is_array($this->value))
+            {
+                $array = $this->value;
+            }
+            else
+            {
+                $array = explode(",", $this->value);
+            }
             foreach($array as $value)
             {
                 $parameters[] = $value;
