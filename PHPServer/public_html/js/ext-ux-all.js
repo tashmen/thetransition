@@ -430,7 +430,7 @@ Ext.define('Ext.ux.MapPanel', {
 		else
 		{
 			currentLat = Transition.user.defaultLat;
-			currentLng = Transition.user.defaultLong;
+			currentLng = Transition.user.defaultLng;
 			zoom = 4;
 		}
 		var map_options = {

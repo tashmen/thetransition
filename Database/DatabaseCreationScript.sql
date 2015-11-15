@@ -489,11 +489,26 @@ DROP VIEW IF EXISTS `userbudsmembershipstatusview`;
 CREATE 
 VIEW `userbudsmembershipstatusview` AS
     select 
-        ub.*, COALESCE(ubm.status,0) as status, ubm.userid as membershipuserid
+        ub.*, COALESCE(ubmsv.status,0) as status, ubmsv.id as membershipuserid
     from
 		userbudsview ub left join
-		userbudsmembership ubm on ubm.userbudid = ub.id
+		userbudsmembershipallstatusview ubmsv on ubmsv.ubid = ub.id
 		
+
+--
+-- Table structure for view 'userbudsmembershipallstatusview
+--
+DROP VIEW IF EXISTS `userbudsmembershipallstatusview`;
+CREATE
+VIEW `userbudsmembershipallstatusview` as 
+	select 
+		u.id, ub.id as ubid, ubm.* 
+	from 
+		users u cross join 
+		userbudsview ub left join
+		userbudsmembership ubm on ubm.userid = u.id
+
+
 --
 -- Table structure for table `userbudsmembership`
 --

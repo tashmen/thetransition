@@ -586,6 +586,11 @@
 					property: "userid",
 					value: Transition.user.id,
 					operator: "eq"
+				},
+				{
+					property: "membershipuserid",
+					value: Transition.user.id,
+					operator: "eq"
 				}
 			],
 			pageSize: 20
@@ -603,6 +608,11 @@
 					property: "userid",
 					value: Transition.user.id,
 					operator: "ne"
+				},
+				{
+					property: "membershipuserid",
+					value: Transition.user.id,
+					operator: "eq"
 				}
 			],
 			pageSize: 20
@@ -761,8 +771,18 @@
 				plugins: ['gridfilters']
 			});
 			
-			myBudsStore.load();
-			otherBudsStore.load();
+			myBudsStore.load(function (records, operation, success){
+				if(success)
+				{
+					grid.updateLayout();
+				}
+			});
+			otherBudsStore.load(function (records, operation, success){
+				if(success)
+				{
+					otherGrid.updateLayout();
+				}
+			});
 		}
 	});
 </script>

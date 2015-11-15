@@ -302,8 +302,9 @@
 							
 							Ext.MessageBox.show({
 								title: "You've completed " + currentPhase.get('name'),
-								msg: msg,
-								buttons: Ext.MessageBox.OK
+								message: msg,
+								buttons: Ext.MessageBox.OK,
+								minWidth: 350
 							});
 							
 							grid.currentPhase = nextPhase;
