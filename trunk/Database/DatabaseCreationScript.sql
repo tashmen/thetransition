@@ -473,11 +473,13 @@ CREATE TABLE `userbuds` (
 DROP VIEW IF EXISTS `userbudsview`;
 CREATE 
 VIEW `userbudsview` AS
-    select ub.*, u.fullname
-        
+    select ub.*, GROUP_CONCAT(bt.name SEPARATOR ', ') as typenames, u.fullname
     from
 		userbuds ub inner join
-		users u on u.id = ub.userid
+		users u on u.id = ub.userid left join
+		budtypes bt on FIND_IN_SET(bt.id, ub.type) > 0 
+		group by ub.id
+		
 
 
 --
