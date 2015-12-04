@@ -144,7 +144,7 @@ class NationBuilder {
         $data = array(
             'webhook' => array(
                 'version' => 4,
-                'url' => 'http://thetransition.comeze.com/api.php?resource=users&action=personcreation',
+                'url' => 'http://thetransitionbud.com/api.php?resource=users&action=personcreation',
                 'event' => 'person_creation'
             )
         );
@@ -155,7 +155,7 @@ class NationBuilder {
         $data = array(
             'webhook' => array(
                 'version' => 4,
-                'url' => 'http://thetransition.comeze.com/api.php?resource=users&action=personupdate',
+                'url' => 'http://thetransitionbud.com/api.php?resource=users&action=personupdate',
                 'event' => 'person_update'
             )
         );
@@ -362,15 +362,18 @@ class NationBuilder {
     function ClientSetup($code) {
         /* Setup Clients */
 
-        $clientId = '';
-        $clientSecret = '';
+        $clientId = Settings::$nb_clientId;
+        $clientSecret = Settings::$nb_clientSecret;
         $client = new Client($clientId, $clientSecret);
 
-
-        $redirectUrl = 'http://thetransition.comeze.com/api.php';
-        $authorizeUrl = 'https://thetransition.nationbuilder.com/oauth/authorize';
-        //$authUrl = $client->getAuthenticationUrl($authorizeUrl, $redirectUrl); 
-        //echo $authUrl; 
+		if($code=='')
+		{
+			$redirectUrl = 'http://thetransitionbud.com/api.php';
+			$authorizeUrl = 'https://thetransition.nationbuilder.com/oauth/authorize';
+			$authUrl = $client->getAuthenticationUrl($authorizeUrl, $redirectUrl); 
+			echo $authUrl;
+			return;
+		}
         //Generate access token
         echo 'Code value given: ' . $code;
         echo '<br/>';

@@ -14,7 +14,9 @@ Class RequestData
         {
             if($filterType == RequestData::$filterJson)
             {
-                $json = stripslashes($_REQUEST[$varName]);
+                //In php5.5 strip slashes no longer needed
+                //$json = stripslashes($_REQUEST[$varName]);
+                $json = $_REQUEST[$varName];
                 $value = json_decode($json);
             }
             else{

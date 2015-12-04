@@ -2,12 +2,11 @@ This folder contains the directory structure of the PHP Server.
 
 
 The Server specs used are as follows:
-PHP 5.2
-MySQL 5.1
+PHP 5.5
+MySQL 5.5
 
 Free server in use at this location: thetranisition.comeze.com
-
-Hosted by: http://members.000webhost.com/login.php
+Paid server in use at this location: thetransitionbud.com
 
 
 Installing PHP locally:
@@ -20,7 +19,7 @@ Update the root directory of apache to point to the PHPServer/public_html direct
 Add the php handler as directed here:
 http://php.net/manual/en/install.windows.apache2.php
 
-Download 5.2.10 for php: 
+Download 5.5 for php: 
 http://php.net/releases/
 
 If you get an error which states that PHP can't load certain dll's be sure that the extension directory is using the 8 character dos format in php.ini.
