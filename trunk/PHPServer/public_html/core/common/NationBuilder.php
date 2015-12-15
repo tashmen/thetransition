@@ -369,7 +369,7 @@ class NationBuilder {
 
         if($code=='')
         {
-            $authorizeUrl = 'https://thetransition.nationbuilder.com/oauth/authorize';
+            $authorizeUrl = Settings::$nb_baseApiUrl . '/oauth/authorize';
             $authUrl = $client->getAuthenticationUrl($authorizeUrl, $redirectUrl); 
             echo $authUrl;
             return;
@@ -380,7 +380,7 @@ class NationBuilder {
         //$code = ''; 
         // generate a token response
 
-        $accessTokenUrl = 'https://thetransition.nationbuilder.com/oauth/token';
+        $accessTokenUrl = Settings::$nb_baseApiUrl . '/oauth/token';
         $params = array('code' => $code, 'redirect_uri' => $redirectUrl);
         $response = $client->getAccessToken($accessTokenUrl, 'authorization_code', $params);
         echo '<br/>';
@@ -394,7 +394,7 @@ class NationBuilder {
         echo '<br/>';
         print_r('Was given the following token: ' . $token);
         echo '<br/>';
-        $baseApiUrl = 'https://thetransition.nationbuilder.com';
+        $baseApiUrl = Settings::$nb_baseApiUrl;
         $client->setAccessToken($token);
         $response = $client->fetch($baseApiUrl . '/api/v1/people');
         print_r($response);
