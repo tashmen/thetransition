@@ -22,6 +22,9 @@ class Settings {
     //If isProdServer if false then specify the location of your server for executing tests
     public static $serverLocation = 'http://127.0.0.1:8888/api.php';
     
+    //Host Name of the server
+    public static $hostName = '';
+    
     public static $loglevel = Logger::debug;
     
     //The cost for a membership in the Transition in US dollars
