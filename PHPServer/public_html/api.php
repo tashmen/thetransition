@@ -267,7 +267,7 @@ class BaseObjectHandler {
   //Connect to an SMTP server
   if ($smtp->connect('smtp.gmail.com', 25)) {
   //Say hello
-  if ($smtp->hello('thetransitionbud.com')) { //Put your host name in here
+  if ($smtp->hello(Settings::$hostName)) { //Put your host name in here
   //Authenticate
   if ($smtp->authenticate('jonmnorcross@gmail.com', 'spanish2')) {
   echo "Connected ok!";

@@ -1,16 +1,12 @@
 <?php
 
 class UserSkillsTest extends BaseTest{
-    //http://thetransitionbud.com/api.php?action=read&_dc=1423622217322&resource=userskills&id1=3
-    //&id2=&page=1&start=0&limit=25&filter=%5B%7B%22property%22%3A%22userid%22%2C%22value%22%3A%223%22%2C%22operator%22%3A%22ne%22%7D%5D
     public function TestInternal() {
         $this->TestUserSkills();
     }
     
     private function TestUserSkills()
     {
-        //[{"property":"userid","value":"3","operator":"ne"}]
-        
         $data = '[{\"userid\":\"1\",\"skillid\":\"2\",\"userrating\":\"3\"}]';
         $user =  $this->GetUser(1);     
         $resource = 'userskills';
