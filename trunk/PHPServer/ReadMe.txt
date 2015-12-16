@@ -29,3 +29,7 @@ To Debug you can use NetBeans + xDebug:
 http://www.xdebug.org/download.php
 
 Be sure to use quotes around the filename when adding the xdebug extension to php.ini
+
+Files to be modified with your server location and configurations:
+public_html/.htaccess
+public_html/core/common/Settings.php
