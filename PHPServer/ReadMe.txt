@@ -47,3 +47,5 @@ Setting up Nationbuilder with a PHP server:
 8) In a browser navigate to {php server location}/api.php?addwebhooks=1
 9) This will display some information noting that the configuration was added
 10) Verify in Nationbuilder that the server is authorized and the webhooks are displayed
+11) Sync all users with your server by navigating to {php server location}/api.php?sync=1
+12) Check your database for the newly created users in the Users table
