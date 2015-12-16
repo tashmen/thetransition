@@ -10,7 +10,7 @@
 			{% if activity.is_private? %}
 				{{ 'lock.gif' | icon }}
 			{% endif %}
-			{{ activity.created_at | time_ago }}
+      {{ activity.created_at | time_ago }} on {{ activity.created_at | date: '%B %d, %Y at %I:%M %p (%Z)' }}
 			{% if activity.type_name == 'Comment' and request.logged_in? and site.has_rule_page? and activity.data.has_rule_violation? == nil %}
 			  <span class="activity-links">&middot; <a href="{{ activity.flag_url }}" class="flag">Flag</a></span>
 			{% endif %}

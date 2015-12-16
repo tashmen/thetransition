@@ -76,6 +76,7 @@
     {% endif %}
 
     {% for post in suggestions %}
+    {% assign count = post.public_activities_count | minus:1 %}
     <div class="page-excerpt" id="suggestion-page-{{ post.id }}">
 
       <h3><a href="{{ post.url }}">{{ post.headline }}</a></h3>
@@ -83,8 +84,8 @@
       <div class="byline">
         Posted by {{ post.author.published_name_linked }} &middot; {{ post.published_at | date: '%B %d, %Y %l:%M %p' }}
         {% if post.show_stream? %}
-        {% if post.public_activities_count > 0 %}
-        &middot; <a href="{{ post.url }}#reactions">{{ post.public_activities_count }} reaction{% if post.public_activities_count > 1 %}s{% endif %}</a>
+        {% if count > 0 %}
+        &middot; <a href="{{ post.url }}#reactions">{{ count }} reaction{% if count > 1 %}s{% endif %}</a>
         {% endif %}
         {% endif %}
       </div>
@@ -114,9 +115,11 @@
         {% endif %}
       </div>
       {% endif %}
+    
+   
 
-      {% if post.public_activities_count > 0 %}
-      <a href="{{ post.url }}#addreaction" class="button small-button">{{ post.public_activities_count }} reaction{% if post.public_activities_count > 1 %}s{% endif %}</a>
+      {% if count > 0 %}
+      <a href="{{ post.url }}#addreaction" class="button small-button">{{ count }} reaction{% if count > 1 %}s{% endif %}</a>
       {% else %}
       <a href="{{ post.url }}#addreaction" class="button small-button">Add your reaction</a>
       {% endif %}

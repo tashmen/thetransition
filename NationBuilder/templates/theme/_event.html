@@ -9,7 +9,7 @@
 <div class="clearfix">
 
   <div class="event-info">
-    {{ event.event.local_start_at | date: '%A, %B %d, %Y at %I:%M %p' }}
+    {{ event.event.local_start_at | date: '%A, %B %d, %Y at %I:%M %p %Z' }}
     {% if event.event.is_multi_day? %}
     through {{ event.event.local_end_at | event_date }}
     {% endif %}
