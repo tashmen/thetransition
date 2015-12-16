@@ -53,9 +53,15 @@ $subnav-active-color: $theme-color-1;
 
 // text
 $text-color: #2f2f2f;
-$link-color: #9ac760;
+$link-color: #8C001A;//#9ac760;
 $link-hover-color: #787878;
 $link-active-color: #000000;
+
+//Link color override for supporter column
+.point-pic-right a, .supporter-pic-right a, .right-column .box a{
+  color: $footer-link-color;
+}
+
 
 // buttons
 $button-color: #fff;
@@ -775,7 +781,7 @@ nav {
   padding: 0;
   list-style: none;
   li {
-    margin-bottom: 3.25em;
+    margin-bottom: 4.25em;//3.25em
     list-style: none;
     [class^="icon-"] {
       display: none;
@@ -2273,4 +2279,12 @@ ul.homepage_excerpt-list {
 .videocenter {
   display: flex;
 	justify-content: center;
+}
+
+.subnav .active{
+  	background-color: #8c001a
+}
+
+.embedly-embed{
+  max-width: 100% !important;
 }

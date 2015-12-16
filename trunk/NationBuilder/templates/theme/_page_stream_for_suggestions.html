@@ -2,15 +2,22 @@
 <div id="stream">
   <hr/>
   <div id="comment" class="comment">
+    
+    {% assign count = 0 %}
+    {% for activity in page.activities %}
+      {% if activity.type_name != "Page Published" %}
+    {% assign count = count | plus:1%}
+      {% endif %}
+    {% endfor %}
 
-    {% if page.public_activities_count == 1 %}
+    {% if count == 1 %}
     <a id="addreaction"></a>
 
     <h3>Showing 1 reaction</h3>
-    {% elsif page.public_activities_count > 1 %}
+    {% elsif count > 1 %}
     <a id="addreaction"></a>
 
-    <h3>Showing {{ page.public_activities_count }} reactions</h3>
+    <h3>Showing {{ count }} reactions</h3>
     {% elsif page.is_commentable? %}
     <a id="addreaction"></a>
 
@@ -71,10 +78,12 @@
       <div id="reactions" class="content-list">
         <ul id="page-activities" class="activities">
           {% for activity in page.activities %}
+        	{% if activity.type_name != "Page Published" %}
           <li class="activity clearfix">
             <div class="stream-pic">{{ activity.signup.profile_image }}</div>
             {{ activity.show_page_view }}
           </li>
+          {% endif %}
           {% endfor %}
         </ul>
         {{ page.activities | paginate prev_label: "&laquo;" next_label: "&raquo;" }}

@@ -332,6 +332,12 @@ footer {
   }
 }
 
+.subnav-container{
+ .subnav {
+        	max-width: 95%;//new 
+      }
+}
+
 nav, .subnav {
   background-color: transparent;
   border-right: 0;
@@ -591,7 +597,7 @@ nav {
     }
   }
   .sub {
-    top: 3.35em;
+    top: 2.85em;//3.35em;
     z-index: 50;
     background-color: $subnav-background;
   }
@@ -866,7 +872,7 @@ input#donation_amount_other {
 .activities {
   li {
     .activity {
-      padding-left: 135px;
+      padding-left: 155px;//135px
     }
     .activity-signup, .stream-pic {
       z-index: 5;
@@ -875,7 +881,7 @@ input#donation_amount_other {
       position: absolute;
       left: 0;
       text-align: center;
-      width: 110px;
+      width: 130px;//110 px
       top: 48px;
       margin-top: 8px;
     }
@@ -884,7 +890,7 @@ input#donation_amount_other {
       display:block;
       width: 48px;
       height: auto;
-      margin: 0 31px;
+      margin: 0 41px;//0 31px
       float: left;
       overflow: hidden;
       @include border-radius(999px);

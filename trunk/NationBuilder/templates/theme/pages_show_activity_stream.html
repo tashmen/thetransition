@@ -44,10 +44,10 @@
 
       <ul id="stream-activities" class="activities">
         {% for activity in page.activity_stream.activities_following %}
-        <li class="activity clearfix">
-          <div class="stream-pic">{{ activity.signup.profile_image }}</div>
-          {{ activity.show }}
-        </li>
+          <li class="activity clearfix">
+            <div class="stream-pic">{{ activity.signup.profile_image }}</div>
+            {{ activity.show }}
+          </li>
         {% endfor %}
       </ul>
 
