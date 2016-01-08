@@ -16,6 +16,7 @@ class Settings {
     public static $nb_clientSecret = ''; 
     public static $nb_token = '';
     public static $nb_baseApiUrl = '';
+    public static $nb_secretToken = '';
     
     //Is this server a test server or production server? false = test true = production
     public static $isProdServer = false;

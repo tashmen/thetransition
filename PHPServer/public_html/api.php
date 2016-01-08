@@ -120,10 +120,18 @@ class BaseObjectHandler {
         {
             $json = file_get_contents('php://input');
             $data = json_decode($json, true);
-            if ($data['nation_slug'] == 'thetransition') {
-                $person = $data['payload']['person'];
-                $user = new users($this->con);
-                $user->createupdate($person);
+            if ($data['nation_slug'] == 'thetransition') 
+            {
+                if($data['token'] == Settings::$nb_secretToken || Settings::$nb_secretToken == '')
+                {
+                    $person = $data['payload']['person'];
+                    $user = new users($this->con);
+                    $user->createupdate($person);
+                }
+                else 
+                {
+                    throw new Exception ("Token does not match.");
+                }
             }
         }
         else if ($resource == "" || $action == "") 

@@ -6,7 +6,7 @@
  */
 class Security {
     public static $userid;
-    public static $creationdt;
+    public static $secretKey;
     public static $isAdmin;
 
     /*
@@ -16,13 +16,17 @@ class Security {
      */
     public static function VerifySecurity(iDatabase $database) {
         self::$userid = RequestData::GetRequestData('id1');
-        self::$creationdt = RequestData::GetRequestData('id2');
-
+        self::$secretKey = RequestData::GetRequestData('id2');
         
+        if(self::$secretKey == '')
+        {
+            throw new Exception("Security key was not provided.");
+        }
+
         $select = "Select count(*) from users ";
-        $where = "where id = (?)"; // and creationdt = (?)";
+        $where = "where id = (?) and secretKey = (?)";
         $parameters[] = self::$userid;
-        //$parameters[] = self::$creationdt;
+        $parameters[] = self::$secretKey;
 
         $statement = $select . $where;
         $count = $database->rowCount($statement, $parameters);
@@ -42,7 +46,7 @@ class Security {
             self::$isAdmin = $records[0]['adminflg'];
             return true;
         }
-        throw new Exception("Security: User is not allowed access to this system");
+        throw new Exception("Security: User is not allowed access to this system.  Please refresh the page and try again.");
     }
 
     /*

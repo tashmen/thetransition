@@ -68,6 +68,20 @@ class users extends TableObject {
             }
             $combinedTags = $combinedTags . $tag;
         }
+        $secretKey = $person['secretkey'];
+        if($secretKey == '')
+        {
+            $cstrong = false;
+            $bytes = openssl_random_pseudo_bytes(32, $cstrong);
+            $hex   = bin2hex($bytes);
+            if(!$cstrong)
+            {
+                throw new Exception("Key could not be made cryptographically secure.");
+            }
+            $nb = new NationBuilder();
+            $nb->PushSecretKey($id, $hex);
+            $secretKey = $hex;
+        }
 
         $parameters[] = $id;
         $total = $this->GetConnection()->rowCount("SELECT COUNT(*) FROM users where id = (?)", $parameters);
@@ -80,8 +94,9 @@ class users extends TableObject {
             $param[] = $lat;
             $param[] = $lng;
             $param[] = $combinedTags;
+            $param[] = $secretKey;
             $param[] = $id;
-            $this->GetConnection()->execute("UPDATE users set fullname = (?), creationdt = (?), profileimage = (?), email = (?), mobile = (?), latitude = (?), longitude = (?), tags = (?) where id = (?)", $param, false);
+            $this->GetConnection()->execute("UPDATE users set fullname = (?), creationdt = (?), profileimage = (?), email = (?), mobile = (?), latitude = (?), longitude = (?), tags = (?), secretkey = (?) where id = (?)", $param, false);
         } 
         else {//Else create new user
             $parameters[] = $name;
@@ -91,8 +106,9 @@ class users extends TableObject {
             $parameters[] = $mobile;
             $parameters[] = $lat;
             $parameters[] = $lng;
-            $parameters[] = $tags;
-            $this->GetConnection()->execute("Insert into users (id, fullname, creationdt, profileimage, email, mobile, latitude, longitude, tags) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", $parameters, false);
+            $parameters[] = $combinedTags;
+            $parameters[] = $secretKey;
+            $this->GetConnection()->execute("Insert into users (id, fullname, creationdt, profileimage, email, mobile, latitude, longitude, tags, secretkey) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $parameters, false);
         }
     }
 }
