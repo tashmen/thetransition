@@ -5,7 +5,7 @@
 --
 
 DROP TABLE IF EXISTS `users`;
-CREATE TABLE `users` (
+CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL COMMENT 'id of a user; matches to nationbuilder',
   `fullname` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'full name of the user; combined first + last name from nationbuilder',
   `creationdt` datetime DEFAULT NULL,
@@ -16,6 +16,7 @@ CREATE TABLE `users` (
   `latitude` double DEFAULT NULL COMMENT 'latitude of the user''s primary address',
   `longitude` double DEFAULT NULL COMMENT 'longitude of the user''s primary address',
   `tags` varchar(4000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'tags associated with the user',
+  `secretkey` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Stores a generated secret key to secure access',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='User table synchronized from NationBuilder for easier queryi';
 

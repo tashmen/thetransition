@@ -2,10 +2,10 @@
 
 var Transition = {
 	global: {
-		imagesLocation: 'http://thetransitionbud.com/css/thetransitionimages/',
-		imageUploadLocation: 'http://thetransitionbud.com/upload/images/',
+		imagesLocation: 'https://thetransitionbud.com/css/thetransitionimages/',
+		imageUploadLocation: 'https://thetransitionbud.com/upload/images/',
 		uploadImageFileExtension: '.png',
-		siteLocation: 'http://thetransitionbud.com/api.php',
+		siteLocation: 'https://thetransitionbud.com/api.php',
 		ajaxRequest: function(params, onSuccess, onFailure){
 			params.id1 = Transition.user.id
 			params.id2 = Transition.user.id2
@@ -48,7 +48,7 @@ var Transition = {
 	},
 	user: {
 		id: '{{request.current_user.id}}',
-		id2: '{{request.current_user.created_at}}',
+		id2: '{{request.current_user.custom_values_for_display['secretkey']}}',
 		lat: '{{request.current_user.address.lat}}',
 		defaultLat: '40.67153',
 		lng: '{{request.current_user.address.lng}}',

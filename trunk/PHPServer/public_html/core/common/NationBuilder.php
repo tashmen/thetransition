@@ -89,6 +89,27 @@ class NationBuilder {
     }
     
     /*
+     * Pushes a secretkey to the user so they can login to our system
+     * @param id - The id of the user to provide a key for
+     */
+    public function PushSecretKey($id, $key)
+    {
+        if(!$this->IsEnabled())
+        {
+            return;
+        }
+        
+        $statement = '/api/v1/people/' . $id; 
+        $user = array(
+            "person" => array(
+                "secretkey" => $key
+            )
+        );
+        $this->postRequest($statement, $user, 'PUT');
+	
+    }
+    
+    /*
      * Helper function for converting parameters in a url to an array
      */
     private function FindParametersInURL($url){
