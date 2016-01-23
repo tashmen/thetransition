@@ -17,11 +17,6 @@ class Security {
     public static function VerifySecurity(iDatabase $database) {
         self::$userid = RequestData::GetRequestData('id1');
         self::$secretKey = RequestData::GetRequestData('id2');
-        
-        if(self::$secretKey == '')
-        {
-            throw new Exception("Security key was not provided.");
-        }
 
         $select = "Select count(*) from users ";
         $where = "where id = (?) and secretKey = (?)";
@@ -46,6 +41,12 @@ class Security {
             self::$isAdmin = $records[0]['adminflg'];
             return true;
         }
+        
+        if(self::$secretKey == '')
+        {
+            throw new Exception("Security key was not provided.");
+        }
+        
         throw new Exception("Security: User is not allowed access to this system.  Please refresh the page and try again.");
     }
 
