@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 
 DROP TABLE IF EXISTS `usersview`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`a1466265_nb`@`localhost` SQL SECURITY DEFINER VIEW `usersview` AS select `users`.`id` AS `id`,`users`.`fullname` AS `fullname`,`users`.`profileimage` AS `profileimage`,`users`.`email` AS `email`,`users`.`mobile` AS `mobile`,`users`.`latitude` AS `latitude`,`users`.`longitude` AS `longitude`,`users`.`tags` AS `tags` from `users` where (`users`.`id` <> 1);
+CREATE VIEW `usersview` AS select `users`.`id` AS `id`,`users`.`fullname` AS `fullname`,`users`.`profileimage` AS `profileimage`,`users`.`email` AS `email`,`users`.`mobile` AS `mobile`,`users`.`latitude` AS `latitude`,`users`.`longitude` AS `longitude`,`users`.`tags` AS `tags` from `users` where (`users`.`id` <> 1);
 
 
 -- --------------------------------------------------------
@@ -463,6 +463,7 @@ CREATE TABLE `userbuds` (
   `name` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name of the BUD',
   `description` varchar(4000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Description of the BUD',
   `seedperson` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'The Seed Person for the BUD',
+  `type` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'type of bud',
   PRIMARY KEY (`id`),
   KEY `userid` (`userid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Holds User created BUDs' AUTO_INCREMENT=1 ;
@@ -596,14 +597,14 @@ CREATE TABLE `userlocations` (
 --
 
 DROP TABLE IF EXISTS `userlocationsview`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`a1466265_nb`@`localhost` SQL SECURITY DEFINER VIEW `a1466265_nb`.`userlocationsview` AS select `a1466265_nb`.`users`.`fullname` AS `fullname`,`a1466265_nb`.`userlocations`.`id` AS `id`,`a1466265_nb`.`userlocations`.`userid` AS `userid`,`a1466265_nb`.`userlocations`.`locationid` AS `locationid`,`a1466265_nb`.`userlocations`.`name` AS `name`,`a1466265_nb`.`userlocations`.`description` AS `description`,`a1466265_nb`.`userlocations`.`location` AS `location`,`a1466265_nb`.`userlocations`.`latitude` AS `latitude`,`a1466265_nb`.`userlocations`.`longitude` AS `longitude`,`a1466265_nb`.`locations`.`icon` AS `icon` from ((`a1466265_nb`.`users` join `a1466265_nb`.`userlocations` on((`a1466265_nb`.`users`.`id` = `a1466265_nb`.`userlocations`.`userid`))) join `a1466265_nb`.`locations` on((`a1466265_nb`.`userlocations`.`locationid` = `a1466265_nb`.`locations`.`id`)));
+CREATE VIEW `userlocationsview` AS select `users`.`fullname` AS `fullname`,`userlocations`.`id` AS `id`,`userlocations`.`userid` AS `userid`,`userlocations`.`locationid` AS `locationid`,`userlocations`.`name` AS `name`,`userlocations`.`description` AS `description`,`userlocations`.`location` AS `location`,`userlocations`.`latitude` AS `latitude`,`userlocations`.`longitude` AS `longitude`,`locations`.`icon` AS `icon` from ((`users` join `userlocations` on((`users`.`id` = `userlocations`.`userid`))) join `locations` on((`userlocations`.`locationid` = `locations`.`id`)));
 
 --
 -- Table structure for table `currentphasenumberbyuser`
 --
 
 DROP TABLE IF EXISTS `currentphasenumberbyuser`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`a1466265_nb`@`localhost` SQL SECURITY DEFINER VIEW `currentphasenumberbyuser` AS select `planphases`.`number` AS `number`,`userphasestepsview`.`userid` AS `userid`,`userphasestepsview`.`phasestepid` AS `phasestepid`,`userphasestepsview`.`completed` AS `completed`,`userphasestepsview`.`planphasename` AS `planphasename`,`userphasestepsview`.`phasestepname` AS `phasestepname`,`userphasestepsview`.`phasestepnumber` AS `phasestepnumber`,`userphasestepsview`.`fullname` AS `fullname`,`userphasestepsview`.`planphaseid` AS `planphaseid` from (`userphasestepsview` join `planphases` on((`userphasestepsview`.`planphaseid` = `planphases`.`id`))) where `userphasestepsview`.`completed` = 0 group by `userphasestepsview`.`planphaseid`,`userphasestepsview`.`userid` order by `planphases`.`number`;
+CREATE  VIEW `currentphasenumberbyuser` AS select `planphases`.`number` AS `number`,`userphasestepsview`.`userid` AS `userid`,`userphasestepsview`.`phasestepid` AS `phasestepid`,`userphasestepsview`.`completed` AS `completed`,`userphasestepsview`.`planphasename` AS `planphasename`,`userphasestepsview`.`phasestepname` AS `phasestepname`,`userphasestepsview`.`phasestepnumber` AS `phasestepnumber`,`userphasestepsview`.`fullname` AS `fullname`,`userphasestepsview`.`planphaseid` AS `planphaseid` from (`userphasestepsview` join `planphases` on((`userphasestepsview`.`planphaseid` = `planphases`.`id`))) where `userphasestepsview`.`completed` = 0 group by `userphasestepsview`.`planphaseid`,`userphasestepsview`.`userid` order by `planphases`.`number`;
 
 --
 -- Table structure for table `budtypes`

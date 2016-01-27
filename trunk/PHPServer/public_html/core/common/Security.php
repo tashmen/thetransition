@@ -44,7 +44,7 @@ class Security {
         
         if(self::$secretKey == '')
         {
-            throw new Exception("Security key was not provided.");
+            throw new Exception("Security key was not provided. Please refresh the page and try again.");
         }
         
         throw new Exception("Security: User is not allowed access to this system.  Please refresh the page and try again.");
