@@ -99,12 +99,16 @@ class userphasesteps extends TableObject{
         $planphase = new planphases($this->GetConnection());
         $lastNumber = $planphase->GetNumber($phaseid);
         $number = $this->GetCurrentPhaseNumber(Security::$userid);
+        if($number == '')
+        {
+            $number = $lastNumber + 1;
+        }
         
         $nb = new NationBuilder();
         $tags = '';
         Logger::LogError("number: " . $lastNumber . " new number: " . $number, Logger::debug);
         //Last number was the same as their current step and it's incomplete
-        if($lastNumber == $number && complete == 0)
+        if($lastNumber == $number && $complete == 0)
         {
             //Delete the tag
             $phaseNum = 'Phase' . $lastNumber;
