@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Table structure for table `usersview`
 --
 
-DROP TABLE IF EXISTS `usersview`;
+DROP VIEW IF EXISTS `usersview`;
 CREATE VIEW `usersview` AS select `users`.`id` AS `id`,`users`.`fullname` AS `fullname`,`users`.`profileimage` AS `profileimage`,`users`.`email` AS `email`,`users`.`mobile` AS `mobile`,`users`.`latitude` AS `latitude`,`users`.`longitude` AS `longitude`,`users`.`tags` AS `tags` from `users` where (`users`.`id` <> 1);
 
 
@@ -142,7 +142,7 @@ CREATE TABLE `planphases` (
 -- Dumping data for table `planphases`
 --
 
-INSERT INTO `planphases` (`id`, `name`, `number`) VALUES(1, 'Phase 0 -�Seed Phase�', 0);
+INSERT INTO `planphases` (`id`, `name`, `number`) VALUES(1, 'Phase 0 - "Seed Phase"', 0);
 INSERT INTO `planphases` (`id`, `name`, `number`) VALUES(2, 'Phase I - "Water Phase" (Finding Community)', 1);
 INSERT INTO `planphases` (`id`, `name`, `number`) VALUES(3, 'Phase II - "Germination Phase" (Building Community)', 2);
 INSERT INTO `planphases` (`id`, `name`, `number`) VALUES(4, 'Phase III - "Weeding" (Community)', 3);
@@ -447,7 +447,7 @@ SELECT ups.*, pp.name as planphasename, ps.name as phasestepname, ps.number as p
 FROM  userphasesteps ups 
 inner join phasesteps ps on ps.id = ups.phasestepid 
 inner join planphases pp on pp.id = ps.planphaseid
-inner join users u on u.id = ups.userid
+inner join users u on u.id = ups.userid;
 
 
 
@@ -468,6 +468,18 @@ CREATE TABLE `userbuds` (
   KEY `userid` (`userid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Holds User created BUDs' AUTO_INCREMENT=1 ;
 
+
+--
+-- Table structure for table `budtypes`
+--
+
+DROP TABLE IF EXISTS `budtypes`;
+CREATE TABLE `budtypes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Id of the bud type',
+  `name` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name of the bud type',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Contains types of BUDS' AUTO_INCREMENT=9 ;
+
 --
 -- Table structure for view 'userbudsview'
 --
@@ -480,36 +492,7 @@ VIEW `userbudsview` AS
 		userbuds ub inner join
 		users u on u.id = ub.userid left join
 		budtypes bt on FIND_IN_SET(bt.id, ub.type) > 0 
-		group by ub.id
-		
-
-
---
--- Table structure for view 'userbudsmembershipstatusview
---
-DROP VIEW IF EXISTS `userbudsmembershipstatusview`;
-CREATE 
-VIEW `userbudsmembershipstatusview` AS
-    select 
-        ub.*, COALESCE(ubmsv.status,0) as status, ubmsv.id as membershipuserid
-    from
-		userbudsview ub left join
-		userbudsmembershipallstatusview ubmsv on ubmsv.ubid = ub.id
-		
-
---
--- Table structure for view 'userbudsmembershipallstatusview
---
-DROP VIEW IF EXISTS `userbudsmembershipallstatusview`;
-CREATE
-VIEW `userbudsmembershipallstatusview` as 
-	select 
-		u.id, ub.id as ubid, ubm.* 
-	from 
-		users u cross join 
-		userbudsview ub left join
-		userbudsmembership ubm on ubm.userid = u.id
-
+		group by ub.id;
 
 --
 -- Table structure for table `userbudsmembership`
@@ -522,6 +505,33 @@ CREATE TABLE `userbudsmembership` (
   `status` int(11) DEFAULT NULL COMMENT 'membership status',
   PRIMARY KEY (`userbudid`,`userid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Stores information on who is a member of each bud';
+		
+--
+-- Table structure for view 'userbudsmembershipallstatusview
+--
+DROP VIEW IF EXISTS `userbudsmembershipallstatusview`;
+CREATE
+VIEW `userbudsmembershipallstatusview` as 
+	select 
+		u.id, ub.id as ubid, ubm.* 
+	from 
+		users u cross join 
+		userbudsview ub left join
+		userbudsmembership ubm on ubm.userid = u.id;
+		
+--
+-- Table structure for view 'userbudsmembershipstatusview
+--
+DROP VIEW IF EXISTS `userbudsmembershipstatusview`;
+CREATE 
+VIEW `userbudsmembershipstatusview` AS
+    select 
+        ub.*, COALESCE(ubmsv.status,0) as status, ubmsv.id as membershipuserid
+    from
+		userbudsview ub left join
+		userbudsmembershipallstatusview ubmsv on ubmsv.ubid = ub.id;
+
+
 
 --
 -- Table structure for view 'userbudsmembershipview'
@@ -535,7 +545,7 @@ VIEW `userbudsmembershipview` AS
     from
 		userbudsmembership ubm inner join
 		users u on u.id = ubm.userid inner join
-		userbudsview ub on ubm.userbudid = ub.id
+		userbudsview ub on ubm.userbudid = ub.id;
 		
 		
 --
@@ -608,17 +618,6 @@ DROP TABLE IF EXISTS `currentphasenumberbyuser`;
 CREATE  VIEW `currentphasenumberbyuser` AS select `planphases`.`number` AS `number`,`userphasestepsview`.`userid` AS `userid`,`userphasestepsview`.`phasestepid` AS `phasestepid`,`userphasestepsview`.`completed` AS `completed`,`userphasestepsview`.`planphasename` AS `planphasename`,`userphasestepsview`.`phasestepname` AS `phasestepname`,`userphasestepsview`.`phasestepnumber` AS `phasestepnumber`,`userphasestepsview`.`fullname` AS `fullname`,`userphasestepsview`.`planphaseid` AS `planphaseid` from (`userphasestepsview` join `planphases` on((`userphasestepsview`.`planphaseid` = `planphases`.`id`))) where `userphasestepsview`.`completed` = 0 group by `userphasestepsview`.`planphaseid`,`userphasestepsview`.`userid` order by `planphases`.`number`;
 
 --
--- Table structure for table `budtypes`
---
-
-DROP TABLE IF EXISTS `budtypes`;
-CREATE TABLE `budtypes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Id of the bud type',
-  `name` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name of the bud type',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Contains types of BUDS' AUTO_INCREMENT=9 ;
-
---
 -- Dumping data for table `budtypes`
 --
 
@@ -630,4 +629,74 @@ INSERT INTO `budtypes` VALUES(5, 'Cost Reduction');
 INSERT INTO `budtypes` VALUES(6, 'Income Generation');
 INSERT INTO `budtypes` VALUES(7, 'Community Creation');
 INSERT INTO `budtypes` VALUES(8, 'Social Change');
+
+--
+-- Structure for view `phasestepsview`
+--
+
+CREATE VIEW `phasestepsview` AS select `ps`.`id` AS `id`,`ps`.`planphaseid` AS `planphaseid`,`ps`.`name` AS `name`,`ps`.`number` AS `number`,`pp`.`name` AS `planname`,`pp`.`number` AS `plannumber` from (`phasesteps` `ps` join `planphases` `pp` on((`ps`.`planphaseid` = `pp`.`id`)));
+
+--
+-- Dumping data for table `phasesteps`
+--
+
+INSERT INTO `phasesteps` (`id`, `planphaseid`, `name`, `number`) VALUES
+(2, 1, '<div align="left">I am ready and willing to meet new people</div>', 1),
+(3, 1, '<div align="left">I know about <a href="http://www.ayahuasca-wasi.com/english/articles/NVC.pdf">non-violent communication</a> or I watched this <a href="https://www.youtube.com/watch?v=YwXH4hNfgPg">video​</a></div>', 3),
+(4, 1, '<div align="left">I have <a href="/member_skills">skills</a> that I am willing to share</div>', 2),
+(5, 1, '<div align="left">I am ready and willing to <a href="/take_action">participate</a> in the Transition​</div>', 4),
+(6, 2, 'I joined or <a href="/steps_to_organizing_a_local_bud_group">created</a> a BUD​', 40),
+(7, 2, 'I attended the meeting of one or more BUDs', 30),
+(8, 2, 'I contacted the seed person of one or more BUDs', 20),
+(9, 2, 'I am aware of the available <a href="/buds">BUDs</a>', 10),
+(10, 3, 'Our BUD has 5 - 15 people​', 5),
+(11, 3, 'Our BUD has created a written Trust​', 1),
+(12, 3, 'Our BUD has a minimum of one meeting per month which are posted on the <a href="/calendar">Events</a> page​', 3),
+(13, 3, 'I am participating in one or more projects for our BUD​', 2),
+(14, 4, 'Our BUD is functioning, but not yet self-sustaining​', 6),
+(15, 4, 'Our BUD has pooled all of it''s resources into a "Stone Soup" inventory which is actively managed', 4),
+(16, 4, 'All of our BUD members are located on the land', 3),
+(17, 4, 'Our BUD agreed on a location and acquired land', 2),
+(18, 5, 'Our BUD is self-sustainable', 3),
+(19, 5, 'Our BUD identified areas for improvement', 1),
+(20, 6, 'Our BUD has started a new BUD', 3),
+(21, 6, 'Our BUD is producing more than it can consume', 1),
+(22, 1, 'I&nbsp;am invested in improving my <a href="/learn">education</a>', 5),
+(23, 1, 'I have reviewed and endorsed The Transition''s <a href="/our_trust">Trust​</a>.', 6),
+(24, 5, 'Our BUD has proposed, assessed, and developed at least one Ephemeralization Project to fully sustain the Basic Needs of the target population.', 2),
+(25, 3, 'Our BUD has done at least one program from The Transition Contributor Handbook<br>', 4),
+(26, 4, 'Our BUD has started a cottage industry, business or another stream of income<br>', 5),
+(27, 4, 'Our BUD has found a mentoring BUD<br>', 1),
+(28, 5, 'Our BUD is now paying <a href="/become_a_contributor">contributor dues</a> on behalf of it''s members​', 5),
+(29, 5, 'Our BUD is acting in an egalitarian manner', 3),
+(30, 6, 'Our BUD is helping to pollinate upcoming Transitional Communities​', 2),
+(31, 6, 'Our BUD has developed educational materials for the <a href="/community_brain">Community Brain</a><br>', 4),
+(32, 7, 'I have learned about <a href="/decision_making">decision-making</a> and the use of <a href="/formal_consensus_used_with_buds">Formal Consensus</a> in BUDs​', 4),
+(33, 7, 'I have learned about <a href="/bud_meeting_facilitation">BUD meeting facilitation​</a>', 3),
+(34, 7, 'I know about the different <a href="/types_of_buds">types of BUDS​</a>', 2),
+(35, 7, 'I understand <a href="/the_function_of_buds">the function of BUDs</a>', 1),
+(36, 7, 'I have reviewed the following pages on <a href="/conflict_resolution">Conflict Resolution​</a>:<br><ul><li><a href="/assumptions_about_conflict">Assumptions About Conflict</a></li><li><a href="/separate_identification_from_resolution">Seperate Identification From Resolution</a></li></ul>', 5),
+(37, 7, 'I have reviewed the various <a href="/stages_dynamics_of_conflict_resolution">Stages and Dynamics of Conflict Resolution</a>:<br><ul><li><a href="/conciliation">Conciliation</a></li><li><a href="/negotiation_bargaining">Negotiation &amp; Bargaining</a></li><li><a href="/implementation">Implementation</a></li><li><a href="/evaluation">Evaluation</a></li><li><a href="/the_role_of_third_party_neutral">The Role of Third Party Neutral</a></li><li><a href="/processes_for_resolving_conflicts">Processes for Resolving Conflicts</a></li></ul>', 8),
+(38, 7, 'I have reviewed the <a href="/conflict_analysis">Conflict Analysis Material​</a>', 7),
+(39, 7, 'I have reviewed the <a href="/dimensions_of_conflict">Dimensions of Conflict</a>', 6),
+(40, 2, '<font color="#2f2f2f" face="tahoma, arial, verdana, sans-serif">​I have watched the following videos called<a href="http://thetransition.nationbuilder.com/the_basics"> The Basics</a>:</font><div><ul><li><font color="#2f2f2f" face="tahoma, arial, verdana, sans-serif"><a href="http://thetransition.nationbuilder.com/the_most_astounding_fact">The Most Astounding Fact</a></font></li><li><font color="#2f2f2f" face="tahoma, arial, verdana, sans-serif"><a href="http://thetransition.nationbuilder.com/you_the_people_have_the_power">You the People Have the Power</a></font></li><li><a href="http://thetransition.nationbuilder.com/what_really_motivates_us">What Really Motivates Us</a></li><li><a href="http://thetransition.nationbuilder.com/unnecessary_consumption">Unnecessary Consumption</a></li><li><a href="http://thetransition.nationbuilder.com/our_declaration_of_interdependence">Declaration of Interdependence</a></li><li><a href="http://thetransition.nationbuilder.com/starting_a_movement">Start a Movement</a></li><li><a href="http://thetransition.nationbuilder.com/the_pale_blue_dot_you_are_here">The Pale Blue Dot</a></li></ul></div>', 1),
+(41, 1, 'Help The Transition <a href="/spread_the_word">spread the word</a> by referring one new website user<br>', 100),
+(42, 2, 'Help The Transition <a href="/spread_the_word">spread the word</a> by referring one new website user<br>', 100),
+(43, 3, 'Help The Transition <a href="/spread_the_word">spread the word</a> by referring one new website user<br>', 100),
+(44, 4, 'Help The Transition <a href="/spread_the_word">spread the word</a> by referring one new website user<br>', 100),
+(45, 5, 'Help The Transition <a href="/spread_the_word">spread the word</a> by referring one new website user<br>', 100),
+(46, 6, 'Help The Transition <a href="/spread_the_word">spread the word</a> by referring one new website user<br>', 100),
+(47, 7, 'Help The Transition <a href="/spread_the_word">spread the word</a> by referring one new website user<br>', 100),
+(49, 1, 'I have read <a href="/set_your_intention">Set your intention​</a>', 8),
+(51, 1, 'I have read <a href="/get_off_your_buts">Get off your buts​</a>', 7),
+(52, 1, 'I have reviewed and agree to follow ​the <a href="/standards">Standards</a>.<br>', 9),
+(54, 2, 'I am invested in continuing to improve my <a href="/learn">education</a>.', 99),
+(55, 3, 'I am invested in continuing to improve my <a href="/learn">education</a>.', 99),
+(56, 4, 'I am invested in continuing to improve my <a href="/learn">education</a>.', 99),
+(57, 5, 'I am invested in continuing to improve my <a href="/learn">education</a>.', 99),
+(58, 6, 'I am invested in continuing to improve my <a href="/learn">education</a>.', 99),
+(59, 7, 'I am invested in continuing to improve my <a href="/learn">education</a>.', 99),
+(60, 2, 'I am aware of how to <a href="/find_nearby_contributors">find nearby members</a><br>', 2),
+(61, 2, 'I am aware of the available <a href="/spaces">spaces​</a>', 3),
+(62, 2, 'I am aware of the available <a href="/objects">objects​</a>', 4);
 
