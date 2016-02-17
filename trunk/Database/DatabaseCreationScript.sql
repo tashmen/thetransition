@@ -572,6 +572,7 @@ INSERT INTO `locations` VALUES(15, 'Potluck', 'potluck.png');
 INSERT INTO `locations` VALUES(16, 'Food Not Bombs', 'foodnotbombs.png');
 INSERT INTO `locations` VALUES(17, 'Food Is Free', 'foodisfree.png');
 INSERT INTO `locations` VALUES(18, 'Falling Fruit', 'fallingfruit.png');
+INSERT INTO `locations` VALUES(19, 'Dumpster/Thrown Away', 'treasure_chest.png');
 
 -- --------------------------------------------------------
 
