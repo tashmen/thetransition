@@ -614,8 +614,8 @@ CREATE VIEW `userlocationsview` AS select `users`.`fullname` AS `fullname`,`user
 -- Table structure for table `currentphasenumberbyuser`
 --
 
-DROP TABLE IF EXISTS `currentphasenumberbyuser`;
-CREATE  VIEW `currentphasenumberbyuser` AS select `planphases`.`number` AS `number`,`userphasestepsview`.`userid` AS `userid`,`userphasestepsview`.`phasestepid` AS `phasestepid`,`userphasestepsview`.`completed` AS `completed`,`userphasestepsview`.`planphasename` AS `planphasename`,`userphasestepsview`.`phasestepname` AS `phasestepname`,`userphasestepsview`.`phasestepnumber` AS `phasestepnumber`,`userphasestepsview`.`fullname` AS `fullname`,`userphasestepsview`.`planphaseid` AS `planphaseid` from (`userphasestepsview` join `planphases` on((`userphasestepsview`.`planphaseid` = `planphases`.`id`))) where `userphasestepsview`.`completed` = 0 group by `userphasestepsview`.`planphaseid`,`userphasestepsview`.`userid` order by `planphases`.`number`;
+DROP View IF EXISTS `currentphasenumberbyuser`;
+CREATE  VIEW `currentphasenumberbyuser` AS select min(`planphases`.`number`) AS `number`,`userphasestepsview`.`userid` AS `userid` from (`userphasestepsview` join `planphases` on((`userphasestepsview`.`planphaseid` = `planphases`.`id`))) where `userphasestepsview`.`completed` = 0 group by `userphasestepsview`.`userid`;
 
 --
 -- Dumping data for table `budtypes`
