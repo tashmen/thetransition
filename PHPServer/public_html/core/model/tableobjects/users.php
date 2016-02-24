@@ -69,7 +69,7 @@ class users extends TableObject {
             $combinedTags = $combinedTags . $tag;
         }
         $secretKey = $person['secretkey'];
-        if($secretKey == '')
+        if($secretKey == '' && version_compare(PHP_VERSION, '5.3.0') >= 0)
         {
             $cstrong = false;
             $bytes = openssl_random_pseudo_bytes(32, $cstrong);
@@ -82,6 +82,7 @@ class users extends TableObject {
             $nb->PushSecretKey($id, $hex);
             $secretKey = $hex;
         }
+        $pointPersonId = $person['parent_id'];
 
         $parameters[] = $id;
         $total = $this->GetConnection()->rowCount("SELECT COUNT(*) FROM users where id = (?)", $parameters);
@@ -95,8 +96,9 @@ class users extends TableObject {
             $param[] = $lng;
             $param[] = $combinedTags;
             $param[] = $secretKey;
+            $param[] = $pointPersonId;
             $param[] = $id;
-            $this->GetConnection()->execute("UPDATE users set fullname = (?), creationdt = (?), profileimage = (?), email = (?), mobile = (?), latitude = (?), longitude = (?), tags = (?), secretkey = (?) where id = (?)", $param, false);
+            $this->GetConnection()->execute("UPDATE users set fullname = (?), creationdt = (?), profileimage = (?), email = (?), mobile = (?), latitude = (?), longitude = (?), tags = (?), secretkey = (?), pointpersonid = (?) where id = (?)", $param, false);
         } 
         else {//Else create new user
             $parameters[] = $name;
@@ -108,7 +110,8 @@ class users extends TableObject {
             $parameters[] = $lng;
             $parameters[] = $combinedTags;
             $parameters[] = $secretKey;
-            $this->GetConnection()->execute("Insert into users (id, fullname, creationdt, profileimage, email, mobile, latitude, longitude, tags, secretkey) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $parameters, false);
+            $parameters[] = $pointPersonId;
+            $this->GetConnection()->execute("Insert into users (id, fullname, creationdt, profileimage, email, mobile, latitude, longitude, tags, secretkey, pointpersonid) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $parameters, false);
         }
     }
 }

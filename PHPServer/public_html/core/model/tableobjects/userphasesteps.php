@@ -73,7 +73,7 @@ class userphasesteps extends TableObject{
                     }
                 }
                 if(!$isFound){
-                    $obj = array('userid' => Security::$userid, 'phasestepid' => $currentPhaseStep['id'], 'completed' => '0');
+                    $obj = array('userid' => Security::GetLoggedInUser(), 'phasestepid' => $currentPhaseStep['id'], 'completed' => '0');
                     $aryCurrentUserPhaseSteps[] = $obj;
                     $aryNewCurrentUserPhaseSteps[] = (object)$obj;
                 }
@@ -89,21 +89,50 @@ class userphasesteps extends TableObject{
     
     public function update()
     {
+        $records = $this->GetData();
+        $userid = $records[0]->userid;
+        $isSelfUpdate = $userid == Security::GetLoggedInUser();
+        if(Security::GetLoggedInUser() != Security::GetLoggedInUserPointPersonId())
+        {
+            
+            if($isSelfUpdate)
+            {
+                $ids = '';
+                foreach($records as $record)
+                {
+                    if($record->completed)
+                    {
+                        if($ids != '')
+                        {
+                            $ids = $ids . ', ';
+                        }
+                        $ids = $ids . $record->phasestepid;
+                    }
+                }
+                $phaseSteps = new phasesteps($this->GetConnection());
+                if($phaseSteps->ContainsPointPersonTask($ids))
+                    throw new Exception ("One of the tasks you are updating can only be completed by your point person.");
+            }
+        }
+        
         parent::update();
         
+
         //We need to check all of the phases this user has completed and update/delete tags in Nationbuilder
         $results = $this->GetResults();
-        
+
         $phaseid = $results[0]->planphaseid;
         $complete = $results[0]->completed;
         $planphase = new planphases($this->GetConnection());
         $lastNumber = $planphase->GetNumber($phaseid);
-        $number = $this->GetCurrentPhaseNumber(Security::$userid);
+        $number = $this->GetCurrentPhaseNumber($userid);
+        
+        //Assume that if no number exists that the user completed all of the steps
         if($number == '')
         {
             $number = $lastNumber + 1;
         }
-        
+
         $nb = new NationBuilder();
         $tags = '';
         Logger::LogError("number: " . $lastNumber . " new number: " . $number, Logger::debug);
@@ -113,7 +142,7 @@ class userphasesteps extends TableObject{
             //Delete the tag
             $phaseNum = 'Phase' . $lastNumber;
             Logger::LogError($phaseNum, Logger::debug);
-            $nb->DeleteTag(Security::$userid, $phaseNum);
+            $nb->DeleteTag($userid, $phaseNum);
         }
         else if($lastNumber < $number)//Last number is smaller so they must have gone up a step
         {
@@ -127,10 +156,15 @@ class userphasesteps extends TableObject{
                 $tags = $tags . 'Phase' . $c;
             }
             Logger::LogError($tags . $number, Logger::debug);
-            $nb->PushTags(Security::$userid, $tags);
+            $nb->PushTags($userid, $tags);
         }
     }
     
+    /*
+     * Retrieves the users current phase that they are on
+     * @param userid - The id of the user to check
+     * @return - The phase the user is on
+     */
     private function GetCurrentPhaseNumber($userid)
     {
         $sql = "Select number from currentphasenumberbyuser where userid = (?)";
@@ -140,6 +174,11 @@ class userphasesteps extends TableObject{
         return $resultSet[0]['number'];
     }
     
+    /*
+     * Retrieves the users current phase id
+     * @param aryUserPhaseSteps - The list of phase steps the user currently has
+     * @param aryPhaseSteps - The list of all the phase steps available
+     */
     private function GetCurrentPhaseId(array $aryUserPhaseSteps, array $aryPhaseSteps){
         $currentPhase = '';
         $planPhase = '';

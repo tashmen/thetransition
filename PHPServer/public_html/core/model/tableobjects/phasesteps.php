@@ -42,6 +42,17 @@ class phasesteps extends TableObject{
     }
     
     /*
+     * Given a list of phase step id's, determine if any of them are required to be completed by the point person
+     * returns true if any of the id's need to be completed by the point person
+     */
+    public function ContainsPointPersonTask($ids)
+    {
+        $sql = "Select count(*) from phasesteps where id in (?) and pointpersontask = true";
+        $parameters[] = $ids;
+        return $this->GetConnection()->rowCount($sql, $parameters) > 0;
+    }
+    
+    /*
      * Override to provide html editor for the name
      */
     public function GetExtForm() {

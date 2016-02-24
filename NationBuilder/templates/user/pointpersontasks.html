@@ -1,0 +1,193 @@
+{% include "thetransitionglobaluser" %}
+{% include "thetransitionextheader" %}
+<script type="text/javascript">
+ Ext.onReady(function() {
+	Ext.QuickTips.init();
+	
+	Ext.define('OtherUserPhaseSteps', {
+		extend: 'Ext.data.Model',
+		fields: [
+			{
+				name: 'userid',
+			}, 
+			{
+				name: 'phasestepid'
+			},
+			{
+				name: 'completed',
+				type: 'boolean'
+			},
+			{
+				name: 'fullname',
+				convert: function(v, record){
+					return '<a href="/'+record.data.userid+'">'+record.data.fullname + '</a>';
+				}
+			},
+			{
+				name: 'phasestepname'
+			},
+			{
+				name: 'planphasename'
+			}
+		],
+		proxy: 
+		{
+			extraParams: {
+				resource: 'userphasesteps'
+			},
+			reader: {
+				type: 'json',
+				rootProperty: 'userphasesteps'
+			},
+			type: 'customphp'
+		}
+	});
+	
+	BuildGridPlan();
+	
+	function BuildGridPlan()
+	{
+		
+		var otherUserPhaseStepsStore = Ext.create('Ext.data.Store', {
+			storeId:'OtherUserPhaseStepsStore',
+			model: 'OtherUserPhaseSteps',
+			remoteSort: true,
+			remoteFilter: true,
+			sorters: [{
+				property: 'phasestepnumber',
+				direction: 'ASC'
+			}],
+			filters: [{
+				property: "pointpersonid",
+				value: Transition.user.id,
+				operator: "eq"
+			},
+			{
+				property: "completed",
+				value: "0",
+				operator: "eq"
+			},
+			{
+				property: "pointpersontask",
+				value: "1",
+				operator: "eq"
+			}
+			],
+			pageSize: 25
+		});
+		
+		
+		
+		otherUserPhaseStepsStore.load();
+		var otherGrid = Ext.create('Ext.grid.Panel', {
+			title: 'Users who need to complete point person tasks',
+			store: otherUserPhaseStepsStore,
+			dockedItems: [{
+				xtype: 'pagingtoolbar',
+				store: otherUserPhaseStepsStore,
+				dock: 'bottom',
+				displayInfo: true
+			}],
+			columns: [
+				{
+					xtype : 'checkcolumn',
+					text: 'Completed?',  
+					dataIndex:'completed', 
+					hideable: false,
+					sortable: false,
+					width: .2,
+					listeners: {
+						'checkchange': function(column, rowIndex, value, options){
+							var grid = this.findParentByType('grid');
+							grid.getStore().sync();
+						}
+					}
+				},
+				{
+					text: 'User',
+					dataIndex: 'fullname',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					},
+					width: .2
+				},
+				{
+					text: 'Phase',
+					dataIndex: 'planphasename',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					},
+					width: .2
+				},
+				{
+					text: 'Step',
+					dataIndex: 'phasestepname',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					},
+					width: .4
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'other',
+			plugins: ['gridfilters']
+		});	
+	}
+});
+</script>
+
+
+{% include "breadcrumbs" %}
+
+{% if page.headline.size > 0 %}
+<h2 class="headline">{{ page.headline }}</h2>
+{% endif %}
+
+<div id="content">
+
+  <div id="intro" class="intro">
+    <div class="text-content">
+      {{ page.basic.content }}
+    </div>
+  </div>
+
+  <div id="ext"></div>
+  
+  <br>
+  <br>
+  
+  <div id="other"></div>
+  
+  <br>
+  <br>
+
+
+  {% if page.tags_count > 0 %}
+  <div class="page-tags">
+    {% include "page_tags" with page %}
+  </div>
+  {% endif %}
+
+  {% if page.is_homepage? == true and site.page_tags contains "homepage" %}
+    {% tag "homepage" with "homepage_widget" %}
+  {% endif %}
+
+  <div class="like-page">
+    <strong>Do you like this page?</strong>
+    {% include "like_page" %}
+  </div>
+
+  {% if page.show_stream? %}
+  {% include "page_stream" %}
+  {% endif %}
+
+</div>
+
+{% include "donateLink" with "pay_what_you_want" %} 

@@ -207,7 +207,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         foreach ($records as $record) {
             $parameters = array();
             foreach ($columns->GetNames() as $column) {
-                Security::ValidateColumn($column, $record->$column);
+                Security::ValidateColumn($column, $record->$column, $this->GetConnection());
                 $parameters[] = $this->SetValueForCreateUpdate($record, $column);
             }
             $this->connection->execute($statement, $parameters, false);
@@ -256,12 +256,12 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
             foreach ($columns->GetColumns() as $column) {
                 if (!$column->IsKey()) {//All set columns must come before all key columns
                     $columnName = $column->GetName();
-                    Security::ValidateColumn($columnName, $record->$columnName);
+                    Security::ValidateColumn($columnName, $record->$columnName, $this->GetConnection());
                     $parameters[] = $this->SetValueForCreateUpdate($record, $columnName);
                 }
             }
             foreach ($columns->GetKeys() as $key) {
-                Security::ValidateColumn($key, $record->$key);
+                Security::ValidateColumn($key, $record->$key, $this->GetConnection());
                 $parameters[] = $record->$key;
             }
             $this->connection->execute($statement, $parameters, false);
@@ -291,7 +291,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         foreach ($records as $record) {
             $parameters = array();
             foreach ($columns->GetKeys() as $key) {
-                Security::ValidateColumn($key, $record->$key);
+                Security::ValidateColumn($key, $record->$key, $this->GetConnection());
                 $parameters[] = $record->$key;
             }
             $this->connection->execute($statement, $parameters, false);
