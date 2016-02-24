@@ -5,9 +5,10 @@
  * @author jnorcross
  */
 class Security {
-    public static $userid;
-    public static $secretKey;
-    public static $isAdmin;
+    private static $userid;
+    private static $secretKey;
+    private static $isAdmin;
+    private static $pointPersonId;
 
     /*
      * Verifies whether the id's provided match to a valid user in the system.
@@ -19,16 +20,21 @@ class Security {
         self::$secretKey = RequestData::GetRequestData('id2');
 
         $select = "Select count(*) from users ";
-        $where = "where id = (?) and secretKey = (?)";
+        $where = "where id = (?) ";
         $parameters[] = self::$userid;
-        $parameters[] = self::$secretKey;
-
+        if(version_compare(PHP_VERSION, '5.3.0') >= 0)
+        {
+            $where = $where . "and secretkey = (?)";
+            $parameters[] = self::$secretKey;
+        }
+        
         $statement = $select . $where;
         $count = $database->rowCount($statement, $parameters);
         if ($count == 1){
-            $select = "Select adminflg from users " . $where;
+            $select = "Select adminflg, pointpersonid from users " . $where;
             $records = $database->execute($select, $parameters);
             self::$isAdmin = $records[0]['adminflg'];
+            self::$pointPersonId = $records[0]['pointpersonid'];
             return true;
         }
         //User could not be found so try to sync the user from nationbuilder and then check again
@@ -56,9 +62,9 @@ class Security {
      * @param columnValue - The value that is trying to be saved
      * @return true if the user is the logged in user accessing the system or the user is an administrator
      */
-    public static function ValidateColumn($columnName, $columnValue) {
+    public static function ValidateColumn($columnName, $columnValue, iDatabase $database) {
         if ($columnName == 'userid') {
-            if (self::$userid != $columnValue && !self::IsAdmin())
+            if (self::$userid != $columnValue && !self::IsAdmin() && !self::IsPointPerson($columnValue, $database))
             {
                 throw new Exception("Security: Attempt to set a record to an invalid user: " . $columnValue);
             }
@@ -77,6 +83,32 @@ class Security {
             $return = true;
         }
         return $return;
+    }
+    
+    /*
+     * Retrieves the currently logged in user's point person id
+     * @return the id of the currently logged in user's point person
+     */
+    public static function GetLoggedInUserPointPersonId()
+    {
+        return self::$pointPersonId;
+    }
+    
+    /*
+     * Retrieves the currently logged in user's id
+     * @return logged in user's id
+     */
+    public static function GetLoggedInUser()
+    {
+        return self::$userid;
+    }
+    
+    public static function IsPointPerson($userid, iDatabase $database)
+    {
+        $sql = "Select count(*) from users where id = (?) and pointpersonid = (?)";
+        $parameters[] = $userid;
+        $parameters[] = self::$userid;
+        return $database->rowCount($sql, $parameters) == 1;
     }
 }
 

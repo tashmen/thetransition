@@ -66,7 +66,6 @@ class NationBuilder {
     public function SynchronizeUsers($database) {
         if($this->IsEnabled())
         {
-            $user = new users($database);
             $statement = '/api/v1/people';
             $parameters = array();
             $next = '';
@@ -75,7 +74,7 @@ class NationBuilder {
                 $response = $this->Execute($statement, $parameters);
                 $results = $response['result']['results'];
                 foreach ($results as $result) {
-                    $user->createupdate($result);
+                    $this->SynchronizeUser($database, $result['id']);
                 }
                 $next = $response['result']['next'];
                 Logger::LogError("next value: " . $next, Logger::debug);

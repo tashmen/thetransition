@@ -23,7 +23,7 @@ function fatal_handler()
 /* auto load all classes */
 
 function __autoload($class_name) {
-    $autoloadLocations = array('common', 'model', 'view', 'tableobjects', 'controller', 'tests', 'grantcoin');
+    $autoloadLocations = array('common', 'model', 'view', 'tableobjects', 'controller', 'tests', 'grantcoin', 'coreLocation');
     $filename = $class_name . '.php';
     foreach ($autoloadLocations as $location) {
         $file = Constants::$$location . $filename;

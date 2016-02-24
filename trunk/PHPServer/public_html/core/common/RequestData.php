@@ -15,8 +15,11 @@ Class RequestData
             if($filterType == RequestData::$filterJson)
             {
                 //In php5.5 strip slashes no longer needed
-                //$json = stripslashes($_REQUEST[$varName]);
-                $json = $_REQUEST[$varName];
+                if (version_compare(PHP_VERSION, '5.3.0') < 0)
+                {
+                    $json = stripslashes($_REQUEST[$varName]);
+                }
+                else $json = $_REQUEST[$varName];
                 $value = json_decode($json);
             }
             else{

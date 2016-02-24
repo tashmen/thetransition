@@ -75,6 +75,8 @@ class MySqlDB implements iDatabase{
 
     public function rowCount($statement, $parameters = null) {
         $result = NULL;
+        Logger::LogData('database.log', $statement);
+        Logger::LogData('database.log', print_r($parameters, true));
         if (count($parameters) > 0) {//prepared statements
             $result = $this->connection->prepare($statement);
             $array = $result->errorInfo();

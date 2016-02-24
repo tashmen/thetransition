@@ -46,7 +46,7 @@ class GrantCoinController extends TableObjectController {
         $transactionID = RequestData::GetRequestData("confirmationid");
         Security::VerifySecurity($this->connection);
         $grantcoin = new GrantCoin();
-        $grantcoinuser = new GrantCoinUser($this->connection, $grantcoin, Security::$userid);
+        $grantcoinuser = new GrantCoinUser($this->connection, $grantcoin, Security::GetLoggedInUser());
         $grantCoinUserTransaction = new GrantCoinUserTransaction($this->connection, $grantcoinuser, $grantcoin);
         
         $grantCoinUserTransaction->ApplyTransaction($transactionID);
@@ -59,13 +59,13 @@ class GrantCoinController extends TableObjectController {
                 $expiration = $grantCoinUserTransaction->GetMembershipExpiration();
 
                 $nb = new NationBuilder();
-                $membership = $nb->GetMembership(Security::$userid, $this->grantCoinMembershipName);
+                $membership = $nb->GetMembership(Security::GetLoggedInUser(), $this->grantCoinMembershipName);
                 if($membership == null)
                 {
-                    $nb->CreateMembership(Security::$userid, $expiration, $this->grantCoinMembershipName, "Purchased via GrantCoin");
+                    $nb->CreateMembership(Security::GetLoggedInUser(), $expiration, $this->grantCoinMembershipName, "Purchased via GrantCoin");
                 }
                 else{
-                    $nb->UpdateMembership(Security::$userid, $expiration, $this->grantCoinMembershipName, "Purchased via GrantCoin");
+                    $nb->UpdateMembership(Security::GetLoggedInUser(), $expiration, $this->grantCoinMembershipName, "Purchased via GrantCoin");
                 }
             }
         } catch (Exception $ex) {
@@ -86,7 +86,7 @@ class GrantCoinController extends TableObjectController {
         Security::VerifySecurity($this->connection);
         $submitType = RequestData::GetRequestData('submittype');
         $grantcoin = new GrantCoin();
-        $grantcoinuser = new GrantCoinUser($this->connection, $grantcoin, Security::$userid);
+        $grantcoinuser = new GrantCoinUser($this->connection, $grantcoin, Security::GetLoggedInUser());
         $grantCoinUserTransaction = new GrantCoinUserTransaction($this->connection, $grantcoinuser, $grantcoin);
         switch($submitType){
             case $grantCoinUserTransaction->types['DONATE']://Donate
@@ -123,7 +123,7 @@ class GrantCoinController extends TableObjectController {
                 }
                 else {
                     $nb = new NationBuilder();
-                    $membership = $nb->GetMembership(Security::$userid, $this->grantCoinMembershipName);
+                    $membership = $nb->GetMembership(Security::GetLoggedInUser(), $this->grantCoinMembershipName);
 
                     $expiration = null;
                     if($membership == null)
@@ -177,7 +177,7 @@ class GrantCoinController extends TableObjectController {
     private function OnGetAccount(){
         Security::VerifySecurity($this->connection);
         $nb = new NationBuilder();
-        $membership = $nb->GetMembership(Security::$userid, $this->grantCoinMembershipName);
+        $membership = $nb->GetMembership(Security::GetLoggedInUser(), $this->grantCoinMembershipName);
         Logger::LogError(print_r($membership, true), Logger::debug);
 
         $status = $membership['status'];
@@ -185,7 +185,7 @@ class GrantCoinController extends TableObjectController {
         $expiration = $expiration[0];
 
         $grantcoin = new GrantCoin();
-        $grantcoinuser = new GrantCoinUser($this->connection, $grantcoin, Security::$userid);
+        $grantcoinuser = new GrantCoinUser($this->connection, $grantcoin, Security::GetLoggedInUser());
         $account = array(
             address => $grantcoinuser->GetAddress(),
             balancegrt => $grantcoinuser->GetBalanceGRT(),

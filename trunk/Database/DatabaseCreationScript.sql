@@ -5,7 +5,7 @@
 --
 
 DROP TABLE IF EXISTS `users`;
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE `users` (
   `id` int(11) NOT NULL COMMENT 'id of a user; matches to nationbuilder',
   `fullname` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'full name of the user; combined first + last name from nationbuilder',
   `creationdt` datetime DEFAULT NULL,
@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS `users` (
   `longitude` double DEFAULT NULL COMMENT 'longitude of the user''s primary address',
   `tags` varchar(4000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'tags associated with the user',
   `secretkey` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Stores a generated secret key to secure access',
-  PRIMARY KEY (`id`)
+  `pointpersonid` int(11) DEFAULT NULL COMMENT 'The Id of this users point person',
+  PRIMARY KEY (`id`),
+  KEY `pointpersonid` (`pointpersonid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='User table synchronized from NationBuilder for easier queryi';
 
 --
@@ -111,13 +113,14 @@ INSERT INTO `objectpermanence` (`id`, `name`) VALUES(2, 'Keep');
 
 DROP TABLE IF EXISTS `phasesteps`;
 CREATE TABLE `phasesteps` (
-    `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
-    `planphaseid` int(11) NOT NULL COMMENT 'Foreign Key to planphase',
-    `name` varchar(2000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'name of the plan step',
-    `number` int(11) NOT NULL COMMENT 'Stores the step number.',
-    PRIMARY KEY (`id`),
-    KEY `planphasesid` (`planphaseid`)
-)  ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE = utf8_unicode_ci COMMENT='Stores all of the steps needed to complete a phase.' AUTO_INCREMENT=2;
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+  `planphaseid` int(11) NOT NULL COMMENT 'Foreign Key to planphase',
+  `name` varchar(2000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'name of the plan step',
+  `number` int(11) NOT NULL COMMENT 'Stores the step number.',
+  `pointpersontask` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Whether or not the step needs to be completed by the user''s point person',
+  PRIMARY KEY (`id`),
+  KEY `planphasesid` (`planphaseid`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Stores all of the steps needed to complete a phase.' AUTO_INCREMENT=64 ;
 
 --
 -- Dumping data for table `phasesteps`
@@ -443,7 +446,7 @@ VIEW `userspacesview` AS
 --
 DROP VIEW IF EXISTS	`userphasestepsview`;
 CREATE VIEW `userphasestepsview` AS
-SELECT ups.*, pp.name as planphasename, ps.name as phasestepname, ps.number as phasestepnumber, u.fullname, ps.planphaseid 
+SELECT ups.*, pp.name as planphasename, ps.name as phasestepname, ps.number as phasestepnumber, u.fullname, ps.planphaseid, ps.pointpersontask, u.pointpersonid 
 FROM  userphasesteps ups 
 inner join phasesteps ps on ps.id = ups.phasestepid 
 inner join planphases pp on pp.id = ps.planphaseid
