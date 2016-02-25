@@ -244,7 +244,6 @@
 			var mapPanel = Ext.create('Ext.ux.MapPanel',{
 				renderTo: 'map_panel',
 				title: "Nearby Members",
-				height: 550,
 				markerWindowHeight: 150,
 				markerWindowWidth: 400,
 				keyStore: Ext.StoreManager.get('keyStore'),
@@ -285,11 +284,13 @@
   <div id="map_panel"></div>
     
 	<br>
-    <h2><a href="/spaces"><span><span>Spaces</span></span></a></h2>
+    <h2><a href="/spaces"><span>Spaces</span></a></h2>
 	<br>
-	<h2><a href="/member_skills"><span><span>Skills</span></span></a></h2>
+	<h2><a href="/member_skills"><span>Skills</span></a></h2>
 	<br>
-	<h2><a href="/objects"><span><span>Objects</span></span></a></h2>
+	<h2><a href="/objects"><span>Objects</span></a></h2>
+  <br>
+  <h2><a href="/buds"><span>BUDs</span></a></h2>
   
   {% if page.tags_count > 0 %}
   <div class="page-tags">
