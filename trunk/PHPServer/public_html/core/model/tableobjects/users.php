@@ -83,6 +83,15 @@ class users extends TableObject {
             $secretKey = $hex;
         }
         $pointPersonId = $person['parent_id'];
+        if($pointPersonId == '')
+        {
+            $potentialPointPerson = $this->AssignPointPerson($id, $lat, $lng);
+            if($potentialPointPerson != 0)
+            {
+                $pointPersonId = $potentialPointPerson;
+            }
+        }
+        $isPointPerson = $person['ispointperson'];
 
         $parameters[] = $id;
         $total = $this->GetConnection()->rowCount("SELECT COUNT(*) FROM users where id = (?)", $parameters);
@@ -97,8 +106,9 @@ class users extends TableObject {
             $param[] = $combinedTags;
             $param[] = $secretKey;
             $param[] = $pointPersonId;
+            $param[] = $isPointPerson;
             $param[] = $id;
-            $this->GetConnection()->execute("UPDATE users set fullname = (?), creationdt = (?), profileimage = (?), email = (?), mobile = (?), latitude = (?), longitude = (?), tags = (?), secretkey = (?), pointpersonid = (?) where id = (?)", $param, false);
+            $this->GetConnection()->execute("UPDATE users set fullname = (?), creationdt = (?), profileimage = (?), email = (?), mobile = (?), latitude = (?), longitude = (?), tags = (?), secretkey = (?), pointpersonid = (?), ispointperson = (?) where id = (?)", $param, false);
         } 
         else {//Else create new user
             $parameters[] = $name;
@@ -111,8 +121,58 @@ class users extends TableObject {
             $parameters[] = $combinedTags;
             $parameters[] = $secretKey;
             $parameters[] = $pointPersonId;
-            $this->GetConnection()->execute("Insert into users (id, fullname, creationdt, profileimage, email, mobile, latitude, longitude, tags, secretkey, pointpersonid) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $parameters, false);
+            $parameters[] = $isPointPerson;
+            $this->GetConnection()->execute("Insert into users (id, fullname, creationdt, profileimage, email, mobile, latitude, longitude, tags, secretkey, pointpersonid) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $parameters, false);
         }
+    }
+    
+    /*
+     * Finds all of the available point people and determines who to assign this user to based on proximity
+     * @param id - The id of the user to modify
+     * @param lat - The latitude of the user
+     * @param long - The longitude of the user
+     */
+    private function AssignPointPerson($id, $lat, $long)
+    {
+        $pointPerson = 0;
+        if($lat != '' && $long != '')
+        {
+            $query = 'Select id, latitude, longitude from users where ispointperson = 1 and latitude is not null and longitude is not null';
+            $results = $this->GetConnection()->execute($query);
+            $minDistance = 999999;
+            foreach($results as $result)
+            {
+                $distance = $this->distance($lat, $long, $result['latitude'], $result['longitude'], 'M');
+                if($distance < $minDistance)
+                {
+                    $minDistance = $distance;
+                    $pointPerson = $result['id'];
+                }
+            }
+            if($pointPerson != 0)
+            {
+                $nb = new NationBuilder();
+                $nb->PushPointPerson($id, $pointPerson);
+            }
+        }
+        return $pointPerson;
+    }
+    
+    private function distance($lat1, $lon1, $lat2, $lon2, $unit) {
+      $theta = $lon1 - $lon2;
+      $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+      $dist = acos($dist);
+      $dist = rad2deg($dist);
+      $miles = $dist * 60 * 1.1515;
+      $unit = strtoupper($unit);
+
+      if ($unit == "K") {
+        return ($miles * 1.609344);
+      } else if ($unit == "N") {
+          return ($miles * 0.8684);
+        } else {
+            return $miles;
+          }
     }
 }
 ?>

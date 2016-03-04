@@ -18,6 +18,7 @@ CREATE TABLE `users` (
   `tags` varchar(4000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'tags associated with the user',
   `secretkey` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Stores a generated secret key to secure access',
   `pointpersonid` int(11) DEFAULT NULL COMMENT 'The Id of this users point person',
+  `ispointperson` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Whether or not this person can be auto assigned as a point person.',
   PRIMARY KEY (`id`),
   KEY `pointpersonid` (`pointpersonid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='User table synchronized from NationBuilder for easier queryi';
@@ -636,8 +637,12 @@ INSERT INTO `budtypes` VALUES(8, 'Social Change');
 --
 -- Structure for view `phasestepsview`
 --
-
-CREATE VIEW `phasestepsview` AS select `ps`.`id` AS `id`,`ps`.`planphaseid` AS `planphaseid`,`ps`.`name` AS `name`,`ps`.`number` AS `number`,`pp`.`name` AS `planname`,`pp`.`number` AS `plannumber` from (`phasesteps` `ps` join `planphases` `pp` on((`ps`.`planphaseid` = `pp`.`id`)));
+Drop view if exists phasestepsview;
+CREATE VIEW phasestepsview AS SELECT ps.* , pp.name AS `planname` , pp.number AS `plannumber` 
+FROM 
+ phasesteps ps 
+inner JOIN planphases pp ON 
+ ps.planphaseid = pp.id; 
 
 --
 -- Dumping data for table `phasesteps`
