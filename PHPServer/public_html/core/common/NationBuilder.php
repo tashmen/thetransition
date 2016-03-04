@@ -90,6 +90,7 @@ class NationBuilder {
     /*
      * Pushes a secretkey to the user so they can login to our system
      * @param id - The id of the user to provide a key for
+     * @param key - The secret key to push to Nationbuilder
      */
     public function PushSecretKey($id, $key)
     {
@@ -105,7 +106,27 @@ class NationBuilder {
             )
         );
         $this->postRequest($statement, $user, 'PUT');
-	
+    }
+    
+    /*
+     * Pushes a point person to the user
+     * @param id - The id of the user to provide a point person for
+     * @param pointPerson - The id of the Point Person to assign to the given user
+     */
+    public function PushPointPerson($id, $pointPerson)
+    {
+        if(!$this->IsEnabled())
+        {
+            return;
+        }
+        
+        $statement = '/api/v1/people/' . $id; 
+        $user = array(
+            "person" => array(
+                "parent_id" => $pointPerson
+            )
+        );
+        $this->postRequest($statement, $user, 'PUT');
     }
     
     /*
