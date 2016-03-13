@@ -58,6 +58,8 @@ Ext.define('Ext.ux.LocationField', {
 	listeners: {
 		blur: function(field, event, eOpts){
 			var address = field.getValue();
+			if(address=='')
+				return;//Do not bother asking google if user hasn't provided any data.
 			var form = field.findParentByType('form').getForm();
 			form.findField('latitude').setValue(-1);
 			form.findField('longitude').setValue(-1);
