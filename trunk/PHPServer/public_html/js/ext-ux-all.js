@@ -1,6 +1,6 @@
 
 //Resize containers if the window size changes
-Ext.EventManager.onWindowResize(function () {
+Ext.on('resize', function () {
 	Ext.ComponentManager.each(function(item){
 		if(typeof(this[item].updateLayout) == 'function')
 		{
@@ -40,16 +40,19 @@ Ext.define('Ext.ux.LocationField', {
 	initComponent: function(){
 		//Assume the field is on a form object and add required hidden fields
 		var form = this.findParentByType('form');
-		form.add(
-			Ext.create('Ext.form.field.Hidden', {
-				name: 'latitude'
-			})
-		);
-		form.add(
-			Ext.create('Ext.form.field.Hidden', {
-				name: 'longitude'
-			})
-		);
+		if(form != undefined)
+		{
+			form.add(
+				Ext.create('Ext.form.field.Hidden', {
+					name: 'latitude'
+				})
+			);
+			form.add(
+				Ext.create('Ext.form.field.Hidden', {
+					name: 'longitude'
+				})
+			);
+		}
 		this.callParent();
 	},
 	listeners: {
@@ -313,6 +316,20 @@ Ext.define('Ext.grid.feature.RowBody', {
 	}
 });
 
+Ext.define('Ext.util.Filter', {
+	override : 'Ext.util.Filter',
+	
+	filter: function (item) {
+        var me = this,
+            filterFn = me._filterFn || me.getFilterFn();
+		//If no filter function exists then just assume everything matches
+		if(filterFn == undefined || filterFn == null)
+			return true;
+
+        return filterFn.call(me.scope || me, item);
+    }
+});
+
 /* Using this panel requires the following script include:
 src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=geometry"
 */
@@ -349,8 +366,8 @@ Ext.define('Ext.ux.MapPanel', {
 	
 	initComponent: function(){
 		this.callParent();
-		if(this.keyStore == '' || this.mapStore == '')
-			throw new Exception("Missing required keyStore or mapStore");
+		if(this.mapStore == '')
+			throw new Exception("Missing required mapStore");
 			
 		this.filterMenuConfig.filterStore = this.mapStore;
 			
@@ -366,7 +383,7 @@ Ext.define('Ext.ux.MapPanel', {
 			}
 		});
 		
-		if(this.keyStore.getCount() > 1)
+		if(this.keyStore != '' && this.keyStore.getCount() > 1)
 		{
 		
 			var keyContainer = Ext.create('Ext.panel.Panel', {
@@ -406,8 +423,18 @@ Ext.define('Ext.ux.MapPanel', {
 					handler: function(button, e){
 						var mapPanel = this.findParentByType('mappanel');
 						var store = mapPanel.mapStore;
-						store.clearFilter();
-						mapPanel.showMarkers(store);
+						var filters = mapPanel.filterMenuConfig.filters;
+						var remoteFilter = store.remoteFilter;
+						store.setRemoteFilter(false);
+						for(var i = 0; i < filters.length; i++)
+						{
+							filter = new Ext.util.Filter({
+								property: filters[i].dataIndex
+							});
+							store.removeFilter(filter);
+						}
+						store.addAfterListener('load', function(){mapPanel.showMarkers(mapPanel.mapStore);}, mapPanel, {single: true});
+						store.setRemoteFilter(remoteFilter);
 					}
 				}
 			]
@@ -445,13 +472,12 @@ Ext.define('Ext.ux.MapPanel', {
 		{
 			var record = this.mapStore.getAt(i);
 			var marker = new google.maps.Marker({
-			  //icon: Transition.global.imagesLocation + record.get('icon'),
 			  position: new google.maps.LatLng(record.get('latitude'), record.get('longitude')),
 			  map: this.map,
 			  title: record.get('name'),
 			  id: record.get('id')
 			});
-			if(record.get('icon') != '')
+			if(record.get('icon') != '' && record.get('icon') != undefined)
 			{
 				marker.setIcon(Transition.global.imagesLocation + record.get('icon'));
 			}
@@ -480,7 +506,7 @@ Ext.define('Ext.ux.MapPanel', {
 	openMarker: function(marker){
 		var store = this.mapStore;
 		var record = store.findRecord('id', marker.id);
-		var form = this.getMapStoreForm();
+		var form = this.getMapStoreForm(record);
 		if(form == null)
 			return;
 			
@@ -549,7 +575,8 @@ Ext.define('Ext.ux.FilterMenu', {
 			handler: function(button, e){
 				var mapPanel = this.findParentByType('mappanel');
 				var store = mapPanel.mapStore;
-				store.clearFilter();
+				var remoteFilter = store.remoteFilter;
+				store.setRemoteFilter(false);
 				
 				var menu = button.findParentByType('menu');
 				menu.items.each(function(item){
@@ -585,11 +612,14 @@ Ext.define('Ext.ux.FilterMenu', {
 								operator: item.operator
 							});
 						}
+						store.removeFilter(filter);
 						store.addFilter(filter);
 					}
 				});
 				
-				mapPanel.showMarkers(store);
+				
+				store.addAfterListener('load', function(){mapPanel.showMarkers(mapPanel.mapStore);}, mapPanel, {single: true});
+				store.setRemoteFilter(remoteFilter);
 				menu.hide();
 			}
 		});

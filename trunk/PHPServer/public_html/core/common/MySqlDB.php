@@ -19,7 +19,20 @@ class MySqlDB implements iDatabase{
         $this->mysql_database = Settings::$mysql_database;
         $this->mysql_user = Settings::$mysql_user;
         $this->mysql_password = Settings::$mysql_password;
-        $this->connection = new PDO('mysql:host=' . $this->mysql_host . ';dbname=' . $this->mysql_database, $this->mysql_user, $this->mysql_password);
+        $waitForConnection = true;
+        do
+        {
+            try
+            {
+                $this->connection = new PDO('mysql:host=' . $this->mysql_host . ';dbname=' . $this->mysql_database, $this->mysql_user, $this->mysql_password);
+                $waitForConnection = false;
+            }
+            catch(Exception $e)//If we can't connect to sql then just delay 1 second and try again
+            {
+                sleep(1);
+            }
+        }
+        while($waitForConnection);
 
         $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }

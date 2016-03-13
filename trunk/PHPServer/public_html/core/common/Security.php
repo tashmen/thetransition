@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Class for handling all aspects of security
+ * Class for handling all aspects of security and caching logged in user data
  * @author jnorcross
  */
 class Security {
@@ -9,6 +9,8 @@ class Security {
     private static $secretKey;
     private static $isAdmin;
     private static $pointPersonId;
+    private static $latitude;
+    private static $longitude;
 
     /*
      * Verifies whether the id's provided match to a valid user in the system.
@@ -29,24 +31,26 @@ class Security {
         }
         
         $statement = $select . $where;
-        $count = $database->rowCount($statement, $parameters);
-        if ($count == 1){
-            $select = "Select adminflg, pointpersonid from users " . $where;
-            $records = $database->execute($select, $parameters);
-            self::$isAdmin = $records[0]['adminflg'];
-            self::$pointPersonId = $records[0]['pointpersonid'];
-            return true;
+        $counter = 0;
+        do
+        {
+            $count = $database->rowCount($statement, $parameters);
+            if ($count == 1){
+                $select = "Select adminflg, pointpersonid, latitude, longitude from users " . $where;
+                $records = $database->execute($select, $parameters);
+                self::$isAdmin = $records[0]['adminflg'];
+                self::$pointPersonId = $records[0]['pointpersonid'];
+                self::$latitude = $records[0]['latitude'];
+                self::$longitude = $records[0]['longitude'];
+                return true;
+            }
+            //User could not be found so try to sync the user from nationbuilder and then check again
+            $nb = new NationBuilder();
+            $nb->SynchronizeUser($database, self::$userid);
+            $counter++;
         }
-        //User could not be found so try to sync the user from nationbuilder and then check again
-        $nb = new NationBuilder();
-        $nb->SynchronizeUser($database, self::$userid);
-        $count = $database->rowCount($statement, $parameters);
-        if ($count == 1){
-            $select = "Select adminflg from users " . $where;
-            $records = $database->execute($select, $parameters);
-            self::$isAdmin = $records[0]['adminflg'];
-            return true;
-        }
+        while($counter<2);
+
         
         if(self::$secretKey == '')
         {
@@ -101,6 +105,36 @@ class Security {
     public static function GetLoggedInUser()
     {
         return self::$userid;
+    }
+    
+    /*
+     * Retrieves the currently logged in user's latitude
+     * @return logged in user's latitude
+     */
+    public static function GetLoggedInUserLatitude()
+    {
+        return self::$latitude;
+    }
+    
+    /*
+     * Retrieves the currently logged in user's longitude
+     * @return logged in user's longitude
+     */
+    public static function GetLoggedInUserLongitude()
+    {
+        return self::$longitude;
+    }
+    
+    /*
+     * Determine if the user has a location
+     * @return true if the user has both a latitude and longitude coordinates
+     */
+    public static function HasLocation()
+    {
+        if (Security::GetLoggedInUserLatitude() == '' || Security::GetLoggedInUserLongitude() == '') {
+            return false;
+        }
+        return true;
     }
     
     public static function IsPointPerson($userid, iDatabase $database)
