@@ -77,24 +77,23 @@ class Filter implements iFilter {
      * @return The list of parameters with the values set.
      */
     public function SetParameters(&$parameters){
-        if($this->GetOperator() == "in")
-        {
+        if ($this->GetOperator() == "in") {
             $array = null;
-            if(is_array($this->value))
-            {
+            if (is_array($this->value)) {
                 $array = $this->value;
-            }
-            else
-            {
+            } else {
                 $array = explode(",", $this->value);
             }
-            foreach($array as $value)
-            {
+            foreach ($array as $value) {
                 $parameters[] = $value;
             }
-            
+        } 
+        else if($this->GetOperator() == "notnull" || $this->GetOperator() == "null"){
+            //Do nothing here; there are no parameters for these functions
         }
-        else $parameters[] = $this->GetValue();
+        else {
+            $parameters[] = $this->GetValue();
+        }
     }
 
     /*

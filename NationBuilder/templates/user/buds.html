@@ -1,5 +1,6 @@
 {% include "thetransitionglobaluser" %}
 {% include "thetransitionextheader" %}
+{% include "thetransitiongooglemapheader" %}
 <script type="text/javascript">
     Ext.onReady(function() {
 		Ext.QuickTips.init();
@@ -64,6 +65,15 @@
 				},
 				{
 					name: 'typenames'
+				},
+				{
+					name: 'location'
+				},
+				{
+					name: 'latitude'
+				},
+				{
+					name: 'longitude'
 				}
 			],
 			proxy: 
@@ -260,6 +270,12 @@
 									name: 'description',
 									allowBlank: false,
 									maxLength: '4000'
+								},
+								{
+									xtype: 'locationfield',
+									fieldLabel: 'Location',
+									name: 'location',
+									maxLength: '2000'
 								},
 								{
 									xtype: 'filefield',
@@ -537,6 +553,12 @@
 									name: 'description',
 									allowBlank: false,
 									maxLength: '4000'
+								},
+								{
+									xtype: 'locationfield',
+									fieldLabel: 'Location',
+									name: 'location',
+									maxLength: '2000'
 								}
 							]
 						}
@@ -616,6 +638,34 @@
 				}
 			],
 			pageSize: 20
+		});
+		
+		var otherBudsMapStore = Ext.create('Ext.data.Store', {
+			storeId:'otherBudsMapStore',
+			model: 'UserBuds',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [
+				{
+					property: "userid",
+					value: Transition.user.id,
+					operator: "ne"
+				},
+				{
+					property: "membershipuserid",
+					value: Transition.user.id,
+					operator: "eq"
+				},
+				{
+					property: "latitude",
+					operator: "notnull"
+				},
+				{
+					property: "longitude",
+					operator: "notnull"
+				}
+			],
+			pageSize: 500
 		});
 		
 		var grid;
@@ -783,7 +833,43 @@
 					otherGrid.updateLayout();
 				}
 			});
+			otherBudsMapStore.load(function (records, operation, success){
+				if(success)
+				{
+					BuildGoogleMap();
+				}
+			});
 		}
+		
+		function BuildOtherFormItems(record){
+			return Ext.create(Ext.form.Panel,{
+				items: GetOtherFormItems(record)
+			});
+		}
+		
+		function BuildGoogleMap(){
+			var filters = [
+				{
+					text: 'Distance',
+					emptyText: 'Enter distance in miles.',
+					dataIndex: 'distance',
+					operator: '<=',
+					type: 'number'
+				}
+			]
+			
+			var mapPanel = Ext.create('Ext.ux.MapPanel',{
+				title: 'Other Member\'s BUDs',
+				renderTo: 'map_panel',
+				height: 550,
+				mapStore: otherBudsMapStore,
+				filterMenuConfig: {
+					filters: filters
+				},
+				getMapStoreForm: BuildOtherFormItems
+			});
+		}
+		
 	});
 </script>
 {% include "breadcrumbs" %}
@@ -805,6 +891,9 @@
 	<br>
 	<br>
 	<div id = "othergrid"></div>
+	<br>
+	<br>
+	<div id = "map_panel"></div>
 	
 	{% if page.tags_count > 0 %}
   <div class="page-tags">

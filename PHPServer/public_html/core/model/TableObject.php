@@ -154,6 +154,10 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
      */
 
     protected function ValidateColumnView($columnName) {
+        //If we are checking if the view has a distance and distance filtering is enabled then we will override the view with a distance component hence the view will always have a distance column in this case
+        if($columnName == 'distance' && $this->HasDistanceFilter())
+            return true;
+            
         $columns = $this->GetColumnsView();
         $columnNames = $columns->GetNames();
         $return = false;
@@ -369,13 +373,18 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         $orderby = $this->GetOrderBy();
         $strLimit = $this->GetLimit();
 
-        $select = "SELECT * FROM " . $this->GetPrimaryTableView();
+        $table = $this->GetPrimaryTableView();
+        if($this->HasDistanceFilter())
+        {
+            $table = $this->BuildDistanceTable($table);
+        }
+        $select = "SELECT * FROM " . $table;
 
         $parameters = array();
         $where = $this->GetWhere($parameters);
 
         //Use count to find the actual total results since we might be paging
-        $countSelect = "SELECT COUNT(*) FROM " . $this->GetPrimaryTableView();
+        $countSelect = "SELECT COUNT(*) FROM " . $table;
 
         $statement = $select . $where . $orderby . $strLimit;
         $countStatement = $countSelect . $where;
@@ -442,4 +451,70 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         $this->SetResults($extview);
     }
 
+    /*
+     * Determines if the Table object has a request to filter by distance
+     * @returns true if distance filtering is enabled
+     */
+    protected function HasDistanceFilter()
+    {
+        //If the currently logged in user doesn't have a latitude/longitude to calculate distance from then we can't filter
+        if(Security::HasLocation())
+        {    
+            $filters = $this->GetRequest()->GetFilters();
+            foreach($filters as $filter)
+            {
+                if($filter->GetColumn() == "distance")
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    /* 
+     * Retrieves the distance filter from the list of requested filters
+     * @retun The distance filter
+     */
+    protected function GetDistanceFilter()
+    {
+        $filters = $this->GetRequest()->GetFilters();
+        foreach($filters as $filter)
+        {
+            if($filter->GetColumn() == "distance")
+            {
+                return $filter;
+            }
+        }
+        return null;
+    }
+    
+    /*
+     * For Distance filtering to work we need to build a table with the distance values available
+     * Distances are based on the currently logged in users latitude and longitude so if the user doesn't have a lat/long then set the distance as the filter value + 1 to include everything
+     * @param table - The table name to compute distances for
+     * @return - a sql string that can fit into a from clause ex: (select *, distance from {table} where latitude between x1 and x2 and longitude between y1 and y2)
+     */
+    protected function BuildDistanceTable($table)
+    {
+        $distanceFilter = $this->GetDistanceFilter();
+        $distance = $distanceFilter->GetValue();
+        
+        $myLat = Security::GetLoggedInUserLatitude();
+        $myLong = Security::GetLoggedInUserLongitude();
+        
+        $lat1 = $myLat-($distance / 69);
+        $lat2 = $myLat+($distance / 69);
+        $long1 = $myLong-$distance / abs(cos(deg2rad($myLat))*69);
+        $long2 = $myLong+$distance / abs(cos(deg2rad($myLat))*69);
+        
+        $sql = '(select *, ( 3959 * acos( cos( radians( ' . $myLat . ') ) 
+              * cos( radians( latitude ) ) 
+              * cos( radians( longitude ) - radians( ' . $myLong . ') ) 
+              + sin( radians( ' . $myLat . ') ) 
+              * sin( radians( latitude ) ) ) ) AS distance from ' . $table . 
+                ' where latitude between ' . $lat1 . ' and ' . $lat2 . ' and longitude between ' . $long1 . ' and ' . $long2 . ') as temp ';
+        
+        return $sql;
+    }
 }
