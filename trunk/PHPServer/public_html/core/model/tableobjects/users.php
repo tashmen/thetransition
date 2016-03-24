@@ -92,6 +92,8 @@ class users extends TableObject {
             }
         }
         $isPointPerson = $person['ispointperson'];
+		if($isPointPerson=='')
+			$isPointPerson = 0;
 
         $parameters[] = $id;
         $total = $this->GetConnection()->rowCount("SELECT COUNT(*) FROM users where id = (?)", $parameters);
@@ -122,7 +124,7 @@ class users extends TableObject {
             $parameters[] = $secretKey;
             $parameters[] = $pointPersonId;
             $parameters[] = $isPointPerson;
-            $this->GetConnection()->execute("Insert into users (id, fullname, creationdt, profileimage, email, mobile, latitude, longitude, tags, secretkey, pointpersonid) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $parameters, false);
+            $this->GetConnection()->execute("Insert into users (id, fullname, creationdt, profileimage, email, mobile, latitude, longitude, tags, secretkey, pointpersonid, ispointperson) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $parameters, false);
         }
     }
     
