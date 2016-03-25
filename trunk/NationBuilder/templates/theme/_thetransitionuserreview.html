@@ -1,5 +1,3 @@
-{% include "thetransitionglobaluser" %}
-{% include "thetransitionextheader" %}
 <script type="text/javascript">
     Ext.onReady(function() {
 		Ext.QuickTips.init();
@@ -84,7 +82,6 @@
 					text: 'Save Review',
 					iconCls: 'save-icon',
 					handler: function() {
-						//Check for each skill added only once and blank skills
 						var panel = this.findParentByType('panel');
 						if(panel.isValid())
 						{

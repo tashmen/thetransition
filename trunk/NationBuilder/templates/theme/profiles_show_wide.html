@@ -15,7 +15,10 @@
     <hr/>
     {% endif %}
 
+	{% include "thetransitionglobaluser" %}
+	{% include "thetransitionextheader" %}
 	{% include "thetransitionuserreview" %}
+	{% include "thetransitionprofilebuds" %}
 	
 	<hr/>
     {% if profile.most_recent_posts.size > 0 %}
