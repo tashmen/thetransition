@@ -163,6 +163,7 @@
 				otherUserLocationsStore.load(function (records, operation, success){
 					if(success)
 					{
+						this.remoteFilter = false;
 						BuildGoogleMap();
 					}
 				});
@@ -266,7 +267,7 @@
 			var mapPanel = Ext.create('Ext.ux.MapPanel',{
 				title: locationName + ' entered by others',
 				renderTo: 'map_panel',
-				height: 525,
+				height: 550,
 				keyStore: Ext.StoreManager.get('locationsStore'),
 				mapStore: Ext.StoreManager.get('otherUserLocationsStore'),
 				filterMenuConfig: {
