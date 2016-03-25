@@ -523,7 +523,7 @@ VIEW `userbudsmembershipallstatusview` as
 	from 
 		users u cross join 
 		userbudsview ub left join
-		userbudsmembership ubm on ubm.userid = u.id;
+		userbudsmembership ubm on ubm.userid = u.id and ubm.userbudid = ub.id;
 		
 --
 -- Table structure for view 'userbudsmembershipstatusview
