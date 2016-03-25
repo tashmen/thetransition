@@ -4,19 +4,19 @@
     {% if child.name != "Administration" or request.current_user.id == 2 or request.current_user.id == 3 %}
     {% if child.leaf? or child.nav_children.size == 0 %}
     <li {% if child.is_or_is_ancestor_of_current_page? %}class="active"{% endif %}>
-      <a href="{{ child.url }}">{{ child.name }}</a>
+      <a href="{{ child.url }}" {% if child.type_name == "Redirect" %}target="_blank"{% endif %}>{{ child.name }}</a>
     </li>
     {% else %}
     <li class="{% if child.is_or_is_ancestor_of_current_page? %}active{% endif %} drop">
-      <a href="{{ child.url }}">{{ child.name }} <i class="icon-angle-down"></i></a>
+      <a href="{{ child.url }}" {% if child.type_name == "Redirect" %}target="_blank"{% endif %}>{{ child.name }} <i class="icon-angle-down"></i></a>
       <ul class="sub">
         {% if site.show_parent_in_nav_dropdown? %}
-        <li class="show-parent"><a href="{{ child.url }}">{{ child.name }}</a></li>
+        <li class="show-parent"><a href="{{ child.url }}" {% if child.type_name == "Redirect" %}target="_blank"{% endif %}>{{ child.name }}</a></li>
         {% else %}
-        <li class="show-parent mobile-visible"><a href="{{ child.url }}">{{ child.name }}</a></li>
+        <li class="show-parent mobile-visible"><a href="{{ child.url }}" {% if child.type_name == "Redirect" %}target="_blank"{% endif %}>{{ child.name }}</a></li>
         {% endif %}
         {% for child2 in child.nav_children %}
-        <li><a href="{{ child2.url }}">{{ child2.name }}</a></li>
+        <li><a href="{{ child2.url }}" {% if child2.type_name == "Redirect" %}target="_blank"{% endif %}>{{ child2.name }}</a></li>
         {% endfor %}
       </ul>
     </li>

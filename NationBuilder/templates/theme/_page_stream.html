@@ -2,6 +2,9 @@
 <div id="stream">
   <hr/>
   <div id="comment" class="comment">
+    {% if page.is_commentable? and (page.parent.slug == 'movie_vault' or page.parent.parent.slug == 'movie_vault' or page.parent.parent.parent.slug == 'movie_vault') %}
+    <h3>What did you think of this film?</h3>
+    {% endif %}
 
     {% if page.public_activities_count == 1 %}
     <a id="addreaction"></a>
