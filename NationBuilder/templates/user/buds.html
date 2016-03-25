@@ -74,6 +74,9 @@
 				},
 				{
 					name: 'longitude'
+				},
+				{
+					name: 'membershipcount'
 				}
 			],
 			proxy: 
@@ -687,6 +690,19 @@
 						dataIndex: 'seedperson', 
 						hideable: false,
 						sortable: false
+					},
+					{
+						text: 'Status',
+						dataIndex: 'membershipcount',
+						hideable: false,
+						sortable: false,
+						renderer : function(value, meta) {
+							if(value <= 5)
+								return "Seed";
+							if(value<=15)
+								return "Bud";
+							return "Requires Splitting";
+						}
 					}
 				],
 				width: 'auto',
@@ -737,6 +753,19 @@
 						sortable: true,
 						filter: {
 							type: 'string'
+						}
+					},
+					{
+						text: 'Status',
+						dataIndex: 'membershipcount',
+						hideable: false,
+						sortable: false,
+						renderer : function(value, meta) {
+							if(value <= 5)
+								return "Seed";
+							if(value<=15)
+								return "Bud";
+							return "Requires Splitting";
 						}
 					},
 					{

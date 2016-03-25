@@ -519,7 +519,7 @@ DROP VIEW IF EXISTS `userbudsmembershipallstatusview`;
 CREATE
 VIEW `userbudsmembershipallstatusview` as 
 	select 
-		u.id, ub.id as ubid, ubm.* 
+		u.id, ub.id as ubid, ubm.*, (select count(*) from userbudsmembership ubm1 where ubm1.userbudid = ubm.userbudid and ubm1.status = 2) as membershipcount
 	from 
 		users u cross join 
 		userbudsview ub left join
@@ -532,7 +532,7 @@ DROP VIEW IF EXISTS `userbudsmembershipstatusview`;
 CREATE 
 VIEW `userbudsmembershipstatusview` AS
     select 
-        ub.*, COALESCE(ubmsv.status,0) as status, ubmsv.id as membershipuserid
+        ub.*, COALESCE(ubmsv.status,0) as status, ubmsv.id as membershipuserid, ubmsv.membershipcount
     from
 		userbudsview ub left join
 		userbudsmembershipallstatusview ubmsv on ubmsv.ubid = ub.id;
