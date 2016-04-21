@@ -409,8 +409,13 @@ Ext.define('Ext.ux.MapPanel', {
 			
 			this.add(keyContainer);
 		}
-		
-		this.addDocked({
+		var dockedItems = [{
+			xtype: 'pagingtoolbar',
+			store: this.mapStore,
+			dock: 'bottom',
+			displayInfo: true
+		}];
+		dockedItems.push({
 			xtype: 'toolbar',
 			dock: 'top',
 			items: [
@@ -441,6 +446,7 @@ Ext.define('Ext.ux.MapPanel', {
 				}
 			]
 		});
+		this.addDocked(dockedItems);
 	},
 	afterRender: function(){
 		this.callParent();
