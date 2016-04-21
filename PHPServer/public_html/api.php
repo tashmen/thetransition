@@ -116,7 +116,7 @@ class BaseObjectHandler {
             $controller->Process($resource, $action);
         }
         //Check if this is a nationbuilder webhook:
-        else if($resource == "users" && (action == "personupdate" || action == "personcreation"))
+        else if($resource == "users" && ($action == "personupdate" || $action == "personcreation"))
         {
             $json = file_get_contents('php://input');
             $data = json_decode($json, true);
