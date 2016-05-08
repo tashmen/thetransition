@@ -5,6 +5,17 @@
  */
 
 class skills extends TableObject {
+    
+    /*
+      Retrieves whether or not the table has an auto-increment id.  These id's need to be handled and returned back to the user as they are generated so that update works properly.
+      Note: We assume that if this is true then the column name is 'id'
+      @return true if the table has this field otherwise false
+     */
+
+    protected function HasAutoIncrementId() {
+        return true;
+    }
+    
     /*
       Retrieves the primary table for the object
       @return - the primary table as a string
@@ -28,7 +39,7 @@ class skills extends TableObject {
      * @return an array of allowed functions
      */
     public function GetSecurity(){
-        return array('read');
+        return array('read', 'create');
     }
 
     /*

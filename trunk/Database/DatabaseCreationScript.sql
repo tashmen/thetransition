@@ -361,6 +361,7 @@ CREATE TABLE `userskills` (
     `userid` int(11) NOT NULL COMMENT 'foreign key to user/signup id in nationbuilder',
     `skillid` int(11) NOT NULL COMMENT 'foreign key to skills table',
     `userrating` double DEFAULT '0' COMMENT 'user chosen rating',
+	`description` varchar(4000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Description of the user''s skill',
     PRIMARY KEY (`userid` , `skillid`),
     KEY `skillid` (`skillid`)
 )  ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE = utf8_unicode_ci COMMENT='holds user-skill associations';
@@ -379,6 +380,7 @@ VIEW `userskillsview` AS
         `userskills`.`userid` AS `userid`,
         `userskills`.`skillid` AS `skillid`,
         `userskills`.`userrating` AS `userrating`,
+		`userskills`.`description` AS `description`,
         `users`.`fullname` AS `fullname`,
         `skills`.`name` AS `name`
     from
