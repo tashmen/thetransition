@@ -130,8 +130,10 @@ Ext.define('Ext.ux.FormGrid',{
 						},
 						items: grid.GetFormItems(record)
 					});
+					formPanel.grid = grid;
 					formPanel.render(row);
 					formPanel.loadRecord(record);
+					
 					
 					if(this.grid.formReadOnly)
 					{
@@ -212,18 +214,34 @@ Ext.define('Ext.ux.FormGrid',{
 		}
 		if(this.allowSave)
 		{
+			this.saveHandler = function(successCallback) {
+				var grid = this.findParentByType('grid');
+				if(typeof(grid) == 'undefined')
+					grid = this;
+				var store = grid.getStore();
+				grid.allFormsValid = true;
+				grid.plugins[0].expandAll(false);
+				if(grid.allFormsValid)
+				{
+					if(typeof(successCallback) == 'function')
+					{
+						if(store.getNewRecords().length == 0)
+							successCallback();
+						else
+						{
+							var options = { success: successCallback };
+							store.sync(options);
+						}
+					}
+					else store.sync();
+				}
+			}
 			toolbarItems.push({
 				xtype: 'button',
 				itemId: 'save',
 				text: 'Save',
 				iconCls: 'save-icon',
-				handler: function() {
-					var grid = this.findParentByType('grid');
-					grid.allFormsValid = true;
-					grid.plugins[0].expandAll(false);
-					if(grid.allFormsValid)
-						grid.getStore().sync();
-				}
+				handler: this.saveHandler
 			});
 		}
 		
@@ -734,10 +752,20 @@ Ext.ux.RatingColumn = Ext.extend(Ext.grid.ActionColumn, {
 	onHostGridRender: function(g) {
 		g.el.on({
 			mousemove: function(e) {
-				g.getPlugins()[1].processEvent('mousemove', null, null, null, null, e);
+				var plugins = g.getPlugins();
+				for(var i = 0 ; i<plugins.length; i++)
+				{
+					if(typeof(plugins[i].processEvent) == 'function')
+						g.getPlugins()[i].processEvent('mousemove', null, null, null, null, e);
+				}
 			},
 			mouseout: function(e) {
-				g.getPlugins()[1].processEvent('mouseout', null, null, null, null, e);
+				var plugins = g.getPlugins();
+				for(var i = 0 ; i<plugins.length; i++)
+				{
+					if(typeof(plugins[i].processEvent) == 'function')
+						g.getPlugins()[i].processEvent('mouseout', null, null, null, null, e);
+				}
 			}
 		})
 	},
