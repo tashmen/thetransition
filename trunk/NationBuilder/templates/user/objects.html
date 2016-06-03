@@ -1,5 +1,6 @@
 {% include "thetransitionglobaluser" %}
 {% include "thetransitionextheader" %}
+{% include "thetransitiongooglemapheader" %}
 <script type="text/javascript">
     Ext.onReady(function() {
 		Ext.QuickTips.init();
@@ -52,6 +53,15 @@
 				},
 				{
 					name: 'categoryname'
+				},
+				{
+					name: 'location'
+				},
+				{
+					name: 'latitude'
+				},
+				{
+					name: 'longitude'
 				}
 			],
 			proxy: 
@@ -164,6 +174,12 @@
 									name: 'description',
 									allowBlank: false,
 									maxLength: '4000'
+								},
+								{
+									xtype: 'locationfield',
+									fieldLabel: 'Location',
+									name: 'location',
+									maxLength: '2000'
 								},
 								{
 									xtype: 'filefield',
@@ -280,6 +296,29 @@
 			pageSize: 20
 		});
 		
+		var otherObjectsMapStore = Ext.create('Ext.data.Store', {
+			storeId:'otherObjectsMapStore',
+			model: 'UserObjects',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [
+				{
+					property: "userid",
+					value: Transition.user.id,
+					operator: "ne"
+				},
+				{
+					property: "latitude",
+					operator: "notnull"
+				},
+				{
+					property: "longitude",
+					operator: "notnull"
+				}
+			],
+			pageSize: 500
+		});
+		
 		objectCategoryStore.load(function (records, operation, success){
 			if(success)
 			{
@@ -292,6 +331,15 @@
 				});
 			}
 		});
+		
+		otherObjectsMapStore.load(function (records, operation, success){
+			if(success)
+			{
+				BuildGoogleMap();
+			}
+		});
+		
+		
 		
 		var rowExpander = Ext.create('Ext.ux.RowExpander', {
 			rowBodyTpl: '<div id="rowExpander-row-{id}"></div>',
@@ -504,7 +552,34 @@
 			plugins: [rowExpander2, 'gridfilters']
 		});
 		
+		function BuildOtherFormItems(record){
+			return Ext.create(Ext.form.Panel,{
+				items: GetFormItems(record)
+			});
+		}
 		
+		function BuildGoogleMap(){
+			var filters = [
+				{
+					text: 'Distance',
+					emptyText: 'Enter distance in miles.',
+					dataIndex: 'distance',
+					operator: '<=',
+					type: 'number'
+				}
+			]
+			
+			var mapPanel = Ext.create('Ext.ux.MapPanel',{
+				title: 'Other Member\'s Objects',
+				renderTo: 'map_panel',
+				height: 550,
+				mapStore: otherObjectsMapStore,
+				filterMenuConfig: {
+					filters: filters
+				},
+				getMapStoreForm: BuildOtherFormItems
+			});
+		}
 		
 	});
 </script>
@@ -527,6 +602,9 @@
 	<br>
 	<br>
 	<div id = "otherobjects"></div>
+	<br>
+	<br>
+	<div id = "map_panel"></div>
 	
 	{% if page.tags_count > 0 %}
   <div class="page-tags">

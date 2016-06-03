@@ -248,6 +248,9 @@ CREATE TABLE `userobjects` (
     `image` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'image name',
     `permanenceid` int(11) DEFAULT NULL COMMENT 'foregin key to objectpermanence',
     `categoryid` int(11) DEFAULT NULL COMMENT 'foreign key to objectcategory',
+	`latitude` double DEFAULT NULL COMMENT 'latitude of the Object',
+	`longitude` double DEFAULT NULL COMMENT 'longitude of the Object',
+	`location` varchar(4000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'location of the Object',
     PRIMARY KEY (`id`),
     KEY `userid` (`userid`)
 )  ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE = utf8_unicode_ci COMMENT='holds objects for users' AUTO_INCREMENT=19;
@@ -274,6 +277,9 @@ VIEW `userobjectsview` AS
         `uo`.`image` AS `image`,
         `uo`.`permanenceid` AS `permanenceid`,
         `uo`.`categoryid` AS `categoryid`,
+		`uo`.`latitude` AS `latitude`,
+		`uo`.`longitude` AS `longitude`,
+		`uo`.`location` AS `location`,
         `oc`.`name` AS `categoryname`,
         `op`.`name` AS `permanencename`,
         `u`.`fullname` AS `fullname`
@@ -462,6 +468,7 @@ inner join users u on u.id = ups.userid;
 -- Table structure for table `userbuds`
 --
 
+DROP TABLE IF EXISTS `userbuds`;
 CREATE TABLE `userbuds` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `userid` int(11) NOT NULL COMMENT 'User who created the Bud',
