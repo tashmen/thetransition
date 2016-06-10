@@ -28,6 +28,9 @@
 			},
 			{
 				name: 'planphasename'
+			},
+			{
+				name: 'stepsremaining'
 			}
 		],
 		proxy: 
@@ -95,7 +98,7 @@
 					dataIndex:'completed', 
 					hideable: false,
 					sortable: false,
-					width: .2,
+					width: .1,
 					listeners: {
 						'checkchange': function(column, rowIndex, value, options){
 							var grid = this.findParentByType('grid');
@@ -132,6 +135,13 @@
 						type: 'string'
 					},
 					width: .4
+				},
+				{
+					text: 'Steps Remaining',
+					dataIndex: 'stepsremaining',
+					hideable: false,
+					sortable: true,
+					width: .1
 				}
 			],
 			width: 'auto',

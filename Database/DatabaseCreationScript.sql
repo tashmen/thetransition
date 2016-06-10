@@ -455,7 +455,7 @@ VIEW `userspacesview` AS
 --
 DROP VIEW IF EXISTS	`userphasestepsview`;
 CREATE VIEW `userphasestepsview` AS
-SELECT ups.*, pp.name as planphasename, ps.name as phasestepname, ps.number as phasestepnumber, u.fullname, ps.planphaseid, ps.pointpersontask, u.pointpersonid 
+SELECT ups.*, pp.name as planphasename, ps.name as phasestepname, ps.number as phasestepnumber, u.fullname, ps.planphaseid, ps.pointpersontask, u.pointpersonid, (select count(*) from userphasesteps inner join phasesteps on userphasesteps.phasestepid = phasesteps.id where completed=0 and userid = u.id and phasesteps.planphaseid = pp.id) as stepsremaining
 FROM  userphasesteps ups 
 inner join phasesteps ps on ps.id = ups.phasestepid 
 inner join planphases pp on pp.id = ps.planphaseid
