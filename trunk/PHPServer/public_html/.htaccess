@@ -7,6 +7,11 @@ IndexIgnore *
 
 Header set Access-Control-Allow-Origin http://thetransition.nationbuilder.com
 
+#For allowing access on multiple protocols
+#SetEnvIf Origin "^http(s)?://(.+\.)?(thetransition\.nationbuilder\.com)$" origin_is=$0 
+#Header always set Access-Control-Allow-Origin %{origin_is}e env=origin_is
+#Header merge  Vary "Origin"
+
 # In case there is no PHP, deny access to php files (for safety)
 <IfModule !php5_module>
     <FilesMatch "\.(php|phtml)$">
