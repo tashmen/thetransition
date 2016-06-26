@@ -719,3 +719,19 @@ INSERT INTO `phasesteps` (`id`, `planphaseid`, `name`, `number`) VALUES
 (61, 2, 'I am aware of the available <a href="/spaces">spaces​</a>', 3),
 (62, 2, 'I am aware of the available <a href="/objects">objects​</a>', 4);
 
+
+
+--
+-- Table structure for table `usersuggestions`
+--
+
+DROP TABLE IF EXISTS `usersuggestions`;
+CREATE TABLE `usersuggestions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id of the suggestion',
+  `userid` int(11) NOT NULL COMMENT 'Id of the user who made the suggestion',
+  `name` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT 'name or title of the suggestion',
+  `description` varchar(4000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT 'description of the suggestion',
+  `slug` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT 'The slug of the page where the suggestion was made',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Stores page level user created suggestions.' AUTO_INCREMENT=1 ;
+
