@@ -1,0 +1,119 @@
+<script type="text/javascript">
+    Ext.onReady(function() {
+		Ext.QuickTips.init();
+		
+		Ext.define('UserSuggestions', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id'
+				},
+				{
+					name: 'userid',
+					defaultValue: Transition.user.id
+				}, 
+				{
+					name: 'name'
+				},
+				{
+					name: 'description'
+				},
+				{
+					name: 'slug',
+					defaultValue: '{{ page.slug }}'
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'usersuggestions'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'usersuggestions'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		function GetFormItems(record)
+		{
+			return [
+				{
+					xtype: 'fieldset',
+					collapsible: false,
+					border: false,
+					margin: '5',
+					defaults: {
+						labelAlign: 'top',
+						width: '100%'
+					},
+					items:[
+						{
+							xtype: 'textfield',
+							fieldLabel: 'Title',
+							name: 'name',
+							allowBlank: false,
+							maxLength: '1000'
+						},
+						{
+							xtype: 'textarea',
+							fieldLabel: 'Description',
+							name: 'description',
+							allowBlank: false,
+							maxLength: '4000'
+						}
+					]
+				}
+			];
+		}
+		
+		var panel = Ext.create('Ext.form.Panel', {
+			title: 'Suggestion Box',
+			renderTo: 'suggestionbox',
+			tbar:[{
+				xtype: 'button',
+				itemId: 'save',
+				text: 'Save',
+				iconCls: 'save-icon',
+				formBind: true, //only enabled once the form is valid
+				disabled: true,
+				handler: function() {
+					var form = this.up('form').getForm();
+					if (form.isValid()) {
+						var record = form.getRecord();
+						form.updateRecord(record);
+						var options = {callback: function(records, operation, success){
+							if(success)
+							{
+								var form = operation.getInitialConfig().form
+								Ext.MessageBox.show({
+									title: 'Suggestion Saved Successfully',
+									msg: 'Thank you for the suggestion.',
+									buttons: Ext.MessageBox.OK,
+									icon: Ext.MessageBox.INFO
+								});
+								form.reset();
+								var suggestion = Ext.create('UserSuggestions', {});
+								form.loadRecord(suggestion);
+							}
+						}, form: form};
+						var operation = record.save(options);
+						
+						
+					}
+				}
+			}],
+			items: GetFormItems()
+		});
+		
+		var suggestion = Ext.create('UserSuggestions', {});
+		panel.loadRecord(suggestion);
+		
+	});
+	
+	
+	
+</script>
+
+<div id="suggestionbox"></div>
