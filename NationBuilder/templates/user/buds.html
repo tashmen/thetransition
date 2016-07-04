@@ -646,11 +646,12 @@
 			remoteSort: true,
 			remoteFilter: true,
 			filters: [
+			/*
 				{
 					property: "userid",
 					value: Transition.user.id,
 					operator: "ne"
-				},
+				},*/
 				{
 					property: "membershipuserid",
 					value: Transition.user.id,
@@ -885,7 +886,7 @@
 			]
 			
 			var mapPanel = Ext.create('Ext.ux.MapPanel',{
-				title: 'Other Member\'s BUDs',
+				title: 'BUDs',
 				renderTo: 'map_panel',
 				height: 550,
 				mapStore: otherBudsMapStore,
