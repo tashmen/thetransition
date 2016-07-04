@@ -34,7 +34,7 @@
 <ul class="supporter-nav block">
 
   {% for child in site.supporter_pages %}
-  <li {% if page == child %}class="on"{% endif %}><a href="{{ child.url }}">{{ child.icon | icon }} {{ child.name }}</a></li>
+  <li {% if page == child %}class="on"{% endif %}><a href="{{ child.url }}" {% if child.type_name == "Redirect" %}target="_blank"{% endif %}>{{ child.icon | icon }} {{ child.name }}</a></li>
   {% endfor %}
 
   {% if page_type == 'User Page' %}

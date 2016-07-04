@@ -41,7 +41,7 @@
           <div class="row-fluid">
             <div class="span12">
               <div class="tag-page">
-                <strong>How would you tag this suggestion?</strong>
+                <strong>How would you tag this{% if page.parent.slug != "classifieds" %} suggestion{% endif %}?</strong>
                 {% include "suggestion_tag_list" %}
               </div>
             </div>

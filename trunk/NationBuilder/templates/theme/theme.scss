@@ -219,7 +219,7 @@ h6 {
 
 a {
   color: $link-color;
-  text-decoration: none;
+  //text-decoration: none;
   outline: none;
   &:hover {
     color: $link-hover-color;
@@ -2287,4 +2287,9 @@ ul.homepage_excerpt-list {
 
 .embedly-embed{
   max-width: 100% !important;
+}
+
+//New
+.button{
+  text-decoration: none;
 }

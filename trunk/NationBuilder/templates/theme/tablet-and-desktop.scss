@@ -364,6 +364,7 @@ nav, .subnav {
       height: 100%;
       padding: 0 15px;
       white-space: nowrap;
+      text-decoration: none;//new
     }
   }
   /* controls bg color of top when hovering on sub */
@@ -640,6 +641,7 @@ nav {
     a {
       display: block;
       color: $dropdown-color;
+      text-decoration: none;//new
     }
   }
 }
@@ -1169,6 +1171,7 @@ ul.homepage_excerpt-list {
         }
         a {
           padding: 0.675em 1em;
+          text-decoration: none;//new
         }
         &.mobile-visible {
           display: block;
