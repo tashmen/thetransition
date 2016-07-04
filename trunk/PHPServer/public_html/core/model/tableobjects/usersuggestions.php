@@ -13,6 +13,15 @@ class usersuggestions extends TableObject {
     public function GetPrimaryTable() {
         return "usersuggestions";
     }
+    
+    /*
+      Retrieves the view name for the object
+      @return - the view of the object
+     */
+
+    protected function GetPrimaryTableView() {
+        return $this->GetPrimaryTable() . 'view';
+    }
 
     /*
       Retrieves the default sort column name

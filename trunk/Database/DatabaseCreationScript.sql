@@ -735,3 +735,13 @@ CREATE TABLE `usersuggestions` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Stores page level user created suggestions.' AUTO_INCREMENT=1 ;
 
+--
+-- Structure for view `usersuggestionsview`
+--
+Drop view if exists usersuggestionsview;
+CREATE VIEW usersuggestionsview AS SELECT us.* , u.fullname
+FROM 
+ usersuggestions us 
+inner JOIN users u ON 
+ u.id = us.userid; 
+
