@@ -18,6 +18,9 @@ class Settings {
     public static $nb_baseApiUrl = '';
     public static $nb_secretToken = '';
     
+    //This is the nation slug that nationbuilder will send to us when making a user request.
+    public static $nb_nationslug = '';
+    
     //Is this server a test server or production server? false = test true = production
     public static $isProdServer = false;
     //If isProdServer if false then specify the location of your server for executing tests

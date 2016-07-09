@@ -39,5 +39,25 @@ class userreviews extends TableObject {
     public function GetSecurity(){
         return array('read', 'create', 'update', 'delete');
     }
+    
+    /*
+     * The list of events this object listens for
+     * @return - An array of events to listen for
+     */
+    public function GetEventListeners()
+    {
+        return array(EventMessenger::$OnDeleteUser);
+    }
+    
+    /*
+     * Deletes suggestions for the deleted user
+     * @param $parameters - Array of parameters
+     *  First parameter is the id of the user
+     */
+    public function OnDeleteUser($parameters)
+    {
+        $this->GetConnection()->execute("Delete from " . $this->GetPrimaryTable(). " where reviewerid = ?", $parameters, false);
+        $this->GetConnection()->execute("Delete from " . $this->GetPrimaryTable(). " where revieweeid = ?", $parameters, false);
+    }
 }
 ?>
