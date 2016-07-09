@@ -116,17 +116,22 @@ class BaseObjectHandler {
             $controller->Process($resource, $action);
         }
         //Check if this is a nationbuilder webhook:
-        else if($resource == "users" && ($action == "personupdate" || $action == "personcreation"))
+        else if($resource == "users" && ($action == "personupdate" || $action == "personcreation" || $action == "persondelete"))
         {
             $json = file_get_contents('php://input');
             $data = json_decode($json, true);
-            if ($data['nation_slug'] == 'thetransition') 
+            if ($data['nation_slug'] == Settings::$nb_nationslug) 
             {
                 if($data['token'] == Settings::$nb_secretToken || Settings::$nb_secretToken == '')
                 {
                     $person = $data['payload']['person'];
                     $user = new users($this->con);
-                    $user->createupdate($person);
+                    if($action == "persondelete"){
+                        $user->DeleteUser($person['id']);
+                    }
+                    else{
+                        $user->createupdate($person);
+                    }
                 }
                 else 
                 {
@@ -169,14 +174,14 @@ class BaseObjectHandler {
             $nb->ClientSetup($code);
         }
 		
-		if(RequestData::GetRequestData('addwebhooks')==1)
-		{
-			$nb->AddWebHooks($this->con);
-		}
-		if(RequestData::GetRequestData('viewwebhooks')==1)
-		{
-			$nb->ViewWebHooks();
-		}
+        if(RequestData::GetRequestData('addwebhooks')==1)
+        {
+            $nb->AddWebHooks($this->con);
+        }
+        if(RequestData::GetRequestData('viewwebhooks')==1)
+        {
+            $nb->ViewWebHooks();
+        }
         
         if(RequestData::GetRequestData('pushMembership')== 1){
             $nb->PushMembership('18', 'Contributor', '10/19/2015');

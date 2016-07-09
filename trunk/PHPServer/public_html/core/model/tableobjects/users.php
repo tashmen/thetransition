@@ -176,5 +176,37 @@ class users extends TableObject {
             return $miles;
           }
     }
+    
+    /*
+     * Override delete function to add in Event Handling for OnDeleteUser
+     */
+    public function delete()
+    {
+        $records = $this->GetData();
+        foreach($records as $record)
+        {
+            $parameters = array();
+            $parameters[] = $record->id;
+            
+            $eventMessenger = new EventMessenger($this->GetConnection());
+            $eventMessenger->fireEvent(EventMessenger::$OnDeleteUser, $parameters);
+        }
+        
+        parent::delete();
+    }
+    
+    /*
+     * Function to delete a user from the system entirely
+     * This function is called when Nationbuilder sends us a person destroy message
+     */
+    public function DeleteUser($personid)
+    {
+        $parameters[] = $personid;
+        
+        $eventMessenger = new EventMessenger($this->GetConnection());
+        $eventMessenger->fireEvent(EventMessenger::$OnDeleteUser, $parameters);
+        
+        $this->GetConnection()->execute("Delete from " . $this->GetPrimaryTable(). " where id = ?", $parameters, false);
+    }
 }
 ?>

@@ -179,8 +179,6 @@ class NationBuilder {
             return;
         }
         $statement = '/api/v1/webhooks';
-        //$this->postDelete($statement . '/54334275dbf3ec30ac008223');
-
 
         $data = array(
             'webhook' => array(
@@ -201,8 +199,17 @@ class NationBuilder {
             )
         );
         $response = $this->postRequest($statement, $data);
-
-
+        print_r($response);
+        echo '<br/>';
+        
+        $data = array(
+            'webhook' => array(
+                'version' => 4,
+                'url' => Settings::$serverLocation . '?resource=users&action=persondelete',
+                'event' => 'person_destroyed'
+            )
+        );
+        $response = $this->postRequest($statement, $data);
         print_r($response);
         echo '<br/>';
 

@@ -49,6 +49,27 @@ class usersuggestions extends TableObject {
     protected function HasAutoIncrementId() {
         return true;
     }
+    
+    /*
+     * The list of events this object listens for
+     * @return - An array of events to listen for
+     */
+    public function GetEventListeners()
+    {
+        return array(EventMessenger::$OnDeleteUser);
+    }
+    
+    /*
+     * Deletes suggestions for the deleted user
+     * @param $parameters - Array of parameters
+     *  First parameter is the id of the user
+     */
+    public function OnDeleteUser($parameters)
+    {
+        Logger::LogError('Deleting User Suggestions', Logger::debug);
+        Logger::LogError(print_r($parameters,true), Logger::debug);
+        $this->GetConnection()->execute("Delete from " . $this->GetPrimaryTable(). " where userid = ?", $parameters, false);
+    }
 }
 ?>
 

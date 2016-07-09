@@ -54,4 +54,23 @@ class userbuds extends TableObject {
     protected function HasAutoIncrementId() {
         return true;
     }
+    
+    /*
+     * The list of events this object listens for
+     * @return - An array of events to listen for
+     */
+    public function GetEventListeners()
+    {
+        return array(EventMessenger::$OnDeleteUser);
+    }
+    
+    /*
+     * Deletes suggestions for the deleted user
+     * @param $parameters - Array of parameters
+     *  First parameter is the id of the user
+     */
+    public function OnDeleteUser($parameters)
+    {
+        $this->GetConnection()->execute("Update " . $this->GetPrimaryTable(). " set userid = 1 where userid = ?", $parameters, false);
+    }
 }

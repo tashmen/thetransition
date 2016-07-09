@@ -517,4 +517,14 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         
         return $sql;
     }
+    
+    /*
+     * Function for returning a list of events that a table object is listening for
+     * Subclasses should override the function if they want to listen for specific events.  A function with the same name as the event must be implemented.
+     * @return - An array of events to listen for
+     */
+    public function GetEventListeners()
+    {
+        return array();
+    }
 }

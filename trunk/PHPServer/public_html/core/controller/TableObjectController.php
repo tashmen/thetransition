@@ -18,6 +18,11 @@ class TableObjectController extends AbstractController{
         $this->MapActions();
     }
     
+    public function GetResourceToObjectMap()
+    {
+        return $this->resourceToObjectMap;
+    }
+    
     /*
      * Adds the mapping for the actions available in this controller
      */
