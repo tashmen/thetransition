@@ -59,6 +59,7 @@ class TableObjectController extends AbstractController{
         $this->resourceToObjectMap['userbudsmembership'] = 'userbudsmembership';
         $this->resourceToObjectMap['userlocations'] = 'userlocations';
         $this->resourceToObjectMap['userobjects'] = 'userobjects';
+        $this->resourceToObjectMap['userorgsignup'] = 'userorgsignup';
         $this->resourceToObjectMap['userphasesteps'] = 'userphasesteps';
         $this->resourceToObjectMap['userreviews'] = 'userreviews';
         $this->resourceToObjectMap['users'] = 'users';

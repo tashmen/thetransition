@@ -1,0 +1,187 @@
+<script type="text/javascript">
+    Ext.onReady(function() {
+		Ext.QuickTips.init();
+		
+		Ext.define('UserOrgSignup', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'userid',
+					defaultValue: Transition.user.id
+				}, 
+				{
+					name: 'name'
+				},
+				{
+					name: 'type'
+				}, 
+				{
+					name: 'membercount'
+				},
+				{ 
+					name: 'websitelink',
+				},
+				{ 
+					name: 'facebooklink',
+				},
+				{ 
+					name: 'additionalinfo',
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'userorgsignup'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'userorgsignup'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		
+		
+		function GetFormItems(record)
+		{
+			return [
+				{
+					xtype: 'fieldset',
+					collapsible: false,
+					border: false,
+					margin: '5',
+					columnWidth: 0.8,
+					defaults: {
+						labelAlign: 'top',
+						width: '100%',
+						labelSeparator: ''
+					},
+					items:[
+						{
+							xtype: 'textfield',
+							fieldLabel: 'What is the name of your organization?',
+							name: 'name',
+							allowBlank: false,
+							maxLength: '500'
+						},
+						{
+							xtype: 'textfield',
+							fieldLabel: 'What kind of Organization do you have?',
+							name: 'type',
+							allowBlank: false,
+							maxLength: '500'
+						},
+						{
+							xtype: 'numberfield',
+							fieldLabel: 'How many members do you have?',
+							name: 'membercount',
+							allowBlank: false
+						},
+						{
+							xtype: 'textfield',
+							fieldLabel: 'Do you have a website?  Please provide the link.',
+							name: 'websitelink',
+							maxLength: '500'
+						},
+						{
+							xtype: 'textfield',
+							fieldLabel: 'Do you have a Facebook page?  Please provide the link.',
+							name: 'facebooklink',
+							maxLength: '500'
+						},
+						{
+							xtype: 'textarea',
+							fieldLabel: 'Feel free to share any additional information.',
+							name: 'additionalinfo',
+							maxLength: '4000'
+						}
+					]
+				}
+			];
+		}
+		
+		var panel = Ext.create('Ext.form.Panel', {
+			title: 'Organization Signup',
+			renderTo: 'ext',
+			width: '95%',
+			tbar:[{
+				xtype: 'button',
+				itemId: 'save',
+				text: 'Save',
+				iconCls: 'save-icon',
+				formBind: true, //only enabled once the form is valid
+				disabled: true,
+				handler: function() {
+					var form = this.up('form').getForm();
+					if (form.isValid()) {
+						var record = form.getRecord();
+						form.updateRecord(record);
+						var options = {callback: function(records, operation, success){
+							if(success)
+							{
+								var form = operation.getInitialConfig().form
+								Ext.MessageBox.show({
+									title: 'Organization Saved Successfully',
+									msg: 'Thank you for the submitting your organization.  We will review the information and get back to you.',
+									buttons: Ext.MessageBox.OK,
+									icon: Ext.MessageBox.INFO
+								});
+								form.reset();
+								var suggestion = Ext.create('UserOrgSignup', {});
+								form.loadRecord(suggestion);
+							}
+						}, form: form};
+						var operation = record.save(options);
+						
+						
+					}
+				}
+			}],
+			items: GetFormItems()
+		});
+		
+		var suggestion = Ext.create('UserOrgSignup', {});
+		panel.loadRecord(suggestion);
+	});
+	
+</script>
+
+{% include "breadcrumbs" %}
+
+{% if page.headline.size > 0 %}
+<h2 class="headline">{{ page.headline }}</h2>
+{% endif %}
+
+<div id="content">
+  <div id="intro" class="intro">
+    <div class="text-content">
+      {{ page.basic.content }}
+    </div>
+  </div>
+  <div id="ext"></div>
+  <br>
+  <br>
+
+  {% if page.tags_count > 0 %}
+  <div class="page-tags">
+    {% include "page_tags" with page %}
+  </div>
+  {% endif %}
+
+  {% if page.is_homepage? == true and site.page_tags contains "homepage" %}
+    {% tag "homepage" with "homepage_widget" %}
+  {% endif %}
+
+  <div class="like-page">
+    <strong>Do you like this page?</strong>
+    {% include "like_page" %}
+  </div>
+
+  {% if page.show_stream? %}
+  {% include "page_stream" %}
+  {% endif %}
+
+</div>
+
+{% include "donateLink" with "pay_what_you_want" %} 

@@ -744,4 +744,20 @@ FROM
  usersuggestions us 
 inner JOIN users u ON 
  u.id = us.userid; 
+ 
+ 
+ --
+-- Table structure for table `userorgsignup`
+--
+
+CREATE TABLE IF NOT EXISTS `userorgsignup` (
+  `id` int(11) NOT NULL COMMENT 'id of the the signup',
+  `userid` int(11) NOT NULL COMMENT 'userid of the user who is signing up',
+  `type` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'type of organization',
+  `membercount` int(11) NOT NULL COMMENT 'number of members',
+  `websitelink` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'link to the website',
+  `facebooklink` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'link to the facebook page',
+  `additionalinfo` varchar(4000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Additional information about the organization',
+  `name` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'name of the organization'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Stores organizations signup information';
 
