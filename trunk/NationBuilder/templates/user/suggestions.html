@@ -83,6 +83,15 @@
 					convert: function (v, record) {
 						return '<a href="/'+record.data.slug+'">'+record.data.slug + '</a>';
 					}
+				},
+				{
+					name: 'officialresponse'
+				},
+				{
+					name: 'lastupdated'
+				},
+				{
+					name: 'creationdt'
 				}
 			],
 			proxy: 
@@ -123,7 +132,16 @@
 							fieldLabel: 'Description',
 							name: 'description',
 							allowBlank: false,
-							maxLength: '4000'
+							maxLength: '4000',
+							grow: true
+						},
+						{
+							xtype: 'textarea',
+							fieldLabel: 'Official Response',
+							name: 'officialresponse',
+							allowBlank: true,
+							maxLength: '4000',
+							grow: true
 						}
 					]
 				}
@@ -134,8 +152,8 @@
 			storeId: 'suggestionsStore',
 			model: 'UserSuggestions',
 			sorters: [{
-				 property: 'name',
-				 direction: 'ASC'
+				 property: 'creationdt',
+				 direction: 'DESC'
 			}],
 			pageSize: 25
 		});
@@ -186,6 +204,17 @@
 						filter: {
 							type: 'string'
 						}
+					},
+					{
+						text: 'Submission Date',
+						dataIndex: 'creationdt',
+						xtype: 'datecolumn',   
+						format:'m-d-Y',
+						hideable: false,
+						sortable: true,
+						filter:{
+							type: 'date'
+						}
 					}
 				],
 				width: 'auto',
@@ -197,7 +226,7 @@
 			suggestionsStore.load(function (records, operation, success){
 				if(success)
 				{
-					grid.updateLayout();
+					otherGrid.updateLayout();
 				}
 			});
 		}
