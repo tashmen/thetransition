@@ -51,9 +51,12 @@
 
 
           <div class="form-errors">{% error_messages_for comment %}</div>
-          {% if page.parent.slug != 'classifieds' %}
+          {% if page.parent.slug == 'classifieds' %}
+          {% text_area "content", class:"textarea autogrow hidden", placeholder:"Add comment (optional)" %}
+          {% else %}
           {% text_area "content", class:"textarea autogrow", placeholder:"Add comment (optional)" %}
           {% endif %}
+
           {% if request.logged_in? %}
           {% submit_tag "Post your reaction", class:"submit-button" %}
           {% else %}

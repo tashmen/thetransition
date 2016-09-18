@@ -55,6 +55,9 @@ $(document).ready(function(){
     }
 
     this.updateActivities = function(activities) {
+      if ($('body').hasClass('page-type-donation')) {
+        return;  // don't add top offset
+      }
       activities.each(function(){
         var iconHeight = $(this).find('.stream-pic').height();
         var signupBlock = $(this).find('.activity-signup');

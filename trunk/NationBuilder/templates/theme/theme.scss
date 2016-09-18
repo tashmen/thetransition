@@ -1079,7 +1079,7 @@ footer {
       }
       &:before {
         content: "";
-        position: absolute;
+        //position: absolute; removing to fix issue with this taking up space to the left of the page
         top: 0;
         bottom: 0;
         left: -9999px;
@@ -2292,4 +2292,14 @@ ul.homepage_excerpt-list {
 //New
 .button{
   text-decoration: none;
+}
+
+p {
+  img {
+    padding: 5px
+  }
+}
+
+.hidden{
+  display: none;
 }

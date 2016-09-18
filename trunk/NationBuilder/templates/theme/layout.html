@@ -73,6 +73,9 @@
       <div id="body" class="page-{{ request.template | replace: '_', '-' }}">
 
         <div class="header-container clearfix {% if site.has_background_image? %}no-background{% endif %}">
+          <div style="text-align:center" class="hidden">
+        The Transition Team will be away at the Twin Oaks Communities Conference from Aug. 30-Sept 14th and will be unable to reply to any inquiries until Sept 16th at the earliest. We appreciate your patience.
+        </div>
           <div class="width-container clearfix">
 
             {% include "nav" %}
@@ -168,6 +171,10 @@
               {% if site.footer_content.size > 0 %}
               <div class="footer-text">{{ site.footer_content }}</div>
               {% endif %}
+              
+              <div style="text-align:center">
+                <a href="/disclosure_policy" >Disclosure Policy</a>
+              </div>
 
               <div class="row-fluid">
 
