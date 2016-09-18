@@ -47,9 +47,27 @@ class phasesteps extends TableObject{
      */
     public function ContainsPointPersonTask($ids)
     {
-        $sql = "Select count(*) from phasesteps where id in (?) and pointpersontask = true";
-        $parameters[] = $ids;
-        return $this->GetConnection()->rowCount($sql, $parameters) > 0;
+        $param = "";
+        $arrayIds = explode(',', $ids);
+        $parameters = array();
+        foreach($arrayIds as $id)
+        {
+            if($param == "")
+            {
+                $param = "?";
+            }
+            else 
+            {
+                $param = $param . ",?";
+            }
+            $parameters[] = $id;
+        }
+        $sql =  "Select count(*) from phasesteps where id in (" . $param . ") and pointpersontask = true";
+        Logger::LogError($sql, Logger::debug);
+        Logger::LogError(print_r($parameters, true), Logger::debug);
+        $count = $this->GetConnection()->rowCount($sql, $parameters);
+        Logger::LogError($count, Logger::debug);
+        return $count > 0;
     }
     
     /*
