@@ -729,11 +729,14 @@ DROP TABLE IF EXISTS `usersuggestions`;
 CREATE TABLE `usersuggestions` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id of the suggestion',
   `userid` int(11) NOT NULL COMMENT 'Id of the user who made the suggestion',
-  `name` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT 'name or title of the suggestion',
-  `description` varchar(4000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT 'description of the suggestion',
-  `slug` varchar(1000) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT 'The slug of the page where the suggestion was made',
+  `name` varchar(1000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'name or title of the suggestion',
+  `description` varchar(4000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'description of the suggestion',
+  `slug` varchar(1000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'The slug of the page where the suggestion was made',
+  `lastupdated` datetime NOT NULL COMMENT 'Date record was last updated',
+  `officialresponse` varchar(4000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'The official response given for the suggestion',
+  `creationdt` datetime NOT NULL COMMENT 'Date the comment was created',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Stores page level user created suggestions.' AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Stores page level user created suggestions.' AUTO_INCREMENT=3 ;
 
 --
 -- Structure for view `usersuggestionsview`

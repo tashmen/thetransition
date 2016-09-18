@@ -176,9 +176,13 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
       Function to allow us to set values for special fields like creation dates.
      */
 
-    protected function SetValueForCreateUpdate($record, $columnName) {
+    protected function SetValueForCreateUpdate($record, $columnName, $actionType) {
         $return = $record->$columnName;
         if ($columnName == 'lastupdated') {
+            $return = date('Y-m-d');
+        }
+        if($columnName == 'creationdt' && ($actionType == 'create' || ($actionType == 'update' && ($return = '' || $return == '0000-00-00 00:00:00'))))
+        {
             $return = date('Y-m-d');
         }
         return $return;
@@ -212,7 +216,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
             $parameters = array();
             foreach ($columns->GetNames() as $column) {
                 Security::ValidateColumn($column, $record->$column, $this->GetConnection());
-                $parameters[] = $this->SetValueForCreateUpdate($record, $column);
+                $parameters[] = $this->SetValueForCreateUpdate($record, $column, 'create');
             }
             $this->connection->execute($statement, $parameters, false);
             if ($this->HasAutoIncrementId()) {
@@ -261,7 +265,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
                 if (!$column->IsKey()) {//All set columns must come before all key columns
                     $columnName = $column->GetName();
                     Security::ValidateColumn($columnName, $record->$columnName, $this->GetConnection());
-                    $parameters[] = $this->SetValueForCreateUpdate($record, $columnName);
+                    $parameters[] = $this->SetValueForCreateUpdate($record, $columnName, 'update');
                 }
             }
             foreach ($columns->GetKeys() as $key) {

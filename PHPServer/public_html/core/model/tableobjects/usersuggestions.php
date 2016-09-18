@@ -29,7 +29,7 @@ class usersuggestions extends TableObject {
      */
 
     protected function GetDefaultSortColumn() {
-        return 'name';
+        return 'creationdt';
     }
 
     /*

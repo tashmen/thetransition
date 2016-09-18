@@ -2,7 +2,7 @@
     Ext.onReady(function() {
 		Ext.QuickTips.init();
 		
-		Ext.define('UserSuggestions', {
+		Ext.define('UserSuggestions1', {
 			extend: 'Ext.data.Model',
 			fields: [
 				{
@@ -35,6 +35,7 @@
 				type: 'customphp'
 			}
 		});
+		
 		
 		function GetFormItems(record)
 		{
@@ -94,7 +95,7 @@
 									icon: Ext.MessageBox.INFO
 								});
 								form.reset();
-								var suggestion = Ext.create('UserSuggestions', {});
+								var suggestion = Ext.create('UserSuggestions1', {});
 								form.loadRecord(suggestion);
 							}
 						}, form: form};
@@ -107,7 +108,7 @@
 			items: GetFormItems()
 		});
 		
-		var suggestion = Ext.create('UserSuggestions', {});
+		var suggestion = Ext.create('UserSuggestions1', {});
 		panel.loadRecord(suggestion);
 		
 	});
