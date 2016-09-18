@@ -181,7 +181,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         if ($columnName == 'lastupdated') {
             $return = date('Y-m-d');
         }
-        if($columnName == 'creationdt' && ($actionType == 'create' || ($actionType == 'update' && ($return = '' || $return == '0000-00-00 00:00:00'))))
+        if($columnName == 'creationdt' && $actionType == 'create')
         {
             $return = date('Y-m-d');
         }
