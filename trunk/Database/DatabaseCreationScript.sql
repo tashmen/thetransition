@@ -297,12 +297,14 @@ VIEW `userobjectsview` AS
 --
 
 DROP TABLE IF EXISTS `userphasesteps`;
-CREATE TABLE `userphasesteps` (
-    `userid` int(11) NOT NULL COMMENT 'Foreign Key to users',
-    `phasestepid` int(11) NOT NULL COMMENT 'Foreign Key to phasesteps',
-    `completed` tinyint(1) NOT NULL COMMENT 'whether or not the step is complete',
-    PRIMARY KEY (`userid` , `phasestepid`)
-)  ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE = latin1_general_ci COMMENT='Stores the users step completion';
+CREATE TABLE IF NOT EXISTS `userphasesteps` (
+  `userid` int(11) NOT NULL COMMENT 'Foreign Key to users',
+  `phasestepid` int(11) NOT NULL COMMENT 'Foreign Key to phasesteps',
+  `completed` tinyint(1) NOT NULL COMMENT 'whether or not the step is complete',
+  `lastupdated` datetime NOT NULL COMMENT 'Date record was last updated',
+  `creationdt` datetime NOT NULL COMMENT 'Date record was created',
+  PRIMARY KEY (`userid`,`phasestepid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci COMMENT='Stores the users step completion';
 
 --
 -- Dumping data for table `userphasesteps`
