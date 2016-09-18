@@ -16,8 +16,9 @@
     {% if request.logged_in? %}
 
     {% include "supporter_nav" %}
+    <div class="block">
     {% include "suggestionbox" %}
-
+    </div>
     {% else %}
 
     <ul class="supporter-nav block">
@@ -50,7 +51,35 @@
     {% endif %}
 
     {% endif %}
-
+    
+		 
+		<div class="block">
+       <script>
+        (function() {
+          var cx = '001169584562688055681:o6qby0vt8ha';
+          var gcse = document.createElement('script');
+          gcse.type = 'text/javascript';
+          gcse.async = true;
+          gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+          var s = document.getElementsByTagName('script')[0];
+          s.parentNode.insertBefore(gcse, s);
+        })();
+      </script>
+      <style>
+        .gsc-search-box *{
+          box-sizing: content-box !important;
+          -moz-box-sizing: content-box !important;
+          -webkit-box-sizing: content-box !important;
+          line-height: 14px !important;
+          vertical-align: middle !important;
+          font-family: "MS Shell Dialog" !important;
+        }
+        .gsc-results-wrapper-overlay{
+          top: 15%;
+        }
+      </style>
+			<gcse:search></gcse:search>
+    </div>
   </div>
   <!-- .right-column -->
 </div> <!-- .twocolumn_container -->
