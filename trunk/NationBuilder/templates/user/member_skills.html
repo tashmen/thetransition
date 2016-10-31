@@ -129,17 +129,7 @@
 			pageSize: 20
 		});
 		
-		skillList.load(function (records, operation, success){
-			if(success)
-			{
-				skillStore.load(function(records,operation,success){
-					
-				});
-				otherSkillStore.load(function(records,operation,success){
-
-				});
-			}
-		});
+		skillList.load();
 		
 		function GetFormItems(record)
 		{

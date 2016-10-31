@@ -107,8 +107,139 @@
 			}
 		});
 		
+		Ext.define('UserSuggestionsComments', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id'
+				},
+				{
+					name: 'usersuggestionid',
+				}, 
+				{
+					name: 'userid',
+					defaultValue: Transition.user.id
+				},
+				{
+					name: 'comment'
+				},
+				{
+					name: 'fullname',
+					convert: function(v, record){
+						if(typeof(record)=='undefined')
+							return v;
+						return '<a href="/'+record.data.userid+'">'+record.data.fullname + '</a>';
+					},
+					defaultValue: Transition.user.fullname
+				},
+				{
+					name: 'creationdt'
+				},
+				{
+					name: 'lastupdated',
+					defaultValue: new Date().toJSON().slice(0,10)
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'usersuggestionscomments'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'usersuggestionscomments'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		function GetCommentFormItems(record)
+		{
+			var bReadOnly = record.get('userid') != Transition.user.id;
+			return [
+				{
+					xtype: 'fieldset',
+					collapsible: false,
+					border: false,
+					margin: '5',
+					defaults: {
+						labelAlign: 'top',
+						width: '100%'
+					},
+					items:[
+						{
+							xtype: 'textarea',
+							fieldLabel: 'Comment',
+							name: 'comment',
+							allowBlank: false,
+							maxLength: '4000',
+							grow: true,
+							readOnly: bReadOnly
+						}
+					]
+				}
+			];
+		}
+		
 		function GetFormItems(record)
 		{
+			var store = Ext.create('Ext.data.Store', {
+				model: 'UserSuggestionsComments',
+				remoteSort: true,
+				remoteFilter: true,
+				filters: [
+					{
+						property: "usersuggestionid",
+						value: record.get("id"),
+						operator: "eq"
+					}
+				],
+				sorters: [{
+					property: 'lastupdated',
+					direction: 'DESC'
+				}],
+				pageSize: 20
+			});
+			
+			var commentGrid = Ext.create('Ext.ux.FormGrid', {
+				xtype: 'formgrid',
+				title: 'Comments',
+				store: store,
+				allowAdd: true,
+				allowSave: true,
+				allowRemove: false,
+				parentKeyName: 'usersuggestionid',
+				parentKey: record.get('id'),
+				GetFormItems: GetCommentFormItems,
+				columns: [
+					{
+						text: 'Comment',
+						dataIndex: 'comment',
+						hideable: false,
+						sortable: false
+					},
+					{
+						text: 'Commenter',
+						dataIndex: 'fullname',
+						hideable: false,
+						sortable: false
+					},
+					{
+						text: 'Last Updated',
+						dataIndex: 'lastupdated',
+						xtype: 'datecolumn',   
+						format:'m-d-Y',
+						hideable: false,
+						sortable: true,
+						filter:{
+							type: 'date'
+						}
+					}
+				],
+				width: 'auto',
+				forceFit: true
+			});
+			
 			return [
 				{
 					xtype: 'fieldset',
@@ -143,6 +274,15 @@
 							maxLength: '4000',
 							grow: true
 						}
+					]
+				}
+				,{
+					xtype: 'container',
+					border: false,
+					layout: 'fit',
+					padding: '0 5 5 5',
+					items: [
+						commentGrid
 					]
 				}
 			];
@@ -221,13 +361,6 @@
 				forceFit: true,
 				renderTo: 'grid',
 				plugins: ['gridfilters']
-			});
-			
-			suggestionsStore.load(function (records, operation, success){
-				if(success)
-				{
-					otherGrid.updateLayout();
-				}
 			});
 		}
 		BuildGrid();

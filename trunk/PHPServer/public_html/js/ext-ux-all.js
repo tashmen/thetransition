@@ -57,6 +57,8 @@ Ext.define('Ext.ux.LocationField', {
 	},
 	listeners: {
 		blur: function(field, event, eOpts){
+			if(field.readOnly)
+				return;//User can't fix the error so don't worry about it...
 			var address = field.getValue();
 			if(address=='')
 				return;//Do not bother asking google if user hasn't provided any data.
@@ -115,14 +117,34 @@ Ext.define('Ext.ux.FormGrid',{
 	allowRemove: true,
 	allowExpandCollapseAll: true,
 	formReadOnly: false,
+	autoLoadInitial: true,
 	plugins: [],
+	listeners:{
+		afterLayout: function (grid , layout , eOpts)
+		{
+			//Refresh the underlying grid if this form grid is nested in another form grid
+			var object = grid;
+			while(object.previousNode() != null)
+			{
+				object = object.previousNode();
+			}
+			if(object.grid)
+				object.grid.updateLayout();
+			
+			if(grid.autoLoadInitial)
+			{
+				grid.store.load();
+				grid.autoLoadInitial = false;
+			}
+		}
+	},
 	viewConfig: {
 		listeners: {
 			expandbody: function(rowNode, record, expandRow, eOpts){
-				var row = 'rowExpander-row-' + record.get('id');
+				var grid = this.findParentByType('grid');
+				var row = grid.getId() + '-rowExpander-row-' + record.get('id');
 				if(Ext.get(row).dom.innerHTML == '')
 				{
-					var grid = this.findParentByType('grid');
 					var formPanel = Ext.create("Ext.form.Panel", {
 						style: {
 							'overflow-y': 'auto',
@@ -133,7 +155,6 @@ Ext.define('Ext.ux.FormGrid',{
 					formPanel.grid = grid;
 					formPanel.render(row);
 					formPanel.loadRecord(record);
-					
 					
 					if(this.grid.formReadOnly)
 					{
@@ -146,7 +167,7 @@ Ext.define('Ext.ux.FormGrid',{
 			collapsebody: function(rowNode, record, expandRow, eOpts){
 				if(this.grid.allowSave)
 				{
-					var row = 'rowExpander-row-' + record.get('id');
+					var row = this.grid.getId() + '-rowExpander-row-' + record.get('id');
 					var form = Ext.getCmp(Ext.get(row).dom.children[0].id);
 					if(form.isValid())
 					{
@@ -169,8 +190,22 @@ Ext.define('Ext.ux.FormGrid',{
 	},
 	initComponent: function(){
 		var rowExpander = Ext.create('Ext.ux.RowExpander', {
-			rowBodyTpl: '<div id="rowExpander-row-{id}"></div>',
+			rowBodyTpl: '<div id="' + this.getId() + '-rowExpander-row-{id}"></div>',
 		});
+		//Remove any other rowExpander plugins that might exist
+		for(var i = 0; i < this.plugins.length; i++)
+		{
+			try
+			{
+				if(this.plugins[i].pluginConfig.rowBodyTpl.indexOf('-rowExpander-row-') > 0)
+				{
+					this.plugins.splice(i, 1);
+					i--;
+				}
+			}
+			catch(e)
+			{}//Do nothing if an error occurs
+		}
 		this.plugins.splice(0,0,rowExpander);//Row expander is assumed to be the first plugin.
 		
 		this.callParent();
@@ -187,6 +222,8 @@ Ext.define('Ext.ux.FormGrid',{
 
 					// Create a model instance
 					var r = {};
+					if(grid.parentKeyName && grid.parentKey)
+						r[grid.parentKeyName] = grid.parentKey;
 					var store = grid.getStore();
 					store.insert(0, r);
 					
@@ -380,32 +417,77 @@ Ext.define('Ext.ux.MapPanel', {
 	height: 500,
 	width: '100%',
 	forcefit: true,
+	markerArray: [],
+	autoLoadMapStoreInitial: true,
+	autoLoadKeyStoreInitial: true,
+	listeners: {
+		afterLayout: function (grid , layout , eOpts){
+			if(grid.autoLoadMapStoreInitial)
+			{
+				grid.mapStore.load();
+				grid.autoLoadMapStoreInitial = false;
+			}
+			if(grid.keyStore != '' && grid.autoLoadKeyStoreInitial)
+			{
+				grid.keyStore.load(function (records, operation, success){
+					if(success)
+					{
+						grid.displayLegend();
+					}
+				});
+				grid.autoLoadKeyStoreInitial = false;
+			}
+		}
+	},
 	getMapStoreForm: function(){
 		return null;//Developer should implement this with the form they are using for the mapStore
 	},
-	
-	initComponent: function(){
-		this.callParent();
-		if(this.mapStore == '')
-			throw new Exception("Missing required mapStore");
-			
-		this.filterMenuConfig.filterStore = this.mapStore;
-			
-		this.add({
-			xtype: 'container',
-			id: 'mapContainer',
-			region: 'center',
-			height: this.height,
-			listeners:{
-				resize: function(container, width, height, oldWidth, oldHeight, eOpts ){
-					google.maps.event.trigger(container.findParentByType("mappanel").map, "resize");
+	updateMarkers: function(){
+		for(var i=0;i<this.markerArray.length;i++)
+		{
+			if(!this.mapStore.findRecord('id',this.markerArray[i].id))
+				this.markerArray[i].setMap(null);
+		}
+	},
+	displayMarkers: function(){
+		this.updateMarkers();
+		for(var i = 0; i < this.mapStore.getCount(); i++)
+		{
+			var bFound = false;
+			for(var j=0; j < this.markerArray.length; j++)
+			{
+				if(this.markerArray[j].id == this.mapStore.getAt(i).get('id'))
+				{
+					bFound = true;
+					if(this.markerArray[j].map == null)
+						this.markerArray[j].setMap(this.map);
 				}
 			}
-		});
-		
+			
+			if(!bFound)
+			{
+				var record = this.mapStore.getAt(i);
+				var marker = new google.maps.Marker({
+				  position: new google.maps.LatLng(record.get('latitude'), record.get('longitude')),
+				  map: this.map,
+				  title: record.get('name'),
+				  id: record.get('id')
+				});
+				if(record.get('icon') != '' && record.get('icon') != undefined)
+				{
+					marker.setIcon(Transition.global.imagesLocation + record.get('icon'));
+				}
+				this.markerArray.push(marker);
+				
+				google.maps.event.addListener(marker, 'click', Ext.Function.pass( function (mapPanel) {
+					mapPanel.openMarker(this);
+				}, this));
+			}
+		}
+	},
+	displayLegend: function(){
 		if(this.keyStore != '' && this.keyStore.getCount() > 1)
 		{
-		
 			var keyContainer = Ext.create('Ext.panel.Panel', {
 				region: 'east',
 				autoScroll: true,
@@ -427,6 +509,31 @@ Ext.define('Ext.ux.MapPanel', {
 			
 			this.add(keyContainer);
 		}
+	},
+	
+	initComponent: function(){
+		this.callParent();
+		if(this.mapStore == '')
+			throw new Exception("Missing required mapStore");
+			
+		this.filterMenuConfig.filterStore = this.mapStore;
+			
+		this.add({
+			xtype: 'container',
+			id: 'mapContainer',
+			region: 'center',
+			height: this.height,
+			listeners:{
+				resize: function(container, width, height, oldWidth, oldHeight, eOpts ){
+					google.maps.event.trigger(container.findParentByType("mappanel").map, "resize");
+				}
+			}
+		});
+		
+		this.mapStore.on('datachanged', this.displayMarkers, this);
+		
+		this.displayLegend();
+		
 		var dockedItems = [{
 			xtype: 'pagingtoolbar',
 			store: this.mapStore,
@@ -458,7 +565,6 @@ Ext.define('Ext.ux.MapPanel', {
 							});
 							store.removeFilter(filter);
 						}
-						store.addAfterListener('load', function(){mapPanel.showMarkers(mapPanel.mapStore);}, mapPanel, {single: true});
 						store.setRemoteFilter(remoteFilter);
 					}
 				}
@@ -492,42 +598,6 @@ Ext.define('Ext.ux.MapPanel', {
 			mapTypeId: google.maps.MapTypeId.ROADMAP //google.maps.MapTypeId.SATELLITE
 		}
 		this.map = new google.maps.Map(map_canvas, map_options);
-		
-		this.markerArray = [];
-		for(var i = 0; i < this.mapStore.getCount(); i++)
-		{
-			var record = this.mapStore.getAt(i);
-			var marker = new google.maps.Marker({
-			  position: new google.maps.LatLng(record.get('latitude'), record.get('longitude')),
-			  map: this.map,
-			  title: record.get('name'),
-			  id: record.get('id')
-			});
-			if(record.get('icon') != '' && record.get('icon') != undefined)
-			{
-				marker.setIcon(Transition.global.imagesLocation + record.get('icon'));
-			}
-			this.markerArray.push(marker);
-		}
-		
-		for(var i=0;i<this.markerArray.length;i++)
-		{
-			google.maps.event.addListener(this.markerArray[i], 'click', Ext.Function.pass( function (mapPanel) {
-				mapPanel.openMarker(this);
-			}, this));
-		}
-	},
-	/*
-		Displays all of the markers for the people in the people array
-		@param people - an array of id's to display markers for
-	*/
-	showMarkers: function(store){
-		for(var i=0;i<this.markerArray.length;i++)
-		{
-			if(store.findRecord('id',this.markerArray[i].id))
-				this.markerArray[i].setMap(this.map);
-			else this.markerArray[i].setMap(null);
-		}
 	},
 	openMarker: function(marker){
 		var store = this.mapStore;
@@ -643,8 +713,6 @@ Ext.define('Ext.ux.FilterMenu', {
 					}
 				});
 				
-				
-				store.addAfterListener('load', function(){mapPanel.showMarkers(mapPanel.mapStore);}, mapPanel, {single: true});
 				store.setRemoteFilter(remoteFilter);
 				menu.hide();
 			}

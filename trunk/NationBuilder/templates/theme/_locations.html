@@ -1,3 +1,4 @@
+ {% include "thetransitiongooglemapheader" %}
 <script type="text/javascript">
     Ext.onReady(function() {
 		Ext.QuickTips.init();
@@ -135,7 +136,7 @@
 				operator: "ne"
 			},
 			locationFilterUsers],
-			pageSize: 0
+			pageSize: 500
 		});
 		
 		var locationsStore = Ext.create('Ext.data.Store', {
@@ -265,6 +266,8 @@
 				title: locationName + ' entered by others',
 				renderTo: 'map_panel',
 				height: 550,
+				autoLoadKeyStoreInitial: false,
+				autoLoadMapStoreInitial: false,
 				keyStore: Ext.StoreManager.get('locationsStore'),
 				mapStore: Ext.StoreManager.get('otherUserLocationsStore'),
 				filterMenuConfig: {

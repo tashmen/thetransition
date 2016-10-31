@@ -253,7 +253,8 @@
 			model: 'ObjectCategory',
 			remoteSort: false,
 			remoteFilter: false,
-			pageSize: 0
+			pageSize: 0,
+			autoLoad: true
 		});
 		
 		var objectPermanenceStore = Ext.create('Ext.data.Store', {
@@ -261,7 +262,8 @@
 			model: 'ObjectPermanence',
 			remoteSort: false,
 			remoteFilter: false,
-			pageSize: 0
+			pageSize: 0,
+			autoLoad: true
 		});
 		
 		var myObjectsStore = Ext.create('Ext.data.Store', {
@@ -317,41 +319,10 @@
 			pageSize: 500
 		});
 		
-		objectCategoryStore.load(function (records, operation, success){
-			if(success)
-			{
-				objectPermanenceStore.load(function (records, operation, success){
-					if(success)
-					{
-						myObjectsStore.load();
-						otherObjectsStore.load();
-					}
-				});
-			}
-		});
-		
-		otherObjectsMapStore.load(function (records, operation, success){
-			if(success)
-			{
-				BuildGoogleMap();
-			}
-		});
-		
-		
-		
-		var rowExpander = Ext.create('Ext.ux.RowExpander', {
-			rowBodyTpl: '<div id="rowExpander-row-{id}"></div>',
-		});
-		
-		var grid = Ext.create('Ext.grid.Panel', {
+		var grid = Ext.create('Ext.ux.FormGrid', {
 			title: 'My Objects',
 			store: myObjectsStore,
-			dockedItems: [{
-				xtype: 'pagingtoolbar',
-				store: myObjectsStore,
-				dock: 'bottom',
-				displayInfo: true
-			}],
+			GetFormItems: GetFormItems,
 			columns: [
 				{
 					text: 'Name',
@@ -389,104 +360,16 @@
 			width: 'auto',
 			forceFit: true,
 			renderTo: 'objects',
-			tbar: [
-			{
-				text: 'Add Object',
-				iconCls: 'add-icon',
-				handler : function() {
-					var grid = this.findParentByType('grid');
-
-					// Create a model instance
-					var r = {};
-					var store = grid.getStore();
-					store.insert(0, r);
-					
-					grid.plugins[0].toggleRow(0, store.getAt(0));
-				}
-			}, 
-			{
-				itemId: 'remove',
-				text: 'Remove Object',
-				iconCls: 'remove-icon',
-				handler: function() {
-					var sm = this.findParentByType('grid').getSelectionModel();
-					var store = this.findParentByType('grid').getStore();
-					store.remove(sm.getSelection());
-					if (store.getCount() > 0) {
-						sm.select(0);
-					}
-				},
-				disabled: true
-			},
-			{
-				itemId: 'save',
-				text: 'Save Objects',
-				iconCls: 'save-icon',
-				handler: function() {
-					var grid = this.findParentByType('grid');
-					grid.allFormsValid = true;
-					grid.plugins[0].expandAll(false);
-					if(grid.allFormsValid)
-						grid.getStore().sync();
-				}
-			}
-			],
-			viewConfig: {
-				listeners: {
-					expandbody: function(rowNode, record, expandRow, eOpts){
-						var row = 'rowExpander-row-' + record.get('id');
-						if(Ext.get(row).dom.innerHTML == '')
-						{
-							var formPanel = Ext.create("Ext.form.Panel", {
-								items: GetFormItems()
-							});
-							formPanel.render(row);
-							formPanel.loadRecord(record);
-						}
-					},
-					collapsebody: function(rowNode, record, expandRow, eOpts){
-						var row = 'rowExpander-row-' + record.get('id');
-						var form = Ext.getCmp(Ext.get(row).dom.children[0].id);
-						if(form.isValid())
-						{
-							form.updateRecord(record);
-						}
-						else
-						{
-							this.grid.plugins[0].toggleRow(this.grid.getStore().indexOfId(record.id),record);
-							this.grid.allFormsValid = false;
-							Ext.MessageBox.show({
-								title: "Error",
-								msg: "Form is invalid.  Please fix the errors.",
-								buttons: Ext.MessageBox.OK,
-								icon: Ext.MessageBox.ERROR
-							});
-						}
-					}
-				}
-			},
-			plugins: [rowExpander],
-			listeners: {
-				'selectionchange': function(view, records) {
-					grid.down('#remove').setDisabled(!records.length);
-				},
-			}
 		});
 		
-		
-		var rowExpander2 = Ext.create('Ext.ux.RowExpander', {
-			rowBodyTpl: '<div id="rowExpander2-row-{id}"></div>'
-		});
-		
-		var otherGrid = Ext.create('Ext.grid.Panel', {
+		var otherGrid = Ext.create('Ext.ux.FormGrid', {
 			title: 'Other Member\'s Objects',
 			store: otherObjectsStore,
-			dockedItems: [{
-				xtype: 'pagingtoolbar',
-				store: otherObjectsStore,
-				dock: 'bottom',
-				displayInfo: true
-			}],
+			GetFormItems: GetFormItems,
+			allowAdd: false,
+			allowSave: false,
+			allowRemove: false,
+			formReadOnly: true,
 			columns: [
 				{
 					text: 'User',
@@ -528,26 +411,7 @@
 			width: 'auto',
 			forceFit: true,
 			renderTo: 'otherobjects',
-			viewConfig: {
-				listeners: {
-					expandbody: function(rowNode, record, expandRow, eOpts){
-						var row = 'rowExpander2-row-' + record.get('id');
-						if(Ext.get(row).dom.innerHTML == '')
-						{
-							var formPanel = Ext.create("Ext.form.Panel", {
-								items: GetFormItems()
-							});
-							formPanel.render(row);
-							formPanel.loadRecord(record);
-							
-							formPanel.getForm().getFields().each (function (field) {
-							  field.setReadOnly(true);
-							});
-						}
-					}
-				}
-			},
-			plugins: [rowExpander2, 'gridfilters']
+			plugins: ['gridfilters']
 		});
 		
 		function BuildOtherFormItems(record){
@@ -556,28 +420,29 @@
 			});
 		}
 		
-		function BuildGoogleMap(){
-			var filters = [
-				{
-					text: 'Distance',
-					emptyText: 'Enter distance in miles.',
-					dataIndex: 'distance',
-					operator: '<=',
-					type: 'number'
-				}
-			]
-			
-			var mapPanel = Ext.create('Ext.ux.MapPanel',{
-				title: 'Other Member\'s Objects',
-				renderTo: 'map_panel',
-				height: 550,
-				mapStore: otherObjectsMapStore,
-				filterMenuConfig: {
-					filters: filters
-				},
-				getMapStoreForm: BuildOtherFormItems
-			});
-		}
+
+		var filters = [
+			{
+				text: 'Distance',
+				emptyText: 'Enter distance in miles.',
+				dataIndex: 'distance',
+				operator: '<=',
+				type: 'number'
+			}
+		]
+		
+		var mapPanel = Ext.create('Ext.ux.MapPanel',{
+			title: 'Other Member\'s Objects',
+			renderTo: 'map_panel',
+			height: 550,
+			markerWindowHeight: 350,
+			mapStore: otherObjectsMapStore,
+			filterMenuConfig: {
+				filters: filters
+			},
+			getMapStoreForm: BuildOtherFormItems
+		});
+		
 		
 	});
 </script>

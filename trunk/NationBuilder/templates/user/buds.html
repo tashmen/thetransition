@@ -169,15 +169,9 @@
 			remoteSort: true,
 			remoteFilter: true,
 			pageSize: 0
+			,autoLoad: true
 		});
-		
-		budStore.load(function (records, operation, success){
-			if(success)
-			{
-				BuildGrid();
-			}
-		});
-		
+
 		function GetFormItems(record)
 		{
 			var store = Ext.create('Ext.data.Store', {
@@ -197,12 +191,6 @@
 					}
 				],
 				pageSize: 20
-			});
-			store.load(function (records, operation, success){
-				if(success)
-				{
-					grid.updateLayout();
-				}
 			});
 
 			return [
@@ -483,12 +471,7 @@
 				],
 				pageSize: 20
 			});
-			store.load(function (records, operation, success){
-				if(success)
-				{
-					otherGrid.updateLayout();
-				}
-			});
+
 			return [
 				{
 					xtype: 'container',
@@ -672,202 +655,182 @@
 		
 		var grid;
 		var otherGrid;
-		function BuildGrid(){
-			grid = Ext.create('Ext.ux.FormGrid', {
-				title: 'My Buds',
-				store: myBudsStore,
-				GetFormItems: GetFormItems,
-				columns: [
-					{
-						text: 'Name',
-						dataIndex: 'name',
-						hideable: false,
-						sortable: false,
-					},
-					{
-						text: 'Seed Person',  
-						dataIndex: 'seedperson', 
-						hideable: false,
-						sortable: false
-					},
-					{
-						text: 'Status',
-						dataIndex: 'membershipcount',
-						hideable: false,
-						sortable: false,
-						renderer : function(value, meta) {
-							if(value <= 5)
-								return "Seed";
-							if(value<=15)
-								return "Bud";
-							return "Requires Splitting";
-						}
+		grid = Ext.create('Ext.ux.FormGrid', {
+			title: 'My Buds',
+			store: myBudsStore,
+			GetFormItems: GetFormItems,
+			columns: [
+				{
+					text: 'Name',
+					dataIndex: 'name',
+					hideable: false,
+					sortable: false,
+				},
+				{
+					text: 'Seed Person',  
+					dataIndex: 'seedperson', 
+					hideable: false,
+					sortable: false
+				},
+				{
+					text: 'Status',
+					dataIndex: 'membershipcount',
+					hideable: false,
+					sortable: false,
+					renderer : function(value, meta) {
+						if(value <= 5)
+							return "Seed";
+						if(value<=15)
+							return "Bud";
+						return "Requires Splitting";
 					}
-				],
-				width: 'auto',
-				forceFit: true,
-				renderTo: 'grid'
-			});
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'grid'
+		});
 			
-			otherGrid = Ext.create('Ext.ux.FormGrid', {
-				title: 'Other Member\'s Buds',
-				store: otherBudsStore,
-				GetFormItems: GetOtherFormItems,
-				allowAdd: false,
-				allowSave: false,
-				allowRemove: false,
-				formReadOnly: true,
-				columns: [
-					{
-						text: 'Name',
-						dataIndex: 'name',
-						hideable: false,
-						sortable: true,
-						filter: {
-							type: 'string'
-						}
+		otherGrid = Ext.create('Ext.ux.FormGrid', {
+			title: 'Other Member\'s Buds',
+			store: otherBudsStore,
+			GetFormItems: GetOtherFormItems,
+			allowAdd: false,
+			allowSave: false,
+			allowRemove: false,
+			formReadOnly: true,
+			columns: [
+				{
+					text: 'Name',
+					dataIndex: 'name',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Seed Person',  
+					dataIndex: 'seedperson', 
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Owner',
+					dataIndex: 'fullname',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Type',
+					dataIndex: 'typenames',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Status',
+					dataIndex: 'membershipcount',
+					hideable: false,
+					sortable: false,
+					renderer : function(value, meta) {
+						if(value <= 5)
+							return "Seed";
+						if(value<=15)
+							return "Bud";
+						return "Requires Splitting";
+					}
+				},
+				{
+					xtype: 'actioncolumn',
+					text: 'Membership Status',
+					dataIndex: 'status',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'list',
+						options: [{id: 0, text: 'Request to Join'}, {id: 1, text: 'Pending Approval'}, {id: 2, text: 'Accepted'}, {id: 3, text: 'Denied'}]
 					},
-					{
-						text: 'Seed Person',  
-						dataIndex: 'seedperson', 
-						hideable: false,
-						sortable: true,
-						filter: {
-							type: 'string'
-						}
-					},
-					{
-						text: 'Owner',
-						dataIndex: 'fullname',
-						hideable: false,
-						sortable: true,
-						filter: {
-							type: 'string'
-						}
-					},
-					{
-						text: 'Type',
-						dataIndex: 'typenames',
-						hideable: false,
-						sortable: true,
-						filter: {
-							type: 'string'
-						}
-					},
-					{
-						text: 'Status',
-						dataIndex: 'membershipcount',
-						hideable: false,
-						sortable: false,
-						renderer : function(value, meta) {
-							if(value <= 5)
-								return "Seed";
-							if(value<=15)
-								return "Bud";
-							return "Requires Splitting";
-						}
-					},
-					{
-						xtype: 'actioncolumn',
-						text: 'Membership Status',
-						dataIndex: 'status',
-						hideable: false,
-						sortable: true,
-						filter: {
-							type: 'list',
-							options: [{id: 0, text: 'Request to Join'}, {id: 1, text: 'Pending Approval'}, {id: 2, text: 'Accepted'}, {id: 3, text: 'Denied'}]
-						},
-						items:[{
-							handler: function(view, rowIndex, colIndex, item, e, record){
-								var value = record.get(this.dataIndex);
-								switch(value)
-								{
-									case 0://Request to join
-										record.set(this.dataIndex, 1);
-										var rec = new UserBudsMembership();
-										rec.set(this.dataIndex, 1);
-										rec.set('userbudid', record.get('id'));
-										rec.save();
-										break;
-									case 1://Pending Approval
-									case 2://Accepted
-										record.set(this.dataIndex, 0);
-										var rec = new UserBudsMembership();
-										rec.set(this.dataIndex, 0);
-										rec.set('userbudid', record.get('id'));
-										rec.save();
-										break;
-									case 3://Denied
-										break;
-								}
-								record.commit();
-							},
-							getClass: function(value, metadata, record, rowIndex, colIndex, store){
-								var cls = ''
-								switch(value)
-								{
-									case 0://Request to join
-										cls = 'join-icon';
-										break;
-									case 1://Pending Approval
-										cls = 'cancel-icon';
-										break;
-									case 2://Accepted
-										cls = 'accept-icon';
-										break;
-									case 3://Denied
-										cls = 'decline-icon';
-										break;
-								}
-								return cls;
-							},
-							getTip: function(value, metadata, record, rowIndex, colIndex, store){
-								var tooltip = ''
-								switch(value)
-								{
-									case 0://Request to join
-										tooltip = "Request to join " + record.get('name') + "?";
-										break;
-									case 1://Pending Approval
-										tooltip = "Request to join " + record.get('name') + " is waiting on approval from " + record.get('fullname') + ". Do you want to cancel this request?";
-										break;
-									case 2://Accepted
-										tooltip = "You are a member of " + record.get('name') + ". Do you want to leave this BUD?";
-										break;
-									case 3://Denied
-										tooltip = "Your request to join " + record.get('name') + " has been denied.";
-										break;
-								}
-								return tooltip;
+					items:[{
+						handler: function(view, rowIndex, colIndex, item, e, record){
+							var value = record.get(this.dataIndex);
+							switch(value)
+							{
+								case 0://Request to join
+									record.set(this.dataIndex, 1);
+									var rec = new UserBudsMembership();
+									rec.set(this.dataIndex, 1);
+									rec.set('userbudid', record.get('id'));
+									rec.save();
+									break;
+								case 1://Pending Approval
+								case 2://Accepted
+									record.set(this.dataIndex, 0);
+									var rec = new UserBudsMembership();
+									rec.set(this.dataIndex, 0);
+									rec.set('userbudid', record.get('id'));
+									rec.save();
+									break;
+								case 3://Denied
+									break;
 							}
-						}]
-					}
-				],
-				width: 'auto',
-				forceFit: true,
-				renderTo: 'othergrid',
-				plugins: ['gridfilters']
-			});
-			
-			myBudsStore.load(function (records, operation, success){
-				if(success)
-				{
-					grid.updateLayout();
+							record.commit();
+						},
+						getClass: function(value, metadata, record, rowIndex, colIndex, store){
+							var cls = ''
+							switch(value)
+							{
+								case 0://Request to join
+									cls = 'join-icon';
+									break;
+								case 1://Pending Approval
+									cls = 'cancel-icon';
+									break;
+								case 2://Accepted
+									cls = 'accept-icon';
+									break;
+								case 3://Denied
+									cls = 'decline-icon';
+									break;
+							}
+							return cls;
+						},
+						getTip: function(value, metadata, record, rowIndex, colIndex, store){
+							var tooltip = ''
+							switch(value)
+							{
+								case 0://Request to join
+									tooltip = "Request to join " + record.get('name') + "?";
+									break;
+								case 1://Pending Approval
+									tooltip = "Request to join " + record.get('name') + " is waiting on approval from " + record.get('fullname') + ". Do you want to cancel this request?";
+									break;
+								case 2://Accepted
+									tooltip = "You are a member of " + record.get('name') + ". Do you want to leave this BUD?";
+									break;
+								case 3://Denied
+									tooltip = "Your request to join " + record.get('name') + " has been denied.";
+									break;
+							}
+							return tooltip;
+						}
+					}]
 				}
-			});
-			otherBudsStore.load(function (records, operation, success){
-				if(success)
-				{
-					otherGrid.updateLayout();
-				}
-			});
-			otherBudsMapStore.load(function (records, operation, success){
-				if(success)
-				{
-					BuildGoogleMap();
-				}
-			});
-		}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'othergrid',
+			plugins: ['gridfilters']
+		});
+
 		
 		function BuildOtherFormItems(record){
 			return Ext.create(Ext.form.Panel,{
@@ -875,29 +838,27 @@
 			});
 		}
 		
-		function BuildGoogleMap(){
-			var filters = [
-				{
-					text: 'Distance',
-					emptyText: 'Enter distance in miles.',
-					dataIndex: 'distance',
-					operator: '<=',
-					type: 'number'
-				}
-			]
-			
-			var mapPanel = Ext.create('Ext.ux.MapPanel',{
-				title: 'BUDs',
-				renderTo: 'map_panel',
-				height: 550,
-				mapStore: otherBudsMapStore,
-				filterMenuConfig: {
-					filters: filters
-				},
-				getMapStoreForm: BuildOtherFormItems
-			});
-		}
+
+		var filters = [
+			{
+				text: 'Distance',
+				emptyText: 'Enter distance in miles.',
+				dataIndex: 'distance',
+				operator: '<=',
+				type: 'number'
+			}
+		]
 		
+		var mapPanel = Ext.create('Ext.ux.MapPanel',{
+			title: 'BUDs',
+			renderTo: 'map_panel',
+			height: 550,
+			mapStore: otherBudsMapStore,
+			filterMenuConfig: {
+				filters: filters
+			},
+			getMapStoreForm: BuildOtherFormItems
+		});
 	});
 </script>
 {% include "breadcrumbs" %}

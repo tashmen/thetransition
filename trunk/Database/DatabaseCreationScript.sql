@@ -750,6 +750,31 @@ FROM
 inner JOIN users u ON 
  u.id = us.userid; 
  
+ --
+-- Table structure for table `usersuggestionscomments`
+--
+
+DROP TABLE IF EXISTS `usersuggestionscomments`;
+CREATE TABLE `usersuggestionscomments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id of the comment',
+  `usersuggestionid` int(11) NOT NULL COMMENT 'id of the suggestion this comment is for',
+  `userid` int(11) NOT NULL COMMENT 'The user who made the comment',
+  `comment` varchar(4000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'The comment the user made',
+  `creationdt` datetime NOT NULL,
+  `lastupdated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `usersuggestionid` (`usersuggestionid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Stores comments on user''s suggestions' AUTO_INCREMENT=1 ;
+
+--
+-- Structure for view `usersuggestionscommentsview`
+--
+Drop view if exists usersuggestionscommentsview;
+CREATE VIEW usersuggestionscommentsview AS SELECT usc.* , u.fullname
+FROM 
+ usersuggestionscomments usc
+inner JOIN users u ON 
+ u.id = usc.userid; 
  
  --
 -- Table structure for table `userorgsignup`

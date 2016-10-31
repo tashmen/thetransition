@@ -53,6 +53,7 @@ var Transition = {
 		defaultLat: '40.67153',
 		lng: '{{request.current_user.address.lng}}',
 		defaultLng: '-97.74306079999997',
+		fullname: '{{request.current_user.full_name_or_friend}}',
 		hasLocation: function(){
 			if(this.lat == '' || this.lng == '')
 				return false;

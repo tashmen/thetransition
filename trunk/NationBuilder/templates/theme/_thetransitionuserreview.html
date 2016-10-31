@@ -162,24 +162,8 @@
 		
 		userReviewsStore.load();
 		
-		var rowExpander = Ext.create('Ext.grid.plugin.RowExpander', {
-			rowBodyTpl: '<div id="rowExpander-row-{id}"><h3>{name}</h3><p>{review}</p></div>',
-			expandAll: function (expand) {
-				expand = typeof expand !== 'undefined' ? expand : true;
-
-				var grid = this.grid,
-					store = grid.getStore(),
-					rowExpander = grid.plugins[0],
-					nodes = rowExpander.view.getNodes();
-
-				for (var i = 0; i < nodes.length; i++) {
-					var node = Ext.fly(nodes[i]);
-
-					if (node.hasCls(rowExpander.rowCollapsedCls) === expand) {
-						rowExpander.toggleRow(i, store.getAt(i));
-					}
-				}
-			}
+		var rowExpander = Ext.create('Ext.ux.RowExpander', {
+			rowBodyTpl: '<div id="rowExpander-row-{id}"><h3>{name}</h3><p>{review}</p></div>'
 		});
 		
 		var grid = Ext.create('Ext.grid.Panel', {

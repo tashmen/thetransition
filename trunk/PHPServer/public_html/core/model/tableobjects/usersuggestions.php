@@ -66,6 +66,9 @@ class usersuggestions extends TableObject {
      */
     public function OnDeleteUser($parameters)
     {
+        $usersuggestionscomments = new usersuggestionscomments($this->GetConnection());
+        $usersuggestionscomments->BeforeDeleteSuggestionsForUser($parameters);
+        
         Logger::LogError('Deleting User Suggestions', Logger::debug);
         Logger::LogError(print_r($parameters,true), Logger::debug);
         $this->GetConnection()->execute("Delete from " . $this->GetPrimaryTable(). " where userid = ?", $parameters, false);
