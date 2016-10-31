@@ -1,0 +1,10 @@
+<li>
+  <a href="{{navigationitems.url}}">{{navigationitems.headline}}</a>
+  {% if navigationitems.has_children? %}
+  <ol class="listing">
+    {% for child1 in navigationitems.children %}
+    		{% include 'navigationitems' with child1 %}
+    {% endfor %}
+  </ol>
+  {% endif %}
+</li>

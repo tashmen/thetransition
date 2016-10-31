@@ -1,0 +1,399 @@
+<script type="text/javascript">
+    Ext.onReady(function() {
+		Ext.QuickTips.init();
+		
+		Ext.define('UserBuds', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id',
+				}, 
+				{
+					name: 'userid',
+					defaultValue: Transition.user.id
+				},
+				{
+					name: 'fullname'
+				},
+				{
+					name: 'name'
+				},
+				{
+					name: 'description'
+				},
+				{
+					name: 'imageFile'
+				},
+				{
+					name: 'imageDisplay',
+					calculate: function (data) {
+						//There is no image for newly created records so don't display one
+						if(data.id)
+							return Transition.global.imageUploadLocation + 'userbuds/' + data.id + Transition.global.uploadImageFileExtension;
+						return "";
+					}
+				},
+				{
+					name: 'seedperson'
+				},
+				{
+					name: 'status',
+					type: 'int',
+					defaultValue: 0
+				},
+				{
+					name: 'type',
+					convert: function(value, record){
+						if(value)
+						{
+							if(typeof(value) == 'object')
+								return value;
+							if(typeof(value) == 'string')
+								return value.split(',');
+						}
+						return value;
+					},
+					serialize: function(value, record){
+						if(value && typeof(value)=='object')
+							return value.join(',');
+						return value;
+					},
+					persist: true
+				},
+				{
+					name: 'typenames'
+				},
+				{
+					name: 'location'
+				},
+				{
+					name: 'latitude'
+				},
+				{
+					name: 'longitude'
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'userbuds',
+					includestatus: '1'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'userbuds'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		Ext.define('UserBudsMembership', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'userbudid',
+				}, 
+				{
+					name: 'userid',
+					defaultValue: Transition.user.id
+				},
+				{
+					name: 'status',
+					type: 'int',
+					defaultValue: 0
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'userbudsmembership'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'userbudsmembership'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		Ext.define('BudTypes', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id',
+				}, 
+				{
+					name: 'name',
+					defaultValue: Transition.user.id
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'budtypes'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'budtypes'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		Ext.define('UserBudMembershipStatus', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'id'
+				},
+				{
+					name: 'name'
+				}
+			],
+			proxy: {
+				type: 'memory',
+				reader: {
+					type: 'json',
+					rootProperty: 'key'
+				}
+			}
+		});
+		
+		var budStore = Ext.create('Ext.data.Store', {
+			storeId: 'typeStore',
+			model: 'BudTypes',
+			remoteSort: true,
+			remoteFilter: true,
+			pageSize: 0
+		});
+		
+		budStore.load(function (records, operation, success){
+			if(success)
+			{
+				BuildGrid();
+			}
+		});
+		
+		function GetOtherFormItems(record)
+		{
+			var store = Ext.create('Ext.data.Store', {
+				model: 'UserBudsMembership',
+				remoteSort: true,
+				remoteFilter: true,
+				filters: [
+					{
+						property: "userbudid",
+						value: record.get("id"),
+						operator: "eq"
+					},
+					{
+						property: "status",
+						value: "2",
+						operator: "eq"
+					}
+				],
+				pageSize: 20
+			});
+			store.load(function (records, operation, success){
+				if(success)
+				{
+					otherGrid.updateLayout();
+				}
+			});
+			return [
+				{
+					xtype: 'container',
+					collapsible: false,
+					border: false,
+					layout: 'column',
+					items: [
+						{
+							xtype: 'image',
+							itemId: 'imageDisplay',
+							columnWidth: 0.2
+						},
+						{
+							xtype: 'hiddenfield',
+							name: 'imageDisplay',
+							setValue: function(value)
+							{
+								if(value != undefined)
+								{
+									var form = this.findParentByType('form');
+									var imageDisplay = form.down('#imageDisplay');
+									imageDisplay.setSrc(value);
+								}
+							}
+						},
+						{
+							xtype: 'fieldset',
+							collapsible: false,
+							border: false,
+							margin: '5',
+							columnWidth: 0.8,
+							defaults: {
+								labelAlign: 'right',
+								width: '100%'
+							},
+							items:[
+								{
+									xtype: 'textfield',
+									fieldLabel: 'Name',
+									name: 'name',
+									allowBlank: false,
+									maxLength: '500'
+								},
+								{
+									xtype: 'textfield',
+									fieldLabel: 'Seed Person',
+									name: 'seedperson',
+									allowBlank: false,
+									maxLength: '500'
+								},
+								{
+									xtype: 'combo',
+									fieldLabel: 'Type',
+									name: 'type',
+									multiSelect: true,
+									valueField: 'id',
+									displayField: 'name',
+									store: Ext.StoreManager.get('typeStore')
+								},
+								{
+									xtype: 'displayfield',
+									fieldLabel: 'Description',
+									name: 'description',
+									allowBlank: false,
+									maxLength: '4000'
+								},
+								{
+									xtype: 'locationfield',
+									fieldLabel: 'Location',
+									name: 'location',
+									maxLength: '2000'
+								}
+							]
+						}
+					]
+				},
+				{
+					xtype: 'container',
+					border: false,
+					layout: 'fit',
+					padding: '0 5 5 5',
+					items: [
+						{
+							xtype: 'gridpanel',
+							title: 'Members',
+							store: store,
+							dockedItems:[
+								{
+									xtype: 'pagingtoolbar',
+									store: store,
+									dock: 'bottom',
+									displayInfo: true
+								}
+							],
+							columns: [
+								{
+									text: 'Name',
+									dataIndex: 'fullname',
+									hideable: false,
+									sortable: false
+								}
+							],
+							width: 'auto',
+							forceFit: true
+						}
+					]
+				}
+			];
+		}
+		
+		var otherBudsStore = Ext.create('Ext.data.Store', {
+			storeId:'otherBudsStore',
+			model: 'UserBuds',
+			remoteSort: true,
+			remoteFilter: true,
+			filters: [
+				{
+					property: "membershipuserid",
+					value: '{{ profile.id }}',
+					operator: "eq"
+				},
+				{
+					property: "status",
+					value: "2",
+					operator: "eq"
+				}
+			],
+			pageSize: 20
+		});
+		
+		var otherGrid;
+		function BuildGrid(){
+			otherGrid = Ext.create('Ext.ux.FormGrid', {
+				title: 'Buds for {{ profile.published_name }}',
+				store: otherBudsStore,
+				GetFormItems: GetOtherFormItems,
+				allowAdd: false,
+				allowSave: false,
+				allowRemove: false,
+				formReadOnly: true,
+				columns: [
+					{
+						text: 'Name',
+						dataIndex: 'name',
+						hideable: false,
+						sortable: true,
+						filter: {
+							type: 'string'
+						}
+					},
+					{
+						text: 'Seed Person',  
+						dataIndex: 'seedperson', 
+						hideable: false,
+						sortable: true,
+						filter: {
+							type: 'string'
+						}
+					},
+					{
+						text: 'Owner',
+						dataIndex: 'fullname',
+						hideable: false,
+						sortable: true,
+						filter: {
+							type: 'string'
+						}
+					},
+					{
+						text: 'Type',
+						dataIndex: 'typenames',
+						hideable: false,
+						sortable: true,
+						filter: {
+							type: 'string'
+						}
+					}
+				],
+				width: 'auto',
+				forceFit: true,
+				renderTo: 'buds',
+				plugins: ['gridfilters']
+			});
+			
+			otherBudsStore.load(function (records, operation, success){
+				if(success)
+				{
+					otherGrid.updateLayout();
+				}
+			});
+		}
+	});
+</script>
+
+<br>
+<br>
+<div id = "buds"></div>
