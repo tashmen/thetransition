@@ -165,13 +165,7 @@
 			remoteSort: true,
 			remoteFilter: true,
 			pageSize: 0
-		});
-		
-		budStore.load(function (records, operation, success){
-			if(success)
-			{
-				BuildGrid();
-			}
+			,autoLoad: true
 		});
 		
 		function GetOtherFormItems(record)
@@ -193,12 +187,6 @@
 					}
 				],
 				pageSize: 20
-			});
-			store.load(function (records, operation, success){
-				if(success)
-				{
-					otherGrid.updateLayout();
-				}
 			});
 			return [
 				{
@@ -331,66 +319,57 @@
 		});
 		
 		var otherGrid;
-		function BuildGrid(){
-			otherGrid = Ext.create('Ext.ux.FormGrid', {
-				title: 'Buds for {{ profile.published_name }}',
-				store: otherBudsStore,
-				GetFormItems: GetOtherFormItems,
-				allowAdd: false,
-				allowSave: false,
-				allowRemove: false,
-				formReadOnly: true,
-				columns: [
-					{
-						text: 'Name',
-						dataIndex: 'name',
-						hideable: false,
-						sortable: true,
-						filter: {
-							type: 'string'
-						}
-					},
-					{
-						text: 'Seed Person',  
-						dataIndex: 'seedperson', 
-						hideable: false,
-						sortable: true,
-						filter: {
-							type: 'string'
-						}
-					},
-					{
-						text: 'Owner',
-						dataIndex: 'fullname',
-						hideable: false,
-						sortable: true,
-						filter: {
-							type: 'string'
-						}
-					},
-					{
-						text: 'Type',
-						dataIndex: 'typenames',
-						hideable: false,
-						sortable: true,
-						filter: {
-							type: 'string'
-						}
-					}
-				],
-				width: 'auto',
-				forceFit: true,
-				renderTo: 'buds',
-				plugins: ['gridfilters']
-			});
-			
-			otherBudsStore.load(function (records, operation, success){
-				if(success)
+		otherGrid = Ext.create('Ext.ux.FormGrid', {
+			title: 'Buds for {{ profile.published_name }}',
+			store: otherBudsStore,
+			GetFormItems: GetOtherFormItems,
+			allowAdd: false,
+			allowSave: false,
+			allowRemove: false,
+			formReadOnly: true,
+			columns: [
 				{
-					otherGrid.updateLayout();
+					text: 'Name',
+					dataIndex: 'name',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Seed Person',  
+					dataIndex: 'seedperson', 
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Owner',
+					dataIndex: 'fullname',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Type',
+					dataIndex: 'typenames',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
 				}
-			});
-		}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'buds',
+			plugins: ['gridfilters']
+		});
 	});
 </script>
 
