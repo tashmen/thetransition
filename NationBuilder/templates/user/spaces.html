@@ -130,10 +130,10 @@
 			remoteFilter: true,
 			filters: [{
 				property: "userid",
-				value: '{{request.current_user.id}}',
+				value: Transition.user.id,
 				operator: "eq"
 			}],
-			pageSize: 0
+			pageSize: 20
 		});
 		
 		var otherUserSpacesStore = Ext.create('Ext.data.Store', {
@@ -143,10 +143,10 @@
 			remoteFilter: false,
 			filters: [{
 				property: "userid",
-				value: '{{request.current_user.id}}',
+				value: Transition.user.id,
 				operator: "ne"
 			}],
-			pageSize: 0
+			pageSize: 500
 		});
 		
 		var spacesStore = Ext.create('Ext.data.Store', {
@@ -169,161 +169,6 @@
 			remoteSort: false,
 			remoteFilter: false,
 			data: privacy
-		});
-		
-		spacesStore.load(function (records, operation, success){
-			if(success)
-			{
-				userSpacesStore.load();
-				otherUserSpacesStore.load(function (records, operation, success){
-					if(success)
-					{
-						BuildGoogleMap();
-					}
-				});
-			}
-		});
-		
-		var rowExpander = Ext.create('Ext.grid.plugin.RowExpander', {
-			rowBodyTpl: '<div id="space-row-{id}"></div>',
-			expandAll: function (expand) {
-				expand = typeof expand !== 'undefined' ? expand : true;
-
-				var grid = this.grid,
-					store = grid.getStore(),
-					rowExpander = grid.plugins[0],
-					nodes = rowExpander.view.getNodes();
-
-				for (var i = 0; i < nodes.length; i++) {
-					var node = Ext.fly(nodes[i]);
-
-					if (node.hasCls(rowExpander.rowCollapsedCls) === expand) {
-						rowExpander.toggleRow(i, store.getAt(i));
-					}
-				}
-			}
-		});
-		
-		var grid = Ext.create('Ext.grid.Panel', {
-			title: 'My Spaces',
-			store: userSpacesStore,
-			columns: [
-				{
-					text: 'Name',
-					dataIndex: 'name',
-					hideable: false,
-					sortable:false
-				},
-				{
-					text: 'Space',  
-					dataIndex:'spaceid', 
-					hideable: false,
-					sortable: false,
-					renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
-						var store = Ext.StoreManager.get('spacesStore');
-						var data = store.getById(value);
-						if(!data)
-							return '';
-						else return data.get('name');
-					}
-				},
-				{
-					text: 'Privacy',
-					dataIndex: 'privacy',
-					hideable: false,
-					sortable: false,
-					renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
-						var store = Ext.StoreManager.get('privacyStore');
-						var data = store.getById(value);
-						if(!data)
-							return '';
-						else return data.get('name');
-					}
-				}
-			],
-			width: 'auto',
-			forceFit: true,
-			renderTo: 'ext',
-			tbar: [
-			{
-				text: 'Add Space',
-				iconCls: 'add-icon',
-				handler : function() {
-					var grid = this.findParentByType('grid');
-
-					// Create a model instance
-					var r = {};
-					var store = grid.getStore();
-					store.insert(0, r);
-					
-					grid.plugins[0].toggleRow(0, store.getAt(0));
-				}
-			}, 
-			{
-				itemId: 'remove',
-				text: 'Remove Space',
-				iconCls: 'remove-icon',
-				handler: function() {
-					var sm = this.findParentByType('grid').getSelectionModel();
-					var store = this.findParentByType('grid').getStore();
-					store.remove(sm.getSelection());
-					if (store.getCount() > 0) {
-						sm.select(0);
-					}
-				},
-				disabled: true
-			},
-			{
-				itemId: 'save',
-				text: 'Save Spaces',
-				iconCls: 'save-icon',
-				handler: function() {
-					var grid = this.findParentByType('grid');
-					grid.allFormsValid = true;
-					grid.plugins[0].expandAll(false);
-					if(grid.allFormsValid)
-						grid.getStore().sync();
-				}
-			}
-			],
-			viewConfig: {
-				listeners: {
-					expandbody: function(rowNode, record, expandRow, eOpts){
-						var row = 'space-row-' + record.get('id');
-						if(Ext.get(row).dom.innerHTML == '')
-						{
-							var formPanel = GetSpacesForm();
-							formPanel.render(row);
-							formPanel.loadRecord(record);
-						}
-					},
-					collapsebody: function(rowNode, record, expandRow, eOpts){
-						var row = 'space-row-' + record.get('id');
-						var form = Ext.getCmp(Ext.get(row).dom.children[0].id);
-						if(form.isValid())
-						{
-							form.updateRecord(record);
-						}
-						else
-						{
-							this.grid.plugins[0].toggleRow(this.grid.getStore().indexOfId(record.id),record);
-							this.grid.allFormsValid = false;
-							Ext.MessageBox.show({
-								title: "Error",
-								msg: "Form is invalid.  Please fix the errors.",
-								buttons: Ext.MessageBox.OK,
-								icon: Ext.MessageBox.ERROR
-							});
-						}
-					}
-				}
-			},
-			plugins: [rowExpander],
-			listeners: {
-				'selectionchange': function(view, records) {
-					grid.down('#remove').setDisabled(!records.length);
-				},
-			}
 		});
 		
 		function GetSpacesForm()
@@ -459,14 +304,63 @@
 		}
 		
 		
-		/*
-		Google Maps Items
-		*/
+		var grid = Ext.create('Ext.ux.FormGrid', {
+			title: 'My Spaces',
+			store: userSpacesStore,
+			GetFormItems: GetSpacesForm,
+			columns: [
+				{
+					text: 'Name',
+					dataIndex: 'name',
+					hideable: false,
+					sortable:false
+				},
+				{
+					text: 'Space',  
+					dataIndex:'spaceid', 
+					hideable: false,
+					sortable: false,
+					renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
+						var store = Ext.StoreManager.get('spacesStore');
+						var data = store.getById(value);
+						if(!data)
+							return '';
+						else return data.get('name');
+					}
+				},
+				{
+					text: 'Privacy',
+					dataIndex: 'privacy',
+					hideable: false,
+					sortable: false,
+					renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
+						var store = Ext.StoreManager.get('privacyStore');
+						var data = store.getById(value);
+						if(!data)
+							return '';
+						else return data.get('name');
+					}
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'ext'
+		});
+		
+		
+		spacesStore.load(function (records, operation, success){
+			if(success)
+			{
+				BuildGoogleMap();
+			}
+		});
+		
 		function BuildGoogleMap(){
 			var mapPanel = Ext.create('Ext.ux.MapPanel',{
 				renderTo: 'map_panel',
 				height: 525,
 				title: "Other Member's Spaces",
+				autoLoadKeyStoreInitial: false,
 				keyStore: Ext.StoreManager.get('spacesStore'),
 				mapStore: Ext.StoreManager.get('otherUserSpacesStore'),
 				filterMenuConfig: {

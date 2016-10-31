@@ -161,14 +161,6 @@
 			pageSize: 500
 		});
 		
-		usersStore.load(function (records, operation, success){
-			if(success)
-			{
-				BuildGoogleMap();
-			}
-		});
-		
-		
 		function GetUsersForm()
 		{
 			return Ext.create(Ext.form.Panel,{
@@ -238,28 +230,27 @@
 		}
 		
 		
-		function BuildGoogleMap(){
-			var mapPanel = Ext.create('Ext.ux.MapPanel',{
-				renderTo: 'map_panel',
-				title: "Nearby Supporters",
-				markerWindowHeight: 150,
-				markerWindowWidth: 400,
-				keyStore: Ext.StoreManager.get('keyStore'),
-				mapStore: Ext.StoreManager.get('usersStore'),
-				filterMenuConfig: {
-					filters:[
-						{
-							text: 'Distance',
-							emptyText: 'Enter distance in miles.',
-							dataIndex: 'distance',
-							operator: '<=',
-							type: 'number'
-						}
-					]
-				},
-				getMapStoreForm: GetUsersForm
-			});
-		}
+		var mapPanel = Ext.create('Ext.ux.MapPanel',{
+			renderTo: 'map_panel',
+			title: "Nearby Supporters",
+			markerWindowHeight: 150,
+			markerWindowWidth: 400,
+			autoLoadKeyStoreInitial: false,
+			keyStore: Ext.StoreManager.get('keyStore'),
+			mapStore: Ext.StoreManager.get('usersStore'),
+			filterMenuConfig: {
+				filters:[
+					{
+						text: 'Distance',
+						emptyText: 'Enter distance in miles.',
+						dataIndex: 'distance',
+						operator: '<=',
+						type: 'number'
+					}
+				]
+			},
+			getMapStoreForm: GetUsersForm
+		});
 	});
 </script>
 
