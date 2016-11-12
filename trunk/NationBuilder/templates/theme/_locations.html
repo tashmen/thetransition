@@ -157,14 +157,7 @@
 			{
 				if(locationsStore.getCount() == 1)
 					locationName = locationsStore.getAt(0).get('name');
-				userLocationsStore.load();
-				otherUserLocationsStore.load(function (records, operation, success){
-					if(success)
-					{
-						this.remoteFilter = false;
-						BuildGoogleMap();
-					}
-				});
+				BuildGoogleMap();
 			}
 		});
 		
@@ -267,7 +260,6 @@
 				renderTo: 'map_panel',
 				height: 550,
 				autoLoadKeyStoreInitial: false,
-				autoLoadMapStoreInitial: false,
 				keyStore: Ext.StoreManager.get('locationsStore'),
 				mapStore: Ext.StoreManager.get('otherUserLocationsStore'),
 				filterMenuConfig: {

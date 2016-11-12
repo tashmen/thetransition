@@ -133,7 +133,7 @@ Ext.define('Ext.ux.FormGrid',{
 			
 			if(grid.autoLoadInitial)
 			{
-				grid.store.load();
+				setTimeout(grid.store.load(), 500);
 				grid.autoLoadInitial = false;
 			}
 		}
@@ -424,7 +424,7 @@ Ext.define('Ext.ux.MapPanel', {
 		afterLayout: function (grid , layout , eOpts){
 			if(grid.autoLoadMapStoreInitial)
 			{
-				grid.mapStore.load();
+				setTimeout(grid.mapStore.load(), 500);
 				grid.autoLoadMapStoreInitial = false;
 			}
 			if(grid.keyStore != '' && grid.autoLoadKeyStoreInitial)
