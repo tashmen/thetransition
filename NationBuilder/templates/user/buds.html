@@ -443,6 +443,26 @@
 									]
 								}
 							],
+							autoLoadInitial: true,
+							listeners:{
+								afterLayout: function (grid , layout , eOpts)
+								{
+									//Refresh the underlying grid if this form grid is nested in another form grid
+									var object = grid;
+									while(object.previousNode() != null)
+									{
+										object = object.previousNode();
+									}
+									if(object.grid)
+										object.grid.updateLayout();
+									
+									if(grid.autoLoadInitial)
+									{
+										setTimeout(grid.store.load(), 500);
+										grid.autoLoadInitial = false;
+									}
+								}
+							},
 							width: 'auto',
 							forceFit: true
 						}
@@ -566,6 +586,26 @@
 									displayInfo: true
 								}
 							],
+							autoLoadInitial: true,
+							listeners:{
+								afterLayout: function (grid , layout , eOpts)
+								{
+									//Refresh the underlying grid if this form grid is nested in another form grid
+									var object = grid;
+									while(object.previousNode() != null)
+									{
+										object = object.previousNode();
+									}
+									if(object.grid)
+										object.grid.updateLayout();
+									
+									if(grid.autoLoadInitial)
+									{
+										setTimeout(grid.store.load(), 500);
+										grid.autoLoadInitial = false;
+									}
+								}
+							},
 							columns: [
 								{
 									text: 'Name',
