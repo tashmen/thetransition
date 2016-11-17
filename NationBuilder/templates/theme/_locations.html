@@ -198,8 +198,7 @@
 					store: Ext.StoreManager.get('locationsStore')
 				});
 			}
-			return Ext.create(Ext.form.Panel,{
-				items: [
+			return [
 				{
 					xtype: 'fieldset',
 					collapsible: false,
@@ -207,12 +206,11 @@
 					margin: '5',
 					defaults: {
 						labelAlign: 'right',
-						width: '95%'
+						width: '100%'
 					},
 					items: items
 				}
-				]
-			});
+				];
 		}
 		
 		function BuildGoogleMap(){
