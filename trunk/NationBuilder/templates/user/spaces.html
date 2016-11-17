@@ -173,15 +173,15 @@
 		
 		function GetSpacesForm()
 		{
-			return Ext.create(Ext.form.Panel,{
-				items: [
+			return [
 				{
 					xtype: 'fieldset',
 					collapsible: false,
 					border: false,
 					margin: '5',
 					defaults: {
-						labelAlign: 'right'
+						labelAlign: 'right',
+						width: '100%'
 					},
 					items:[
 					{
@@ -189,7 +189,6 @@
 						fieldLabel: 'Name',
 						name: 'name',
 						allowBlank: false,
-						width: '95%',
 						maxLength: '500'
 					},
 					{
@@ -197,7 +196,6 @@
 						fieldLabel: 'Description',
 						name: 'description',
 						allowBlank: true,
-						width: '95%',
 						maxLength: '2000'
 					},
 					{
@@ -205,7 +203,6 @@
 						fieldLabel: 'Location',
 						name: 'location',
 						allowBlank: false,
-						width: '95%',
 						maxLength: '2000',
 						listeners: {
 							blur: function(field, event, eOpts){
@@ -273,7 +270,7 @@
 								store: spacesStore,
 								valueField: 'id',
 								displayField: 'name',
-								columnWidth: 0.475,
+								columnWidth: 0.5,
 								padding: '0, 10, 0, 0'
 							},
 							{
@@ -284,7 +281,7 @@
 								store: privacyStore,
 								valueField: 'id',
 								displayField: 'name',
-								columnWidth: 0.475,
+								columnWidth: 0.5,
 								padding: '0, 0, 0, 10'
 							}
 						]
@@ -299,8 +296,7 @@
 					}
 					]
 				}
-				]
-			});
+				];
 		}
 		
 		

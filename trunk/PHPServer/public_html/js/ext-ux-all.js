@@ -133,7 +133,7 @@ Ext.define('Ext.ux.FormGrid',{
 			
 			if(grid.autoLoadInitial)
 			{
-				setTimeout(grid.store.load(), 500);
+				grid.store.load();
 				grid.autoLoadInitial = false;
 			}
 		}
@@ -149,6 +149,11 @@ Ext.define('Ext.ux.FormGrid',{
 						style: {
 							'overflow-y': 'auto',
 							'max-height': '600px'
+						},
+						defaults: {
+							style: {
+								paddingRight: '5px' 
+							}
 						},
 						items: grid.GetFormItems(record)
 					});
@@ -424,7 +429,7 @@ Ext.define('Ext.ux.MapPanel', {
 		afterLayout: function (grid , layout , eOpts){
 			if(grid.autoLoadMapStoreInitial)
 			{
-				setTimeout(grid.mapStore.load(), 500);
+				grid.mapStore.load();
 				grid.autoLoadMapStoreInitial = false;
 			}
 			if(grid.keyStore != '' && grid.autoLoadKeyStoreInitial)

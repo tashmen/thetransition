@@ -249,7 +249,7 @@
 									name: 'type',
 									valueField: 'id',
 									displayField: 'name',
-									msgTarget: 'side',
+									//msgTarget: 'side', /*this can't be enabled because it breaks closing/opening the form when there is an error in the form*/
 									store: Ext.StoreManager.get('typeStore'),
 									maxSelections: 3
 								},
@@ -317,7 +317,7 @@
 					xtype: 'container',
 					border: false,
 					layout: 'fit',
-					padding: '0 5 5 5',
+					padding: '0 20 5 5',
 					items: [
 						{
 							xtype: 'gridpanel',
@@ -458,7 +458,7 @@
 									
 									if(grid.autoLoadInitial)
 									{
-										setTimeout(grid.store.load(), 500);
+										grid.store.load();
 										grid.autoLoadInitial = false;
 									}
 								}
@@ -572,7 +572,7 @@
 					xtype: 'container',
 					border: false,
 					layout: 'fit',
-					padding: '0 5 5 5',
+					padding: '0 20 5 5',
 					items: [
 						{
 							xtype: 'gridpanel',
