@@ -133,11 +133,12 @@
 			model: 'UserLocations',
 			remoteSort: true,
 			remoteFilter: true,
-			filters: [{
+			filters: [
+			/*{
 				property: "userid",
 				value: Transition.user.id,
 				operator: "ne"
-			},
+			},*/
 			locationFilterUsers],
 			pageSize: 500
 		});
@@ -264,7 +265,7 @@
 			}
 			
 			var mapPanel = Ext.create('Ext.ux.MapPanel',{
-				title: locationName + ' entered by others',
+				title: locationName,
 				renderTo: 'map_panel',
 				height: 550,
 				autoLoadKeyStoreInitial: false,

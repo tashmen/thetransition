@@ -445,7 +445,7 @@ Ext.define('Ext.ux.MapPanel', {
 		}
 	},
 	getMapStoreForm: function(){
-		return null;//Developer should implement this with the form they are using for the mapStore
+		return null;//Developer should implement this with the items they are using for the mapStore form
 	},
 	updateMarkers: function(){
 		for(var i=0;i<this.markerArray.length;i++)
@@ -607,7 +607,18 @@ Ext.define('Ext.ux.MapPanel', {
 	openMarker: function(marker){
 		var store = this.mapStore;
 		var record = store.findRecord('id', marker.id);
-		var form = this.getMapStoreForm(record);
+		var form = Ext.create("Ext.form.Panel", {
+			style: {
+				'overflow-y': 'auto',
+				'max-height': '600px'
+			},
+			defaults: {
+				style: {
+					paddingRight: '5px' 
+				}
+			},
+			items: this.getMapStoreForm(record)
+		});
 		if(form == null)
 			return;
 			
