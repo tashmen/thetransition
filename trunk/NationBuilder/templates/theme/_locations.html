@@ -58,6 +58,9 @@
 					calculate: function(data){
 						return 'Location entered by: ' + data.fullname;
 					}
+				},
+				{
+					name: 'phonenumber'
 				}
 			],
 			proxy: 
@@ -177,6 +180,13 @@
 				name: 'description',
 				allowBlank: true,
 				maxLength: '2000'
+			},
+			{
+				xtype: 'textfield',
+				fieldLabel: 'Phone Number',
+				name: 'phonenumber',
+				allowBlank: true,
+				maxLength: '50'
 			},
 			{
 				xtype: 'locationfield',

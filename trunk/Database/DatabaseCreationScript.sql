@@ -617,6 +617,7 @@ CREATE TABLE `userlocations` (
   `location` varchar(4000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Address of the location',
   `latitude` double NOT NULL COMMENT 'Latitude of the location',
   `longitude` double NOT NULL COMMENT 'Longitude of the location',
+  `phonenumber` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Stores the phone number for the location',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Holds information for user entered locations that are displa' AUTO_INCREMENT=2 ;
 
@@ -624,8 +625,8 @@ CREATE TABLE `userlocations` (
 -- Table structure for table `userlocationsview`
 --
 
-DROP TABLE IF EXISTS `userlocationsview`;
-CREATE VIEW `userlocationsview` AS select `users`.`fullname` AS `fullname`,`userlocations`.`id` AS `id`,`userlocations`.`userid` AS `userid`,`userlocations`.`locationid` AS `locationid`,`userlocations`.`name` AS `name`,`userlocations`.`description` AS `description`,`userlocations`.`location` AS `location`,`userlocations`.`latitude` AS `latitude`,`userlocations`.`longitude` AS `longitude`,`locations`.`icon` AS `icon` from ((`users` join `userlocations` on((`users`.`id` = `userlocations`.`userid`))) join `locations` on((`userlocations`.`locationid` = `locations`.`id`)));
+DROP View IF EXISTS `userlocationsview`;
+CREATE VIEW `userlocationsview` AS select `users`.`fullname` AS `fullname`,`userlocations`.`id` AS `id`,`userlocations`.`userid` AS `userid`,`userlocations`.`locationid` AS `locationid`,`userlocations`.`name` AS `name`,`userlocations`.`description` AS `description`,`userlocations`.`location` AS `location`,`userlocations`.`latitude` AS `latitude`,`userlocations`.`longitude` AS `longitude`,`locations`.`icon` AS `icon`, `userlocations`.`phonenumber` as `phonenumber` from ((`users` join `userlocations` on((`users`.`id` = `userlocations`.`userid`))) join `locations` on((`userlocations`.`locationid` = `locations`.`id`)));
 
 --
 -- Table structure for table `currentphasenumberbyuser`
