@@ -26,6 +26,12 @@
   ga('send', 'pageview');
 
 </script>
+  <script data-skip-moving="true">
+        (function(w,d,u,b){
+                s=d.createElement('script');r=1*new Date();s.async=1;s.src=u+'?'+r;
+                h=d.getElementsByTagName('script')[0];h.parentNode.insertBefore(s,h);
+        })(window,document,'https://cdn.bitrix24.com/b2331593/crm/site_button/loader_4_j2s32v.js');
+</script>
   
   <!-- because ie8 ignores media queries, we need this -->
   <!--[if IE 8]>
@@ -64,6 +70,7 @@
   <script type="text/javascript" src="collective.js"></script>
    {% include "thetransitionglobaluser" %}
 	{% include "thetransitionextheader" %}
+  
 
 </head>
 <body class="aware-theme v2-theme {{ page.page_class_name }} js">
@@ -138,13 +145,13 @@
                 <h5>Powered by people like you</h5>
 
                 <div class="desktop-visible">
-                  {% for signup in site.recent_supporters_with_pictures limit:16 %} 
+                  {% for signup in site.recent_supporters_with_pictures limit:5 %} 
                     {{ signup.smaller_profile_image }} 
                   {% endfor %}
                 </div>
 
                 <div class="mobile-visible">
-                  {% for signup in site.recent_supporters_with_pictures limit:10 %} 
+                  {% for signup in site.recent_supporters_with_pictures limit:5 %} 
                     {{ signup.smaller_profile_image }} 
                   {% endfor %}
                 </div>
