@@ -73,7 +73,7 @@ class userphasesteps extends TableObject{
                     }
                 }
                 if(!$isFound){
-                    $obj = array('userid' => Security::GetLoggedInUser(), 'phasestepid' => $currentPhaseStep['id'], 'completed' => '0');
+                    $obj = array('userid' => Security::GetLoggedInUser(), 'phasestepid' => $currentPhaseStep['id'], 'completed' => '0', 'creationdt' => '', 'lastupdated' => '');
                     $aryCurrentUserPhaseSteps[] = $obj;
                     $aryNewCurrentUserPhaseSteps[] = (object)$obj;
                 }
