@@ -15,10 +15,13 @@
     <hr/>
     {% endif %}
 
+	{% if request.logged_in? %}
 	{% include "thetransitionuserreview" %}
 	{% include "thetransitionprofilebuds" %}
-	
 	<hr/>
+	{% endif %}
+	
+	
     {% if profile.most_recent_posts.size > 0 %}
 
     <div id="content">

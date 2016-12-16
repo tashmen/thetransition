@@ -104,10 +104,13 @@
   </div>
 </div>
 
-<hr/>
 
+
+{% if request.logged_in? %}
+<hr/>
 {% include "thetransitionuserreview" %}
 {% include "thetransitionprofilebuds" %}
+{% endif %}
 
 {% if profile.most_recent_posts.size > 0 %}
 
