@@ -291,6 +291,8 @@
 		var suggestionsStore = Ext.create('Ext.data.Store', {
 			storeId: 'suggestionsStore',
 			model: 'UserSuggestions',
+      remoteSort: true,
+      remoteFilter: true,
 			sorters: [{
 				 property: 'creationdt',
 				 direction: 'DESC'

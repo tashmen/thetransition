@@ -68,7 +68,8 @@
 			
 			var allEvents = [];
 			 {% for child in page.children %}
-       {% if child.tags contains "approved"%}
+			 {% for tag in child.tags %}
+       {% if tag.name == "approved" %}
 				allEvents.push({
 				  title: '{{ child.headline }}',
 				  start: '{{child.event.local_start_at | date:'%FT%TZ%z'}}',//'{{child.event.local_start_at | date:'%FT%TZ%z' }}',
@@ -79,6 +80,7 @@
 				  country: 'child.event.venue_address.country_code'
 				});
         {% endif %}
+		{% endfor %}
 			{% endfor %}
 			
 			//Testing code for setting up country filter
