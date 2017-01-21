@@ -1,9 +1,9 @@
 <li>
   <a href="{{navigationitems.url}}">{{navigationitems.headline}}</a>
-  {% if navigationitems.has_children? %}
+  {% if navigationitems.has_children? and navigationitems.type_name != 'Calendar' %}
   <ol class="listing">
     {% for child1 in navigationitems.children %}
-    		{% include 'navigationitems' with child1 %}
+    	{% include 'navigationitems' with child1 %}
     {% endfor %}
   </ol>
   {% endif %}
