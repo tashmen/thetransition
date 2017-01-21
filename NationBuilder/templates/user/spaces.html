@@ -141,11 +141,12 @@
 			model: 'UserSpaces',
 			remoteSort: false,
 			remoteFilter: false,
+			/*
 			filters: [{
 				property: "userid",
 				value: Transition.user.id,
 				operator: "ne"
-			}],
+			}],*/
 			pageSize: 500
 		});
 		
@@ -355,7 +356,7 @@
 			var mapPanel = Ext.create('Ext.ux.MapPanel',{
 				renderTo: 'map_panel',
 				height: 525,
-				title: "Other Member's Spaces",
+				title: "All Spaces",
 				autoLoadKeyStoreInitial: false,
 				keyStore: Ext.StoreManager.get('spacesStore'),
 				mapStore: Ext.StoreManager.get('otherUserSpacesStore'),

@@ -302,11 +302,11 @@
 			remoteSort: true,
 			remoteFilter: true,
 			filters: [
-				{
+				/*{
 					property: "userid",
 					value: Transition.user.id,
 					operator: "ne"
-				},
+				},*/
 				{
 					property: "latitude",
 					operator: "notnull"
@@ -432,7 +432,7 @@
 		]
 		
 		var mapPanel = Ext.create('Ext.ux.MapPanel',{
-			title: 'Other Member\'s Objects',
+			title: 'All Objects',
 			renderTo: 'map_panel',
 			height: 550,
 			markerWindowHeight: 350,
