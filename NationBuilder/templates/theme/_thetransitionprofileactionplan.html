@@ -1,0 +1,299 @@
+<script type="text/javascript">
+ Ext.onReady(function() {
+	Ext.QuickTips.init();
+	
+	//Look into doing something like this: http://www.learnsomethings.com/2011/02/11/make-data-in-an-extjs-grid-wrap/ and generate records as needed or create a view that left joins the userPhaseSteps and Users table
+	
+	Ext.define('PhaseSteps', {
+		extend: 'Ext.data.Model',
+		fields: [
+			{
+				name: 'id',
+			}, 
+			{
+				name: 'name'
+			},
+			{
+				name: 'planphaseid'
+			},
+			{
+				name: 'number'
+			}
+		],
+		proxy: 
+		{
+			extraParams: {
+				resource: 'phasesteps'
+			},
+			reader: {
+				type: 'json',
+				rootProperty: 'phasesteps'
+			},
+			type: 'customphp'
+		}
+	});
+	
+	var phaseStepsStore = Ext.create('Ext.data.Store', {
+		storeId:'phaseStepsStore',
+		model: 'PhaseSteps',
+		remoteSort: true,
+		remoteFilter: true,
+		pageSize: 0
+	});
+	
+	Ext.define('PlanPhases', {
+		extend: 'Ext.data.Model',
+		fields: [
+			{
+				name: 'id',
+			}, 
+			{
+				name: 'name'
+			},
+			{
+				name: 'number'
+			}
+		],
+		proxy: 
+		{
+			extraParams: {
+				resource: 'planphases'
+			},
+			reader: {
+				type: 'json',
+				rootProperty: 'planphases'
+			},
+			type: 'customphp'
+		}
+	});
+	
+	var planPhasesStore = Ext.create('Ext.data.Store', {
+		storeId:'planPhasesStore',
+		model: 'PlanPhases',
+		remoteSort: true,
+		remoteFilter: true,
+		sorters: [{
+			 property: 'number',
+			 direction: 'ASC'
+		}],
+		pageSize: 0
+	});
+	
+	Ext.define('UserPhaseSteps', {
+		extend: 'Ext.data.Model',
+		fields: [
+			{
+				name: 'userid',
+				defaultValue: {{profile.id}}
+			}, 
+			{
+				name: 'phasestepid'
+			},
+			{
+				name: 'completed',
+				type: 'boolean'
+			}
+		],
+		proxy: 
+		{
+			extraParams: {
+				resource: 'userphasesteps',
+				getcurrentphase: '1'
+			},
+			reader: {
+				type: 'json',
+				rootProperty: 'userphasesteps'
+			},
+			type: 'customphp'
+		}
+	});
+	
+	var userPhaseStepsStore = Ext.create('Ext.data.Store', {
+		storeId:'UserPhaseStepsStore',
+		model: 'UserPhaseSteps',
+		remoteSort: true,
+		remoteFilter: true,
+		filters: [{
+			property: "userid",
+			value: {{ profile.id }},
+			operator: "eq"
+		}],
+		pageSize: 500
+	});
+	
+	//Load the stores
+	userPhaseStepsStore.load(function (records, operation, success){
+		if(success)
+		{
+			planPhasesStore.load(function (records, operation, success){
+				if(success)
+				{
+					phaseStepsStore.load(function (records, operation, success){
+						if(success)
+						{
+							var planPhase = GetCurrentPhase();
+							BuildGridPlan(planPhase);
+						}
+					});
+				}
+			});
+		}
+	});
+	
+	function GetCurrentPhase()
+	{
+		var userPhaseStep = userPhaseStepsStore.getAt(0);
+		var phaseStepId = userPhaseStep.get('phasestepid');
+		var planPhaseId = phaseStepsStore.getById(phaseStepId).get('planphaseid');
+		var planPhase = planPhasesStore.getById(planPhaseId);
+		return planPhase;
+	}
+	
+	function BuildGridPlan(currentPhase)
+	{
+		var currentPlanPhaseStore = Ext.create('Ext.data.Store', {
+			storeId:'currentPlanPhasesStore',
+			model: 'PlanPhases',
+			remoteSort: true,
+			remoteFilter: true,
+			sorters: [{
+				property: 'number',
+				direction: 'ASC'
+			}],
+			filters: [{
+				id: 'phaseFilter',
+				property: 'number',
+				value: currentPhase.get('number'),
+				operator: 'lte'
+			}],
+			pageSize: 0
+		});
+		
+		var highestPhase = currentPhase;
+		
+		userPhaseStepsStore.on('refresh', function(store, options)
+			{
+				var currentPhase = GetCurrentPhase();
+				if(highestPhase.get('number') < currentPhase.get('number'))
+				{
+					highestPhase = currentPhase;
+					currentPlanPhaseStore.remoteFilter = false;
+					currentPlanPhaseStore.removeFilter('phaseFilter');
+					currentPlanPhaseStore.remoteFilter = true;
+					currentPlanPhaseStore.addFilter({
+						id: 'phaseFilter',
+						property: 'number',
+						value: currentPhase.get('number'),
+						operator: 'lte'
+					});
+				}
+				
+				grid.setTitle(currentPhase.get('name'));
+			}
+		);
+		
+		var grid = Ext.create('Ext.grid.Panel', {
+			title: currentPhase.get('name'),
+			store: userPhaseStepsStore,
+			currentPhase: currentPhase,
+			refreshPhase: function(currentPhase, getCurrentPhase){
+				grid.currentPhase = currentPhase;
+				userPhaseStepsStore.suspendEvents(false);
+				userPhaseStepsStore.remoteFilter = false;
+				userPhaseStepsStore.removeFilter('phaseFilter');
+				if(getCurrentPhase == 0)
+				{
+					userPhaseStepsStore.addFilter({
+						id: 'phaseFilter',
+						property: 'planphaseid',
+						value: currentPhase.get('id'),
+						operator: 'eq'
+					});
+				}
+				
+				userPhaseStepsStore.setProxy({
+					extraParams: {
+						resource: 'userphasesteps',
+						getcurrentphase: getCurrentPhase
+					},
+					reader: {
+						type: 'json',
+						rootProperty: 'userphasesteps'
+					},
+					type: 'customphp'
+				});
+				userPhaseStepsStore.remoteFilter = true;
+				userPhaseStepsStore.resumeEvents();
+			
+				var toolbar = this.dockedItems.findBy(function(object, item, key){return object.xtype == 'pagingtoolbar'})
+				toolbar.doRefresh();
+			},
+			dockedItems: [{
+				xtype: 'pagingtoolbar',
+				store: userPhaseStepsStore,
+				dock: 'bottom',
+				displayInfo: true
+			}],
+			columns: [
+				{
+					xtype : 'checkcolumn',
+					text: 'Completed?',  
+					dataIndex:'completed', 
+					hideable: false,
+					sortable: false,
+					width: .2,
+					listeners: {
+						beforecheckchange: function() {
+							return false; // HERE
+						}
+					}
+				},
+				{
+					text: 'Step',
+					dataIndex: 'phasestepid',
+					hideable: false,
+					sortable: false,
+					renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
+						var store = Ext.StoreManager.get('phaseStepsStore');
+						var data = store.getById(value);
+						if(!data)
+							return '';
+						else return data.get('name');
+					},
+					width: .8
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'actionplan',
+			tbar: [
+			{
+				itemId: 'phaseSelector',
+				xtype: 'combobox',
+				emptyText: 'Select Phase',
+				name: 'phase',
+				width: 350,
+				store: currentPlanPhaseStore,
+				valueField: 'id',
+				displayField: 'name',
+				listeners: {
+					change: function(combo, newValue, oldValue, eOpts){
+						if(newValue)
+							grid.refreshPhase(combo.getStore().getById(newValue), 0);
+					}
+				}
+			}
+			]
+		});
+		
+		
+	}
+});
+</script>
+
+<br>
+<br>
+
+<div id="actionplan"></div>
+  
+  
