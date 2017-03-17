@@ -141,12 +141,32 @@
 			model: 'UserSpaces',
 			remoteSort: false,
 			remoteFilter: false,
-			/*
-			filters: [{
-				property: "userid",
-				value: Transition.user.id,
-				operator: "ne"
-			}],*/
+			
+			filters: [
+				/*{
+					property: "userid",
+					value: Transition.user.id,
+					operator: "ne"
+				}*/
+				{
+					property: "latitude",
+					operator: "notnull"
+				},
+				{
+					property: "longitude",
+					operator: "notnull"
+				},
+				{
+					property: "latitude",
+					value: "0",
+					operator: "ne"
+				},
+				{
+					property: "longitude",
+					value: "0",
+					operator: "ne"
+				}
+			],
 			pageSize: 500
 		});
 		

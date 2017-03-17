@@ -139,6 +139,24 @@
 				value: Transition.user.id,
 				operator: "ne"
 			},*/
+				{
+					property: "latitude",
+					operator: "notnull"
+				},
+				{
+					property: "longitude",
+					operator: "notnull"
+				},
+				{
+					property: "latitude",
+					value: "0",
+					operator: "ne"
+				},
+				{
+					property: "longitude",
+					value: "0",
+					operator: "ne"
+				},
 			locationFilterUsers],
 			pageSize: 500
 		});
