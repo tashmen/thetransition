@@ -86,7 +86,18 @@
 						if(panel.isValid())
 						{
 							panel.updateRecord();
-							panel.getRecord().save();
+							var options = {callback: function(records, operation, success){
+								if(success)
+								{
+									Ext.MessageBox.show({
+										title: 'Confirmation',
+										msg: 'Your review was saved successfully.',
+										buttons: Ext.MessageBox.OK,
+										icon: Ext.MessageBox.INFO
+									});
+								}
+							}};
+							panel.getRecord().save(options);
 						}
 					}
 				}
@@ -144,12 +155,12 @@
 					property: "revieweeid",
 					value: '{{ profile.id }}',
 					operator: "eq"
-				},
+				}/*,
 				{
 					property: "reviewerid",
 					value: Transition.user.id,
 					operator: "ne"
-				}
+				}*/
 			],
 			sorters: [
 				{
