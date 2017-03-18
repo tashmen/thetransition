@@ -46,6 +46,7 @@ class userphasesteps extends TableObject{
         $getCurrentPhase = RequestData::GetRequestData('getcurrentphase');
         if($getCurrentPhase == "1")
         {
+            
             $aryUserPhaseSteps = $this->GetResults();
             $request = new TableRequest(false);
             $phaseSteps = new phasesteps($this->GetConnection(), $request);
@@ -53,37 +54,51 @@ class userphasesteps extends TableObject{
             $aryPhaseSteps = $phaseSteps->GetResults();
             $currentPhase = $this->GetCurrentPhaseId($aryUserPhaseSteps, $aryPhaseSteps);
             
-            $aryCurrentPhaseSteps = array();
-            foreach($aryPhaseSteps as $phaseStep)
+            //Need to check if there is a filter on planphaseid that might prevent us from getting the user's current phase.
+            $filters = $this->GetRequest()->GetFilters();
+            $bRetrieveCurrent = true;
+            foreach($filters as $filter)
             {
-                if($phaseStep['planphaseid'] == $currentPhase)
+                if($filter->GetColumn() == "planphaseid" && $filter->GetValue() != $currentPhase)
                 {
-                    $aryCurrentPhaseSteps[] = $phaseStep;
+                    $bRetrieveCurrent = false;
                 }
             }
-            $aryCurrentUserPhaseSteps = array();
-            $aryNewCurrentUserPhaseSteps = array();
-            foreach($aryCurrentPhaseSteps as $currentPhaseStep)
+            
+            if($bRetrieveCurrent)
             {
-                $isFound = false;
-                foreach($aryUserPhaseSteps as $userPhaseStep){
-                    if($userPhaseStep['phasestepid'] == $currentPhaseStep['id']){
-                        $isFound = true;
-                        $aryCurrentUserPhaseSteps[] = $userPhaseStep;
+                $aryCurrentPhaseSteps = array();
+                foreach($aryPhaseSteps as $phaseStep)
+                {
+                    if($phaseStep['planphaseid'] == $currentPhase)
+                    {
+                        $aryCurrentPhaseSteps[] = $phaseStep;
                     }
                 }
-                if(!$isFound){
-                    $obj = array('userid' => Security::GetLoggedInUser(), 'phasestepid' => $currentPhaseStep['id'], 'completed' => '0', 'creationdt' => '', 'lastupdated' => '');
-                    $aryCurrentUserPhaseSteps[] = $obj;
-                    $aryNewCurrentUserPhaseSteps[] = (object)$obj;
+                $aryCurrentUserPhaseSteps = array();
+                $aryNewCurrentUserPhaseSteps = array();
+                foreach($aryCurrentPhaseSteps as $currentPhaseStep)
+                {
+                    $isFound = false;
+                    foreach($aryUserPhaseSteps as $userPhaseStep){
+                        if($userPhaseStep['phasestepid'] == $currentPhaseStep['id']){
+                            $isFound = true;
+                            $aryCurrentUserPhaseSteps[] = $userPhaseStep;
+                        }
+                    }
+                    if(!$isFound){
+                        $obj = array('userid' => Security::GetLoggedInUser(), 'phasestepid' => $currentPhaseStep['id'], 'completed' => '0', 'creationdt' => '', 'lastupdated' => '');
+                        $aryCurrentUserPhaseSteps[] = $obj;
+                        $aryNewCurrentUserPhaseSteps[] = (object)$obj;
+                    }
                 }
+                $request = new TableRequest(false);
+                $request->SetData($aryNewCurrentUserPhaseSteps);
+                $newUserPhaseSteps = new userphasesteps($this->GetConnection(), $request);
+                $newUserPhaseSteps->create();
+                $this->AddProperty("total", '' . count($aryCurrentUserPhaseSteps));
+                $this->SetResults($aryCurrentUserPhaseSteps);
             }
-            $request = new TableRequest(false);
-            $request->SetData($aryNewCurrentUserPhaseSteps);
-            $newUserPhaseSteps = new userphasesteps($this->GetConnection(), $request);
-            $newUserPhaseSteps->create();
-            $this->AddProperty("total", '' . count($aryCurrentUserPhaseSteps));
-            $this->SetResults($aryCurrentUserPhaseSteps);
         }    
     }
     
