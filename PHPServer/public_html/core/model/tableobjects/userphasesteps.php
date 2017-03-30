@@ -57,12 +57,23 @@ class userphasesteps extends TableObject{
             //Need to check if there is a filter on planphaseid that might prevent us from getting the user's current phase.
             $filters = $this->GetRequest()->GetFilters();
             $bRetrieveCurrent = true;
+            $requestedUser = '';
             foreach($filters as $filter)
             {
-                if($filter->GetColumn() == "planphaseid" && $filter->GetValue() != $currentPhase)
+                if($filter->GetColumn() == 'planphaseid' && $filter->GetValue() != $currentPhase)
                 {
                     $bRetrieveCurrent = false;
                 }
+                if($filter->GetColumn() == 'userid')
+                {
+                    $requestedUser = $filter->GetValue();
+                }
+            }
+            
+            //If no userid is specified then there is a problem; don't retrieve current phase in this case
+            if($requestedUser == '')
+            {
+                $bRetrieveCurrent = false;
             }
             
             if($bRetrieveCurrent)
@@ -87,7 +98,7 @@ class userphasesteps extends TableObject{
                         }
                     }
                     if(!$isFound){
-                        $obj = array('userid' => Security::GetLoggedInUser(), 'phasestepid' => $currentPhaseStep['id'], 'completed' => '0', 'creationdt' => '', 'lastupdated' => '');
+                        $obj = array('userid' => $requestedUser, 'phasestepid' => $currentPhaseStep['id'], 'completed' => '0', 'creationdt' => '', 'lastupdated' => '');
                         $aryCurrentUserPhaseSteps[] = $obj;
                         $aryNewCurrentUserPhaseSteps[] = (object)$obj;
                     }
