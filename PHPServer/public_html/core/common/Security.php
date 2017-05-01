@@ -60,21 +60,7 @@ class Security {
         throw new Exception("Security: User is not allowed access to this system.  Please refresh the page and try again.");
     }
 
-    /*
-     * Validates that users can only set records with their id.  Requires the column name to be "userid".
-     * @param columnName - The name of the column to validate
-     * @param columnValue - The value that is trying to be saved
-     * @return true if the user is the logged in user accessing the system or the user is an administrator
-     */
-    public static function ValidateColumn($columnName, $columnValue, iDatabase $database) {
-        if ($columnName == 'userid') {
-            if (self::$userid != $columnValue && !self::IsAdmin() && !self::IsPointPerson($columnValue, $database))
-            {
-                throw new Exception("Security: Attempt to set a record to an invalid user: " . $columnValue);
-            }
-        }
-        return true;
-    }
+    
     
     /*
      * Checks if the user is an administrator

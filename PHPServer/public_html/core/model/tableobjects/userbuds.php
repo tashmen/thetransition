@@ -73,4 +73,12 @@ class userbuds extends TableObject {
     {
         $this->GetConnection()->execute("Update " . $this->GetPrimaryTable(). " set userid = 1 where userid = ?", $parameters, false);
     }
+    
+    public function GetUserForBud($budid)
+    {
+        $parameters = array();
+        $parameters[] = $budid;
+        $results = $this->GetConnection()->execute("Select userid from " . $this->GetPrimaryTable() . " where id = (?)", $parameters, true);
+        return $results[0]['userid'];
+    }
 }

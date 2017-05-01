@@ -41,6 +41,27 @@ class userphasesteps extends TableObject{
         return array('read','update');
     }
     
+    /*
+     * Validates that the user can modify the record.  These items can be modified either by the owner or by the point person.
+     * @param record - The record to validate
+     * @return true if the user has access to modify record otherwiser throw error
+     */
+    public function ValidateRecord($record) {
+        $bIsValid = true;
+        try
+        {
+            parent::ValidateRecord($record);
+        } catch (Exception $ex) {
+            $bIsValid = false;
+        }
+        if (!$bIsValid && !Security::IsPointPerson($record->userid, $this->GetConnection()))
+        {
+            throw new Exception("Security: The record you are modifying does not belong to you or must be modified by your point person.");
+        }
+        
+        return true;
+    }
+    
     public function read(){
         parent::read();
         $getCurrentPhase = RequestData::GetRequestData('getcurrentphase');
@@ -136,8 +157,9 @@ class userphasesteps extends TableObject{
                     }
                 }
                 $phaseSteps = new phasesteps($this->GetConnection());
-                if($phaseSteps->ContainsPointPersonTask($ids))
+                if($phaseSteps->ContainsPointPersonTask($ids)){
                     throw new Exception ("One of the tasks you are updating can only be completed by your point person.");
+                }
             }
         }
         

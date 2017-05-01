@@ -214,8 +214,8 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         $records = $this->GetData();
         foreach ($records as $record) {
             $parameters = array();
+            $this->ValidateRecord($record);
             foreach ($columns->GetNames() as $column) {
-                Security::ValidateColumn($column, $record->$column, $this->GetConnection());
                 $parameters[] = $this->SetValueForCreateUpdate($record, $column, 'create');
             }
             $this->connection->execute($statement, $parameters, false);
@@ -261,15 +261,14 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         $records = $this->GetData();
         foreach ($records as $record) {
             $parameters = array();
+            $this->ValidateRecord($record);
             foreach ($columns->GetColumns() as $column) {
                 if (!$column->IsKey()) {//All set columns must come before all key columns
                     $columnName = $column->GetName();
-                    Security::ValidateColumn($columnName, $record->$columnName, $this->GetConnection());
                     $parameters[] = $this->SetValueForCreateUpdate($record, $columnName, 'update');
                 }
             }
             foreach ($columns->GetKeys() as $key) {
-                Security::ValidateColumn($key, $record->$key, $this->GetConnection());
                 $parameters[] = $record->$key;
             }
             $this->connection->execute($statement, $parameters, false);
@@ -298,8 +297,8 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
         $records = $this->GetData();
         foreach ($records as $record) {
             $parameters = array();
+            $this->ValidateRecord($record);
             foreach ($columns->GetKeys() as $key) {
-                Security::ValidateColumn($key, $record->$key, $this->GetConnection());
                 $parameters[] = $record->$key;
             }
             $this->connection->execute($statement, $parameters, false);
@@ -530,5 +529,24 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
     public function GetEventListeners()
     {
         return array();
+    }
+    
+    /*
+     * Validates that users can only set records with their id.  Requires the column name to be "userid".
+     * @param record - The record to validate
+     * @return true if the user has access to modify the record otherwise throw error
+     */
+    public function ValidateRecord($record) {
+        $columns = $this->GetColumns();
+        foreach ($columns->GetColumns() as $column) {
+            $columnName = $column->GetName();
+            if ($columnName == 'userid') {
+                if (Security::GetLoggedInUser() != $record->$columnName && !Security::IsAdmin())
+                {
+                    throw new Exception("Security: The record you are modifying does not belong to you and cannot be changed.");
+                }
+            }
+        }
+        return true;
     }
 }

@@ -5,8 +5,12 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/F:/My%20Stuff/TheTransition/Main%20Repository/thetransition/PHPServer/public_html/core/common/MySqlDB.php</file>
+            <file>file:/F:/My%20Stuff/TheTransition/Main%20Repository/thetransition/PHPServer/public_html/core/model/tableobjects/userobjects.php</file>
             <file>file:/F:/My%20Stuff/TheTransition/Main%20Repository/thetransition/PHPServer/public_html/core/common/Filter.php</file>
             <file>file:/F:/My%20Stuff/TheTransition/Main%20Repository/thetransition/PHPServer/public_html/core/model/TableObject.php</file>
+            <file>file:/F:/My%20Stuff/TheTransition/Main%20Repository/thetransition/PHPServer/public_html/core/model/tableobjects/userbudsmembership.php</file>
+            <file>file:/F:/My%20Stuff/TheTransition/Main%20Repository/thetransition/PHPServer/public_html/core/common/Security.php</file>
+            <file>file:/F:/My%20Stuff/TheTransition/Main%20Repository/thetransition/PHPServer/public_html/core/model/tableobjects/userbuds.php</file>
             <file>file:/F:/My%20Stuff/TheTransition/Main%20Repository/thetransition/PHPServer/public_html/core/model/tableobjects/userphasesteps.php</file>
             <file>file:/F:/My%20Stuff/TheTransition/Main%20Repository/thetransition/PHPServer/public_html/core/common/TableRequest.php</file>
         </group>

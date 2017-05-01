@@ -60,4 +60,29 @@ class userbudsmembership extends TableObject{
     {
         $this->GetConnection()->execute("Delete from " . $this->GetPrimaryTable(). " where userid = ?", $parameters, false);
     }
+    
+    /*
+     * Validates that users can modify the record
+     * @param record - The record to validate
+     * @return true if the user has access to modify record otherwise throw error
+     */
+    public function ValidateRecord($record) {
+        $bIsValid = true;
+        try
+        {
+            parent::ValidateRecord($record);
+        } catch (Exception $ex) {
+            $bIsValid = false;
+        }
+        if(!bIsValid)
+        {
+            $userBud = new userbuds($this->GetConnection());
+            $userid = $userBud->GetUserForBud($record->userbudid);
+            if ($userid != Security::GetLoggedInUser())
+            {
+                throw new Exception("Security: The record you are modifying does not belong to you or you are not the owner of the bud.");
+            }
+        }
+        return true;
+    }
 }
