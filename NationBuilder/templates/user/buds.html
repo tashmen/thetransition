@@ -351,7 +351,7 @@
 												switch(value)
 												{
 													case 1://Pending Approval
-														record.set(this.dataIndex,3)
+														record.set(this.dataIndex,2)
 														break;
 													case 2://Accepted
 														record.set(this.dataIndex, 0);
@@ -410,7 +410,7 @@
 												record.save();
 											},
 											getClass: function(value, metadata, record, rowIndex, colIndex, store){
-												var cls = ' hidden-icon'
+												var cls = 'hidden-icon'
 												switch(value)
 												{
 													case 1://Pending Approval
@@ -429,7 +429,7 @@
 												}
 												return tooltip;
 											},
-											isDisabled: function(value, metadata, record, rowIndex, colIndex, store){
+											isDisabled: function(grid, rowindex, value, metadata, record){
 												var disable = true;
 												switch(value)
 												{
