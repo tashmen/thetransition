@@ -4,6 +4,8 @@ date_default_timezone_set('Etc/UTC');
 
 register_shutdown_function( "fatal_handler" );
 
+error_reporting(E_ALL & ~E_NOTICE);
+
 function fatal_handler()
 {
     $error = error_get_last();
