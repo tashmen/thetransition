@@ -2303,3 +2303,13 @@ p {
 .hidden{
   display: none;
 }
+
+#warningMessageMobile { display: none; }
+
+@media only screen and (orientation:portrait){
+  #warningMessageMobile { display:block; }
+}
+
+@media only screen and (orientation:landscape){
+  #warningMessageMobile { display:none; }
+}
