@@ -4,7 +4,7 @@ date_default_timezone_set('Etc/UTC');
 
 register_shutdown_function( "fatal_handler" );
 
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(0);
 
 function fatal_handler()
 {

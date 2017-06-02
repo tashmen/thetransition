@@ -608,7 +608,7 @@ Ext.define('Ext.ux.MapPanel', {
 		var store = this.mapStore;
 		var record = store.findRecord('id', marker.id);
 		var form = Ext.create("Ext.form.Panel", {
-			style: {
+			bodyStyle: {
 				'overflow-y': 'auto',
 				'max-height': '600px'
 			},
