@@ -339,6 +339,7 @@
 					dataIndex: 'phasestepid',
 					hideable: false,
 					sortable: false,
+					cellWrap: true,
 					renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
 						var store = Ext.StoreManager.get('phaseStepsStore');
 						var data = store.getById(value);
@@ -459,6 +460,7 @@
 					filter: {
 						type: 'string'
 					},
+					cellWrap: true,
 					width: .7
 				}
 			],
