@@ -415,6 +415,7 @@ CREATE TABLE `userspaces` (
     `location` varchar(4000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Where the space is located.',
     `latitude` double NOT NULL COMMENT 'The latitude based on the location from google maps.',
     `longitude` double NOT NULL COMMENT 'The longitude based on the location from google maps.',
+	`phonenumber` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Number to call to talk about the space.',
     PRIMARY KEY (`id`),
     KEY `userid` (`userid`),
     KEY `spaceid` (`spaceid`)
@@ -445,6 +446,7 @@ VIEW `userspacesview` AS
         `userspaces`.`location` AS `location`,
         `userspaces`.`latitude` AS `latitude`,
         `userspaces`.`longitude` AS `longitude`,
+		`userspaces`.`phonenumber` AS `phonenumber`,
         `spaces`.`icon` AS `icon`
     from
         ((`users`

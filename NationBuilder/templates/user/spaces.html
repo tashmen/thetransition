@@ -82,6 +82,9 @@
 					calculate: function(data){
 						return 'Space Owner: ' + data.fullname;
 					}
+				},
+				{
+					name: 'phonenumber'
 				}
 			],
 			proxy: 
@@ -218,6 +221,13 @@
 						name: 'description',
 						allowBlank: true,
 						maxLength: '2000'
+					},
+					{
+						xtype: 'textfield',
+						fieldLabel: 'Phone Number',
+						name: 'phonenumber',
+						allowBlank: true,
+						maxLength: '30'
 					},
 					{
 						xtype: 'textareafield',
