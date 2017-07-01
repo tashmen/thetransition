@@ -33,5 +33,7 @@ class Settings {
     
     //The cost for a membership in the Transition in US dollars
     public static $membershipCostInUSD = 5;
+    //Enable performance statistics such as time it took to execute
+    public static $logPerformanceStatistics = false;
 }
 ?>

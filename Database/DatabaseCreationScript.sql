@@ -305,6 +305,7 @@ CREATE TABLE IF NOT EXISTS `userphasesteps` (
   `creationdt` datetime NOT NULL COMMENT 'Date record was created',
   PRIMARY KEY (`userid`,`phasestepid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci COMMENT='Stores the users step completion';
+ALTER TABLE `thetrans_nb`.`userphasesteps` ADD INDEX `indexWithCompleted` (`userid`, `phasestepid`, `completed`);
 
 --
 -- Dumping data for table `userphasesteps`

@@ -79,8 +79,14 @@ require(Constants::$thirdPartyUtils . 'Oauth2/GrantType/AuthorizationCode.php');
 Logger::SetLogLevel(Settings::$loglevel);
 try
 {
+    if(Settings::$logPerformanceStatistics){
+        $time_start = microtime(true); 
+    }
     $handler = new BaseObjectHandler();
     $handler->handleRequest();
+    if(Settings::$logPerformanceStatistics){
+        Logger::LogData('timer.log', 'Total execution time in seconds: ' . (microtime(true) - $time_start));
+    }
 } catch (Exception $e) {
     Logger::LogError($e->getMessage(), Logger::fatalError);
     echo 'Fatal Error Occurred. Terminating.';
