@@ -475,18 +475,25 @@ inner join users u on u.id = ups.userid;
 
 DROP TABLE IF EXISTS `userbuds`;
 CREATE TABLE `userbuds` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `userid` int(11) NOT NULL COMMENT 'User who created the Bud',
   `name` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Name of the BUD',
   `description` varchar(4000) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Description of the BUD',
   `seedperson` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'The Seed Person for the BUD',
+  `seedpersoncontact` varchar(2000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Contact information for the seed person',
+  `url` varchar(2000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'URL of the buds site',
   `type` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'type of bud',
   `latitude` double DEFAULT NULL COMMENT 'latitude of the BUD',
   `longitude` double DEFAULT NULL COMMENT 'longitude of the BUD',
-  `location` varchar(4000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'location of the BUD',
-  PRIMARY KEY (`id`),
-  KEY `userid` (`userid`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Holds User created BUDs' AUTO_INCREMENT=1;
+  `location` varchar(4000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'location of the BUD'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Holds User created BUDs';
+
+--
+-- Indexes for table `userbuds`
+--
+ALTER TABLE `userbuds`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `userid` (`userid`);
 
 
 --

@@ -38,6 +38,12 @@
 					name: 'seedperson'
 				},
 				{
+					name: 'seedpersoncontact'
+				},
+				{
+					name: 'url'
+				},
+				{
 					name: 'status',
 					type: 'int',
 					defaultValue: 0
@@ -242,6 +248,25 @@
 									name: 'seedperson',
 									allowBlank: false,
 									maxLength: '500'
+								},
+								{
+									xtype: 'textarea',
+									fieldLabel: 'Contact Information',
+									name: 'seedpersoncontact',
+									allowBlank: true,
+									maxLength: '1000'
+								},
+								{
+									xtype: 'textfield',
+									fieldLabel: 'URL',
+									name: 'url',
+									allowBlank: true,
+									maxLength: '1000',
+									validator: function(value){
+										if(value == '' || Transition.global.urlValidator(value))
+											return true;
+										else return "URL is not in a proper format.  Be sure to start the url with 'http://'.";
+									}
 								},
 								{
 									xtype: 'multiselect',
@@ -543,6 +568,29 @@
 									maxLength: '500'
 								},
 								{
+									xtype: 'textarea',
+									fieldLabel: 'Contact Information',
+									name: 'seedpersoncontact',
+									allowBlank: true,
+									maxLength: '1000'
+								},
+								{
+									xtype: 'displayfield',
+									fieldLabel: 'URL',
+									name: 'url',
+									allowBlank: true,
+									renderer: function(value, display){
+										return '<a href="' + value + '" target="new" >' + value + '</a>';
+									}
+								},
+								{
+									xtype: 'textfield',
+									fieldLabel: 'Seed Person',
+									name: 'seedperson',
+									allowBlank: false,
+									maxLength: '500'
+								},
+								{
 									xtype: 'combo',
 									fieldLabel: 'Type',
 									name: 'type',
@@ -650,11 +698,12 @@
 			remoteSort: true,
 			remoteFilter: true,
 			filters: [
+			/*
 				{
 					property: "userid",
 					value: Transition.user.id,
 					operator: "ne"
-				},
+				},*/
 				{
 					property: "membershipuserid",
 					value: Transition.user.id,
@@ -744,7 +793,7 @@
 		});
 			
 		otherGrid = Ext.create('Ext.ux.FormGrid', {
-			title: 'Other Member\'s Buds',
+			title: 'All Buds',
 			store: otherBudsStore,
 			GetFormItems: GetOtherFormItems,
 			allowAdd: false,
