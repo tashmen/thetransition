@@ -477,7 +477,7 @@
 {% include "breadcrumbs" %}
 
 {% if page.headline.size > 0 %}
-<h2 class="headline">{{ page.headline }}</h2>
+<a href="#actionplan"><h2 class="headline">{{ page.headline }}</h2></a>
 {% endif %}
 
 <div id="content">
@@ -487,7 +487,9 @@
       {{ page.basic.content }}
     </div>
   </div>
-
+  <br>
+  <a name="actionplan"></a>
+  <br>
   <div id="ext"></div>
   
   <br>
