@@ -192,6 +192,114 @@ h.parentNode.insertBefore(s,h);})();
             </div>
 
             <div class="footer-content">
+				<style>
+					.listContainer {
+						margin: 0;
+						padding: 0;
+						list-style: none;
+						display: -ms-flexbox;
+						display: flex;
+						-ms-flex-wrap: wrap;
+						flex-wrap: wrap;
+						margin-right: -17px;
+						margin-left: -17px;
+					}
+
+					.listContainer>.listItem {
+						-ms-flex: 0 0 50%;
+						flex: 0 0 50%;
+						max-width: 50%;
+					}
+
+					.listItem {
+						-ms-flex: 0 0 100%;
+						flex: 0 0 100%;
+						max-width: 100%;
+						padding-right: 17px;
+						padding-left: 17px;
+						margin-bottom: 12px;
+					}
+
+					.linkItem {
+						display: block;
+						line-height: 32px;
+					}
+					
+					.linkItem i {
+						margin-bottom: -11px;
+						margin-right: 8px;
+					}
+
+					.sprite-facebook, .sprite-rss {
+						display: inline-block;
+						background-image: url(socialMedia.png);
+						width: 32px;
+						height: 32px;
+						background-size: 259px 217px;
+					}
+
+					.sprite-facebook {
+						background-position: 0 -185px;
+					}
+
+					.sprite-twitter {
+						display: inline-block;
+						background-image: url(socialMedia.png);
+						width: 32px;
+						height: 32px;
+						background-size: 259px 217px;
+					}
+
+					.sprite-twitter {
+						background-position: -192px -151px;
+					}
+
+					.sprite-youtube {
+						background-position: -192px -117px;
+					}
+
+
+					.sprite-youtube {
+						display: inline-block;
+						background-image: url(socialMedia.png);
+						width: 32px;
+						height: 32px;
+						background-size: 259px 217px;
+					}
+					
+					.sprite-pinterest {
+						background-position: -681px -33px;
+					}
+
+
+					.sprite-pinterest {
+						display: inline-block;
+						background-image: url(socialMedia.png);
+						width: 32px;
+						height: 32px;
+						background-size: 598% 500%;
+					}
+				</style>
+				<div style="float:left">
+					<ul class="listContainer">
+						<li class="listItem">
+							<a href="https://www.facebook.com/pages/The-Transition/1471682436412645" class="linkItem">
+								<i class="sprite-facebook"></i>Facebook</a>
+						</li>
+						<li class="listItem">
+							<a href="https://www.pinterest.com/thetransition13/?eq=the transition&etslf=1477 " class="linkItem">
+								<i class="sprite-pinterest"></i>Pinterest</a>
+						</li>
+						<li class="listItem">
+							<a href="https://twitter.com/BeAContributor" class="linkItem">
+								<i class="sprite-twitter"></i>Twitter</a>
+						</li>
+						<li class="listItem">
+							<a href="https://www.youtube.com/channel/UCup6JXBe3jiMLP4RwhlN3fg" class="linkItem">
+								<i class="sprite-youtube"></i>YouTube</a>
+						</li>
+					</ul>
+				</div>
 
               {% if site.footer_content.size > 0 %}
               <div class="footer-text">{{ site.footer_content }}</div>
