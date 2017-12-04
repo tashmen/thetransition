@@ -73,9 +73,7 @@ class userskills extends TableObject {
             $skills = new skills($this->GetConnection(), $this->GetRequest());
             $skillnames = $skills->GetSkillNames($skillids);
             $nb = new NationBuilder();
-            foreach ($skillnames as $skillname) {
-                $nb->DeleteTag($userid, $skillname);
-            }
+            $nb->DeleteTags($userid, $skillnames);
         }
     }
     

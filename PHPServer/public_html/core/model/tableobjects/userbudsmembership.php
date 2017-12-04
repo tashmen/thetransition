@@ -85,4 +85,57 @@ class userbudsmembership extends TableObject{
         }
         return true;
     }
+    
+    public function create() {
+        parent::create();
+        $records = $this->GetData();
+        $this->UpdateTags($records);
+    }
+    
+    public function update() {
+        parent::update();
+        $records = $this->GetData();
+        $this->UpdateTags($records);
+    }
+
+    public function delete() {
+        parent::delete();
+        $records = $this->GetData();
+        $this->UpdateTags($records, true);
+    }
+    
+    /**
+     * Updates the tags based on membership in a bud
+     * @param records - The records to push updates for
+     */
+    public function UpdateTags($records, $isFullDelete = false){
+        $userid = "";
+
+        $budidsbyuser;
+        $budidsbyuserdelete;
+        foreach ($records as $record) {
+            $userid = $record->userid;
+            if($record->status == 2 && !$isFullDelete)
+            {
+                $budidsbyuser[$userid][] = $record->userbudid;
+            }
+            else{
+                $budidsbyuserdelete[$userid][] = $record->userbudid;
+            }
+        }
+
+        $userbuds = new userbuds($this->GetConnection(), $this->GetRequest());
+        $nb = new NationBuilder();
+        
+        foreach ($budidsbyuser as $userid => $budids){
+            $budnames = $userbuds->GetBudNames($budids);
+            $nb->PushTags($userid, $budnames);
+        }
+        
+        foreach ($budidsbyuserdelete as $userid => $budids){
+            $budnames = $userbuds->GetBudNames($budids);
+            $nb->DeleteTags($userid, $budnames);
+        }
+    }
+    
 }

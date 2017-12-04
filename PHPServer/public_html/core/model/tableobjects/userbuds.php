@@ -81,4 +81,33 @@ class userbuds extends TableObject {
         $results = $this->GetConnection()->execute("Select userid from " . $this->GetPrimaryTable() . " where id = (?)", $parameters, true);
         return $results[0]['userid'];
     }
+    
+    /*
+     * Gather bud names based on bud ids.
+     * @param ids - The array of ids to retrieve the names for
+     * @return an array of skill names
+     */
+    public function GetBudNames($ids) {
+        $names = array();
+        if (count($ids) > 0) {
+            $statement = "SELECT * FROM userbuds where id in (";
+            $values = "";
+            $parameters = array();
+            foreach ($ids as $id) {
+                $parameters[] = $id;
+                if ($values != "") {
+                    $values = $values . ", ";
+                }
+                $values = $values . "?";
+            }
+            $statement = $statement . $values . ")";
+            $budnames = $this->GetConnection()->execute($statement, $parameters);
+            
+            foreach ($budnames as $budname) {
+                $names[] = $budname['name'];
+            }
+        }
+        return $names;
+    }
+    
 }

@@ -331,8 +331,31 @@ class NationBuilder {
             return;
         }
         //DELETE /api/v1/people/:id/taggings/:tag
-        $statement = '/api/v1/people/' . $id . '/taggings/' . $tag;
-        $this->postDelete($statement);
+        $statement = '/api/v1/people/' . $id . '/taggings/';
+        $tagData;
+        $tagData['tagging']['tag'][] = $tag;
+        $this->postRequest($statement, $tagData, 'DELETE');
+    }
+    
+    /**
+     * Deletes multiple tags at one time
+     * @param $id - the user id to delete tags from
+     * @param $tags - the tags to delete
+     */
+    public function DeleteTags($id, $tags)
+    {
+        if(!$this->IsEnabled())
+        {
+            return;
+        }
+        
+        $statement = '/api/v1/people/' . $id . '/taggings/';
+        $tagData;
+        foreach($tags as $tag)
+        {
+            $tagData['tagging']['tag'][] = $tag;
+        }
+        $this->postRequest($statement, $tagData, 'DELETE');
     }
 
     /*
