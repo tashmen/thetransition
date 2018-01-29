@@ -86,6 +86,144 @@ h.parentNode.insertBefore(s,h);})();
 
 </head>
 <body class="aware-theme v2-theme {{ page.page_class_name }} js">
+<style>
+#page-welcome {
+	font-family: Montserrat;
+	text-align: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 99999;
+	background: no-repeat scroll right 0 #00254b;
+	background-size: contain;
+	color: #ffffff;
+	width: 100%;
+	height: 100%;
+}
+.welcome-wrap {
+	display: table;
+	width: 100%;
+	height: 100%;
+}
+.welcome-inner {
+	display: table-cell;
+	width: 100%;
+	height: 100%;
+	vertical-align: middle;
+}
+.welcome-form {
+	position: relative;
+	width: 767px;
+	margin: 0 auto 30px;
+}
+.welcome-notnow {
+	margin-bottom: 30px;
+}
+#page-welcome a {
+	color: #ffffff;
+}
+.welcome-notnow a {
+	font-size: 18px;
+	line-height: 24px;
+	text-decoration: underline;
+}
+.text-orange {
+	color: #ff7900;
+}
+.welcome-inner h1 {
+	font-size: 140px;
+	line-height: 148px;
+}
+.welcome-inner h4 {
+	font-size: 40px;
+	line-height: 48px;
+}
+
+.welcome-form .submit-button {
+	background-color: #ff7900;
+}
+</style>
+<script type="text/javascript">
+
+function setCookie(cname, cvalue, opts) {
+    var d = new Date();
+    d.setTime(d.getTime() + (opts.expires*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+function hideWelcome() {
+  $('#page-welcome').hide();
+  setCookie("welcome", 1, {
+    expires: 7,
+    domain: '{{ site.url }}'
+  });
+  location.href = '/the_transition_featured_on_the_sustainable_living_podcast'
+  return true;
+}
+function hideWelcomeLong() {
+  $('#page-welcome').hide();
+  setCookie("welcome", 1, {
+    expires: 30 * 365,
+    domain: '{{ site.url }}'
+  });
+  return true;
+}
+
+$(document).ready(function () {
+	$('.welcome-notnow a, .welcome-arrow a').click(hideWelcome);
+	$('.submit-button.welcome').click(hideWelcomeLong);
+	
+	var cookieValue = getCookie('welcome');
+	if (cookieValue == 1) {
+	  $('#page-welcome').hide();
+	} else {
+		{% if request.logged_in? != true and request.sorta_logged_in? != true %}
+	  $('#page-welcome').show();
+	  {% endif %}
+	}
+});
+</script>
+<div id="page-welcome" style="display: none;">
+    <div class="welcome-wrap">
+        <div class="welcome-inner">
+            <div class="container">    
+                <h1>GET IT ALL</h1>
+                <h4>Access The Transition's Your Action Plan, personal development material, training, video content and our online and offline multual aid network – <span class="text-orange">FREE!</span></h4>
+                
+                <div class="welcome-form">
+					<div class="email-signup form block">
+						{% form_for signup %}   
+						{% hidden_field_tag "page_id", page.id %} <div class="form-errors">{% error_messages_for signup %}</div>
+
+						{% email_field "email", class:"text", placeholder:"Email address", required: "required" %}{% submit_tag "Join", class:"submit-button welcome" %}
+
+						<div class="form-submit"></div>
+						{% endform_for %}
+					</div>
+                </div>
+                <div class="welcome-notnow">
+                    <a href="#notnow">Not now. Take me to a podcast to learn more.</a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
   <div id="pattern" class="pattern">
     <div class="wrap" id="wrap">
       <div id="body" class="page-{{ request.template | replace: '_', '-' }}">
