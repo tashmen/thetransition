@@ -1,0 +1,231 @@
+<style type="text/css">
+        .multilineColumn .x-grid-cell-inner {
+            white-space:  normal !important;
+        }
+    </style>
+<script type="text/javascript">
+    Ext.onReady(function() {
+		Ext.QuickTips.init();
+		
+		Ext.define('userplanphase', {
+			extend: 'Ext.data.Model',
+			fields: [
+				{
+					name: 'planphaseid',
+				}, 
+				{
+					name: 'userid',
+					defaultValue: Transition.user.id
+				},
+				{
+					name: 'fullname'
+				},
+				{
+					name: 'phasename'
+				},
+				{
+					name: 'starteddate'
+				},
+				{
+					name: 'completiondate'
+				},
+				{
+					name: 'daydifference'
+				},
+				{
+					name: 'pointpersonfullname'
+				}
+			],
+			proxy: 
+			{
+				extraParams: {
+					resource: 'userplanphases'
+				},
+				reader: {
+					type: 'json',
+					rootProperty: 'userplanphases'
+				},
+				type: 'customphp'
+			}
+		});
+		
+		
+		function GetFormItems(record)
+		{
+			return [
+				{
+					xtype: 'container',
+					collapsible: false,
+					border: false,
+					layout: 'column',
+					items: [
+						{
+							xtype: 'fieldset',
+							collapsible: false,
+							border: false,
+							margin: '5',
+							columnWidth: 0.8,
+							defaults: {
+								labelAlign: 'right',
+								width: '100%'
+							},
+							items:[
+								{
+									xtype: 'textfield',
+									fieldLabel: 'User',
+									name: 'fullname'
+								},
+								{
+									xtype: 'textfield',
+									fieldLabel: 'Point Person',
+									name: 'pointpersonfullname'
+								},
+								{
+									xtype: 'textfield',
+									fieldLabel: 'Phase',
+									name: 'phasename'
+								},
+								{
+									xtype: 'textfield',
+									name: 'starteddate',
+									fieldLabel: 'Start Date'
+								},
+								{
+									xtype: 'textfield',
+									name: 'completiondate',
+									fieldLabel: 'Completion Date'
+								},
+								{
+									xtype: 'textfield',
+									name: 'daydifference',
+									fieldLabel: 'Completion Time (days)'
+								}
+							]
+						}
+					]
+				}
+			];
+		}
+		
+		var userPlanPhaseStore = Ext.create('Ext.data.Store', {
+			storeId:'userplanphase',
+			model: 'userplanphase',
+			remoteSort: true,
+			remoteFilter: true,
+			pageSize: 20
+		});
+		
+		var grid = Ext.create('Ext.ux.FormGrid', {
+			title: 'User Plan Phase Completion',
+			store: userPlanPhaseStore,
+			GetFormItems: GetFormItems,
+			allowAdd: false,
+			allowSave: false,
+			allowRemove: false,
+			columns: [
+				{
+					text: 'User',
+					dataIndex: 'fullname',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Point Person',
+					dataIndex: 'pointpersonfullname',
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Phase',  
+					dataIndex: 'phasename', 
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'string'
+					}
+				},
+				{
+					text: 'Start Date',  
+					dataIndex: 'starteddate', 
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'date'
+					}
+				},
+				{
+					text: 'Completion Date',  
+					dataIndex: 'completiondate', 
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'date'
+					}
+				},
+				{
+					text: 'Completion time (days)',  
+					dataIndex: 'daydifference', 
+					hideable: false,
+					sortable: true,
+					filter: {
+						type: 'number'
+					}
+				}
+			],
+			width: 'auto',
+			forceFit: true,
+			renderTo: 'grid',
+			plugins: ['gridfilters']
+		});
+		
+		userPlanPhaseStore.load();
+	});
+</script>
+{% include "breadcrumbs" %}
+
+{% if page.headline.size > 0 %}
+<h2 class="headline">{{ page.headline }}</h2>
+{% endif %}
+
+<div id="content">
+
+  <div id="intro" class="intro">
+    <div class="text-content">
+      {{ page.basic.content }}
+    </div>
+  </div>
+
+
+	<div id = "grid"></div>
+	<br>
+	<br>
+	<div id = "othergrid"></div>
+	
+	{% if page.tags_count > 0 %}
+  <div class="page-tags">
+    {% include "page_tags" with page %}
+  </div>
+  {% endif %}
+
+  {% if page.is_homepage? == true and site.page_tags contains "homepage" %}
+    {% tag "homepage" with "homepage_widget" %}
+  {% endif %}
+
+  <div class="like-page">
+    <strong>Do you like this page?</strong>
+    {% include "like_page" %}
+  </div>
+
+  {% if page.show_stream? %}
+  {% include "page_stream" %}
+  {% endif %}
+
+</div>
+
+{% include "donateLink" with "pay_what_you_want" %} 

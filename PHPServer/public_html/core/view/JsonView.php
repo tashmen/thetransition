@@ -22,5 +22,4 @@ Class JsonView implements iView
     }
 }
 
-?>
 

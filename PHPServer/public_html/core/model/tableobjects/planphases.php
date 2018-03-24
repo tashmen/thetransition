@@ -44,4 +44,18 @@ class planphases extends TableObject{
         Logger::LogError(print_r($resultSet, true), Logger::debug);
         return $resultSet[0]['number'];
     }
+    
+    /*
+     * Retrieves the phase id given a phase number
+     * @param $phasenumber - The number of the phase to return the id of
+     * @return The phase id
+     */
+    public function GetId($phasenumber)
+    {
+        $sql = "Select id from " . $this->GetPrimaryTable() . " where number = (?)";
+        $parameters[] = $phasenumber;
+        $resultSet = $this->GetConnection()->execute($sql, $parameters);
+        Logger::LogError(print_r($resultSet, true), Logger::debug);
+        return $resultSet[0]['id'];
+    }
 }

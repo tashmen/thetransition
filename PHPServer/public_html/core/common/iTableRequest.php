@@ -20,5 +20,3 @@ interface iTableRequest {
     public function HasPaging();
 }
 
-?>
-

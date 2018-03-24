@@ -60,4 +60,4 @@ class userreviews extends TableObject {
         $this->GetConnection()->execute("Delete from " . $this->GetPrimaryTable(). " where revieweeid = ?", $parameters, false);
     }
 }
-?>
+

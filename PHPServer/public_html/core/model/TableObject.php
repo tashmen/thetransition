@@ -15,6 +15,7 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
     //Note Private variables can't be accessed from sub-classes; use the protected/public methods instead
     private $connection;
     private $request;
+    private $data;
     private $properties;
     private $results;
     private $columnSchema;
@@ -46,6 +47,9 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
     public function __construct(iDatabase $con, iTableRequest $request = null) {
         $this->connection = $con;
         $this->request = $request;
+        if(!is_null($request)){
+            $this->data = $request->GetData();
+        }
         $this->properties = array();
         $this->columnSchema = $this->connection->GetColumnSchema($this->GetPrimaryTable());
         $columnSchema = $this->GetColumnSchema();
@@ -120,7 +124,11 @@ abstract class TableObject implements iExtOperations, iCRUDOperations {
     }
 
     protected function GetData() {
-        return $this->request->GetData();
+        return $this->data;
+    }
+    
+    protected function SetData($data){
+        $this->data = $data;
     }
 
     protected function AddProperty($name, $value) {

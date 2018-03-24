@@ -802,3 +802,37 @@ CREATE TABLE IF NOT EXISTS `userorgsignup` (
   `name` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'name of the organization'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Stores organizations signup information';
 
+
+
+
+
+CREATE TABLE `userplanphases` (
+  `planphaseid` int(11) NOT NULL,
+  `userid` int(11) NOT NULL,
+  `starteddate` datetime DEFAULT NULL,
+  `completiondate` datetime DEFAULT NULL,
+  `creationdt` datetime NOT NULL,
+  `lastupdated` datetime NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci COMMENT='Stores the time when the user started and completed a phase.';
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `userplanphase`
+--
+ALTER TABLE `userplanphases`
+  ADD PRIMARY KEY (`planphaseid`,`userid`);
+  
+  --
+-- Structure for view `userplanphasesview`
+--
+Drop view if exists userplanphasesview;
+CREATE VIEW userplanphasesview AS SELECT upp.*, timestampdiff(DAY, upp.starteddate, upp.completiondate) as daydifference , u.fullname, u2.fullname as pointpersonfullname, pp.name as phasename, pp.number as planphasenumber
+FROM 
+ userplanphases upp
+inner JOIN users u ON  u.id = upp.userid
+inner join users u2 on u.pointpersonid = u2.id
+inner join planphases pp on pp.id = upp.planphaseid; 
+

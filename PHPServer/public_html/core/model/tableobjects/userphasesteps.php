@@ -174,6 +174,14 @@ class userphasesteps extends TableObject{
         $planphase = new planphases($this->GetConnection());
         $lastNumber = $planphase->GetNumber($phaseid);
         $number = $this->GetCurrentPhaseNumber($userid);
+        $userplanphase = new userplanphases($this->GetConnection());
+        
+        
+        //User completed some step in this phase; so they should 'begin' the phase if they haven't already.
+        if($complete == 1)
+        {
+            $userplanphase->StartPhase($phaseid, $userid);
+        }
         
         //Assume that if no number exists that the user completed all of the steps
         if($number == '')
@@ -205,6 +213,8 @@ class userphasesteps extends TableObject{
             }
             Logger::LogError($tags . $number, Logger::debug);
             $nb->PushTags($userid, $tags);
+            //User completed the phase
+            $userplanphase->EndPhase($lastNumber, $userid);
         }
     }
     

@@ -82,5 +82,4 @@ class usersuggestionscomments extends TableObject {
         $this->GetConnection()->execute("Delete from " . $this->GetPrimaryTable(). " where usersuggestionid in (select id from usersuggestions where userid = ?)", $parameters, false);
     }
 }
-?>
 

@@ -36,4 +36,3 @@ class Settings {
     //Enable performance statistics such as time it took to execute
     public static $logPerformanceStatistics = false;
 }
-?>

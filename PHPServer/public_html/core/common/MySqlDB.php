@@ -131,5 +131,3 @@ class MySqlDB implements iDatabase{
     }
 
 }
-?>
-

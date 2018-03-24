@@ -20,5 +20,4 @@ interface iExtOperations{
     //array to put together all of the arrays from the above functions
     function GetExtData();
 }
-?>
 

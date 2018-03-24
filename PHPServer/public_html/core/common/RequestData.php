@@ -17,9 +17,10 @@ Class RequestData
                 //In php5.5 strip slashes no longer needed
                 if (version_compare(PHP_VERSION, '5.3.0') < 0)
                 {
-                    $json = stripslashes($_REQUEST[$varName]);
+                    $json = stripslashes($_REQUEST[$varName]);   
                 }
                 else $json = $_REQUEST[$varName];
+                
                 $value = json_decode($json);
             }
             else{
@@ -30,4 +31,3 @@ Class RequestData
     }
 }
 
-?>

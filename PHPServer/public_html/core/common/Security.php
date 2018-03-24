@@ -24,11 +24,10 @@ class Security {
         $select = "Select count(*) from users ";
         $where = "where id = (?) ";
         $parameters[] = self::$userid;
-        if(version_compare(PHP_VERSION, '5.3.0') >= 0)
-        {
-            $where = $where . "and secretkey = (?)";
-            $parameters[] = self::$secretKey;
-        }
+
+        $where = $where . "and secretkey = (?)";
+        $parameters[] = self::$secretKey;
+        
         
         $statement = $select . $where;
         $counter = 0;

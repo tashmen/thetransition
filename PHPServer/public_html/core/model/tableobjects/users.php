@@ -209,4 +209,4 @@ class users extends TableObject {
         $this->GetConnection()->execute("Delete from " . $this->GetPrimaryTable(). " where id = ?", $parameters, false);
     }
 }
-?>
+

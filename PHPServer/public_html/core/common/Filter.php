@@ -15,6 +15,16 @@ class Filter implements iFilter {
         $this->value = $filter->value;
         $this->operator = $this->ConvertOperator($filter->operator);
     }
+    
+    public static function CreateFilter($column, $value, $operator)
+    {
+        $filter = new stdClass();
+        $filter->property = $column;
+        $filter->value = $value;
+        $filter->operator = $operator;
+        $filter = new Filter($filter);
+        return $filter;
+    }
 
     public function GetColumn() {
         return $this->column;

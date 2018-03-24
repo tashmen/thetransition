@@ -59,5 +59,5 @@ class userspaces extends TableObject {
         $this->GetConnection()->execute("Delete from " . $this->GetPrimaryTable(). " where userid = ?", $parameters, false);
     }
 }
-?>
+
 
