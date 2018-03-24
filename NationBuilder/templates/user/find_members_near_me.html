@@ -11,9 +11,11 @@
 		};
 		var establishedSuffix = ' (Established)';
 		var developmentSuffix = ' (In Development)';
+		var certifiedSuffix = ' (Certified)';
 		var imageType = '.png';
 		var imageEstablishedSuffix = 'established';
 		var imageDevelopmentSuffix = 'development';
+		var imageCertifiedSuffix = 'certified';
 		
 		var tagToImageMapping = { 
 			key: []
@@ -23,6 +25,7 @@
 		{
 			tagToImageMapping.key.push({name: key + developmentSuffix, icon: cooperativeType[key] + imageDevelopmentSuffix + imageType});
 			tagToImageMapping.key.push({name: key + establishedSuffix, icon: cooperativeType[key] + imageEstablishedSuffix + imageType});
+			tagToImageMapping.key.push({name: key + certifiedSuffix, icon: cooperativeType[key] + imageCertifiedSuffix + imageType});
 		}
 		
 		Ext.define('Key', {
