@@ -169,7 +169,7 @@ function hideWelcome() {
   $('#page-welcome').hide();
   setCookie("welcome", 1, {
     expires: 7,
-    domain: '{{ site.url }}'
+    domain: 'thetransition.org'
   });
   location.href = '/the_transition_featured_on_the_sustainable_living_podcast'
   return true;
@@ -178,13 +178,14 @@ function hideWelcomeLong() {
   $('#page-welcome').hide();
   setCookie("welcome", 1, {
     expires: 30 * 365,
-    domain: '{{ site.url }}'
+    domain: 'thetransition.org'
   });
   return true;
 }
 
 $(document).ready(function () {
-	$('.welcome-notnow a, .welcome-arrow a').click(hideWelcome);
+	$('#podcastlink').click(hideWelcome);
+  $('#neverlink').click(hideWelcomeLong);
 	$('.submit-button.welcome').click(hideWelcomeLong);
 	
 	var cookieValue = getCookie('welcome');
@@ -216,7 +217,9 @@ $(document).ready(function () {
 					</div>
                 </div>
                 <div class="welcome-notnow">
-                    <a href="#notnow">Not now. Take me to a podcast to learn more.</a>
+                    <a id="podcastlink" href="#notnow">Not now. Take me to a podcast to learn more.</a>
+                    <br>
+                  <a id="neverlink" href="#never">Not now.  Just close the window.</a>
                 </div>
                 
             </div>
@@ -229,12 +232,6 @@ $(document).ready(function () {
       <div id="body" class="page-{{ request.template | replace: '_', '-' }}">
 
         <div class="header-container clearfix {% if site.has_background_image? %}no-background{% endif %}">
-          <div style="text-align:center" class="hidden">
-        The Transition Team will be away at the Twin Oaks Communities Conference from Aug. 30-Sept 14th and will be unable to reply to any inquiries until Sept 16th at the earliest. We appreciate your patience.
-        </div>
-          <div style="text-align:center" class="hidden">
-            Attention: The Help Desk will be closed from 2/28/17-3/13/17. Review sessions can resume scheduling after 3/13/17 as well. Thank you for your understanding. Keep up the good work on <a style="color:lightgreen" href="/your_action_plan">Your Action Plan</a>!
-          </div>
           
           <div style="text-align:center" id="warningMessageMobile">
              Please turn your device sideways into landscape mode for best usage of this site.
