@@ -17,7 +17,6 @@
     
     <div class="form-wrap">
       <div class="form">
-        
           {% form_for suggestion_page %}
           
           <div class="form-errors">{% error_messages_for suggestion_page %}</div>
@@ -25,6 +24,8 @@
           <div id="suggestion-page-page-headline-input" class="suggestion-headline">
             {% text_field "page_headline", class:"text", placeholder:"Add your suggestion", required: "required" %}
           </div>
+		  
+		  
           
           <div id="suggestion-page-form-expanded" class="suggestion-page-form-expanded">
             <div class="padtopmore">
@@ -43,7 +44,6 @@
           </div>
           
           {% endform_for %}
-
       </div>
       {% unless request.logged_in? %}
       <div class="user-session-form-container hide">
@@ -59,13 +59,159 @@
       {% capture alphabetical_url %}/{{ page.slug }}/alphabetical{% endcapture %}
       <li class="{% if request.url_path == alphabetical_url %}current{% endif %}"><a href="{{ alphabetical_url }}">Alphabetical</a></li>
       {% for tag_name in page.suggestion_box.tag_names %}
-      {% capture tag_url %}/{{ page.slug }}/tags/{{ tag_name }}{% endcapture %}			  
+      {% capture tag_url %}/{{ page.slug }}/tags/{{ tag_name | replace: ' ','%20'}}{% endcapture %}			  
       <li class="{% if request.url_path == tag_url %}current{% endif %}"><a href="{{ tag_url }}">{{ tag_name | capitalize }}</a></li>
       {% endfor %}
     </ul>
   </div>
+  
+  <div>
+  <style>
+		ul.issue-statuses {
+			list-style: none;
+			padding: 0;
+		}
 
-  <div class="padtop suggestion-box content-list" id="suggestion-box-page-{{ page.id }}">
+		ul.issue-statuses li {
+			border-left: none !important;
+			padding: 5px 0 5px 40px;
+			position: relative;
+		}
+
+		ul.issue-statuses li {
+			padding: 5px 0 5px 17px;
+			margin: 10px 0 0 0;
+			font-size: 22px;
+		}
+		
+		ul.issue-statuses span{
+			color: #000;
+			font-size: 14px;
+		}
+		
+		.page-excerpt .left-border {
+			padding: 5px 20px 15px;
+		}
+		
+		
+		ul.issue-statuses .completed {
+			color: #899E2A;
+		}
+		.page-excerpt.completed {
+			border: 5px solid #899E2A;
+		}
+		.page-excerpt.completed .left-border {
+			border-left: 3px solid #899E2A;
+		}
+		
+		ul.issue-statuses .started {
+			color: #1498BE;
+		}
+		.page-excerpt.started {
+			border: 5px solid #1498BE;
+		}
+		.page-excerpt.started .left-border {
+			border-left: 3px solid #1498BE;
+		}
+		
+		ul.issue-statuses .planned {
+			color: #60BAD5;
+		}
+		.page-excerpt.planned {
+			border: 5px solid #60BAD5;
+		}
+		.page-excerpt.planned .left-border {
+			border-left: 3px solid #60BAD5;
+		}
+		
+		ul.issue-statuses .considering {
+			color: #D4AD50;
+		}
+		.page-excerpt.considering {
+			border: 5px solid #D4AD50;
+		}
+		.page-excerpt.considering .left-border {
+			border-left: 3px solid #D4AD50;
+		}
+		
+		ul.issue-statuses .submitted {
+			color: #bababa;
+		}
+		.page-excerpt.submitted {
+			border: 5px solid #bababa;
+		}
+		.page-excerpt.submitted .left-border {
+			border-left: 3px solid #bababa;
+		}
+		
+		ul.issue-statuses .incomplete {
+			color: #790412;
+		}
+		.page-excerpt.incomplete {
+			border: 5px solid #790412;
+		}
+		.page-excerpt.incomplete .left-border {
+			border-left: 3px solid #790412;
+		}
+		
+		ul.issue-statuses .duplicate {
+			color: #D0021B;
+		}
+		.page-excerpt.duplicate {
+			border: 5px solid #D0021B;
+		}
+		.page-excerpt.duplicate .left-border {
+			border-left: 3px solid #D0021B;
+		}
+		
+		ul.issue-statuses .notplanned {
+			color: #000;
+		}
+		.page-excerpt.notplanned {
+			border: 5px solid #000;
+		}
+		.page-excerpt.notplanned .left-border {
+			border-left: 3px solid #000;
+		}
+		
+
+		
+		
+		
+		
+	  </style>
+	<div style="padding-right: 20px; float:left; width: 20%;">
+		<div class="issues-response-key">
+			<h3>Status key</h3>
+			<ul class="issue-statuses">
+				<li class="completed">
+					<span><b>Completed:</b> The issue has been resolved and will be deleted typically within a week's time</span> 
+				</li>
+				<li class="started">
+					<span><b>Started:</b> The issue is currently being worked on</span>
+				</li>
+				<li class="planned">
+					<span><b>Planned:</b> We are planning to work on the issue and have a timeline</span>
+				</li>
+				<li class="considering">
+					<span><b>Considering:</b> We might work on the issue but do not have a timeline</span>
+				</li>
+				<li class="submitted">
+					<span><b>Submitted:</b> We have received your issue report</span>
+				</li>
+				<li class="incomplete">
+					<span><b>Incomplete:</b> The issue needs more info before it can be done</span>
+				</li>
+				<li class="duplicate">
+					<span><b>Duplicate:</b> The issue is a duplicate of another issue</span>
+				</li>
+				<li class="notplanned">
+					<span><b>Not planned:</b> We are not planning to work on the issue</span>
+				</li>
+			</ul>
+		</div>
+	</div>
+  <div style="float: right; width: 80%;" class="padtop suggestion-box content-list" id="suggestion-box-page-{{ page.id }}">
 
     {% if request.url_path == page.url or request.url_path == '/' + page.slug %} <!-- show most recent -->
     {% assign suggestions = page.suggestion_box.most_recent_suggestions %}
@@ -76,57 +222,59 @@
     {% endif %}
 
     {% for post in suggestions %}
-    <div class="page-excerpt" id="suggestion-page-{{ post.id }}">
+    {% assign count = post.public_activities_count | minus:1 %}
+    <div class="page-excerpt {{ post.suggestion.answer_type | replace: ' ','' }}" id="suggestion-page-{{ post.id }}">
+	  <div class="left-border">
+		  <h3><a href="{{ post.url }}">{{ post.headline }}</a></h3>
 
-      <h3><a href="{{ post.url }}">{{ post.headline }}</a></h3>
+		  <div class="byline">
+			Posted by {{ post.author.published_name_linked }} &middot; {{ post.published_at | date: '%B %d, %Y %l:%M %p' }}
+			{% if post.show_stream? %}
+			{% if count > 0 %}
+			&middot; <a href="{{ post.url }}#reactions">{{ count }} reaction{% if count > 1 %}s{% endif %}</a>
+			{% endif %}
+			{% endif %}
+		  </div>
 
-      <div class="byline">
-        Posted by {{ post.author.published_name_linked }} &middot; {{ post.published_at | date: '%B %d, %Y %l:%M %p' }}
-        {% if post.show_stream? %}
-        {% if post.public_activities_count > 0 %}
-        &middot; <a href="{{ post.url }}#reactions">{{ post.public_activities_count }} reaction{% if post.public_activities_count > 1 %}s{% endif %}</a>
-        {% endif %}
-        {% endif %}
-      </div>
+		  <div class="excerpt truncate-500" data-truncate="500">
+			{% if post.suggestion.content.size > 0 %}
+			{{ post.suggestion.content }}
+			{% else %}
+			<p>
+			  {% endif %}
+			</div>
 
-      <div class="excerpt truncate-500" data-truncate="500">
-        {% if post.suggestion.content.size > 0 %}
-        {{ post.suggestion.content }}
-        {% else %}
-        <p>
-          {% endif %}
-        </div>
+		  {% if post.suggestion.is_answered? %}
+		  <div class="answer clearfix">
+			
+				<div>
+				  <strong>
+					Official response from {{ post.suggestion.answer_author.published_name_linked }}
+					{% if post.suggestion.is_answer_type? %}
+					{{ post.suggestion.answer_type_html }}
+					{% for answer in post.suggestion.answer_type_ids %}
+					{{ answer }}
+					{% endfor %}
+					{% endif %}
+				  </strong>
+				</div>
+				{% if post.suggestion.answer.size > 0 %}
+				<div class="row-fluid padbottommore">
+				  <div class="span12"><i class="icon-up-dir" /></i><div class="answer-wrap truncate-500" data-truncate="500">{{ post.suggestion.answer }}</div></div>
+				</div>
+				{% endif %}
+			
+		  </div>
+		  {% endif %}
 
-      {% if post.suggestion.is_answered? %}
-      <div class="answer clearfix">
-        <div>
-          <strong>
-            Official response from {{ post.suggestion.answer_author.published_name_linked }}
-            {% if post.suggestion.is_answer_type? %}
-            {{ post.suggestion.answer_type_html }}
-			{{ post.suggestion.answer_type }}
-			{% for answer in post.suggestion.answer_type_ids %}
-			{{ answer }}
-			{% endfor %}
-            {% endif %}
-          </strong>
-        </div>
-        {% if post.suggestion.answer.size > 0 %}
-        <div class="row-fluid padbottommore">
-          <div class="span12"><i class="icon-up-dir" /></i><div class="answer-wrap truncate-500" data-truncate="500">{{ post.suggestion.answer }}</div></div>
-        </div>
-        {% endif %}
-      </div>
-      {% endif %}
+		  {% if count > 0 %}
+		  <a href="{{ post.url }}#addreaction" class="button small-button">{{ count }} reaction{% if count > 1 %}s{% endif %}</a>
+		  {% else %}
+		  <a href="{{ post.url }}#addreaction" class="button small-button">Add your reaction</a>
+		  {% endif %}
 
-      {% if post.public_activities_count > 0 %}
-      <a href="{{ post.url }}#addreaction" class="button small-button">{{ post.public_activities_count }} reaction{% if post.public_activities_count > 1 %}s{% endif %}</a>
-      {% else %}
-      <a href="{{ post.url }}#addreaction" class="button small-button">Add your reaction</a>
-      {% endif %}
-
-      {{ "Share" | share_button page_id: post.id }}
-
+		  {{ "Share" | share_button page_id: post.id }}
+	  </div>
     </div>
 
     <hr />
@@ -143,6 +291,8 @@
 
   </div>
 
+  </div>
+  
   <div class="like-page">
     <strong>Like this page to spread the word</strong>
     {% include "like_page" %}
