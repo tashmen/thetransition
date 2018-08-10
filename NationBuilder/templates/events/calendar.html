@@ -225,7 +225,7 @@
 					var endZoneVal = parseInt(endSplit[1]) * -1;
 					
 					event.start = new Date(startSplit[0]);
-					event.end = new Date(startSplit[0]);
+					event.end = new Date(endSplit[0]);
 					
 					//Google chrome and possibly other browsers will automatically assume the times are in UTC instead of local so we don't need to take out the UTC offset again in this case.
 					var startHour = startSplit[0].split('T')[1].split(':')[0];
