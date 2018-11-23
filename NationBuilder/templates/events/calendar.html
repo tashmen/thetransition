@@ -70,11 +70,11 @@
 			 {% for tag in child.tags %}
 				{% if tag.name == "approved" %}
 				allEvents.push({
-				  title: '{{ child.headline | escape }}',
+				  title: "{{ child.headline }}",
 				  start: '{{child.event.local_start_at | date:'%FT%TZ%z'}}',//'{{child.event.local_start_at | date:'%FT%TZ%z' }}',
 				  end: '{{child.event.local_end_at | date:'%FT%TZ%z'}}',
 				  allDay: false,
-				  url: '{{child.url | escape}}',
+				  url: "{{child.url }}",
 				  tags: '{% for tag in child.tags %}{% if forloop.index0 != 0%},{% endif %}{{tag.name}}{% endfor %}',
 				  country: 'child.event.venue_address.country_code'
 				});
