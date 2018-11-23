@@ -62,13 +62,13 @@
 		<script>
 		  
 			//All tags must be in this list to be included in the filter.  This is the maximum set of event types based on tags.  This will be useful if the tags are used for something other than just Event Type.  As items are adjusted, the colors associated with each one needs to be updated.
-			var EventTags = ['Movie Screening', 'BUD Meeting', 'Intentional Community Visiting Day', 'Our Holidays', 'Flash Mob Work Day', 'Friends Not Foes Feast', 'Farmer\'s Market', 'Community Outreach', 'Conference', 'Festival', 'Fundraiser', 'Birth', 'Death', 'Webinar/Teleseminar', 'Training/Workshop', 'Workshop/Class', 'Phase Mastermind'];
-			var EventColors = ['#d13737', '#97bf0d', '#4d73b2', '#8f0a76', '#edad00', '#eaf26d', '#a96600', '#e17caf', '#7cc0e1', '#ff9900', '#8df4a3', '#c24bc3', '#000', '#7f57ce', '#000080', '#f49242', '#662e9b'];
+			var EventTags = ['Movie Screening', 'BUD Meeting', 'Intentional Community Visiting Day', 'Our Holidays', 'Flash Mob Work Day', 'Friends Not Foes Feast', 'Farmer\'s Market', 'Community Outreach', 'Conference', 'Festival', 'Fundraiser', 'Birth', 'Death', 'Webinar/Teleseminar', 'Training/Workshop', 'Workshop/Class', 'Phase Mastermind', 'Party', 'Retreat', 'Camp'];
+			var EventColors = ['#d13737', '#97bf0d', '#4d73b2', '#8f0a76', '#edad00', '#eaf26d', '#a96600', '#e17caf', '#7cc0e1', '#ff9900', '#8df4a3', '#c24bc3', '#000', '#7f57ce', '#000080', '#f49242', '#662e9b', '#cc66cc', '#cca300', '#80dfff'];
 			
 			var allEvents = [];
 			 {% for child in page.children %}
 			 {% for tag in child.tags %}
-       {% if tag.name == "approved" %}
+				{% if tag.name == "approved" %}
 				allEvents.push({
 				  title: '{{ child.headline | escape }}',
 				  start: '{{child.event.local_start_at | date:'%FT%TZ%z'}}',//'{{child.event.local_start_at | date:'%FT%TZ%z' }}',
@@ -78,8 +78,8 @@
 				  tags: '{% for tag in child.tags %}{% if forloop.index0 != 0%},{% endif %}{{tag.name}}{% endfor %}',
 				  country: 'child.event.venue_address.country_code'
 				});
-        {% endif %}
-		{% endfor %}
+				{% endif %}
+			{% endfor %}
 			{% endfor %}
 			
 			//Testing code for setting up country filter
